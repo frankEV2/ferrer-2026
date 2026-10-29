@@ -151,6 +151,9 @@ main{padding:16px 16px 110px;max-width:900px;margin:0 auto;padding-left:calc(16p
 .sbody.from-l{animation:slideL .38s var(--ease) both}
 .sbody.from-b{animation:slideB .38s var(--ease) both}
 .sbody.from-t{animation:slideT .38s var(--ease) both}
+.swhint{position:absolute;left:50%;transform:translateX(-50%) translateY(8px);bottom:calc(14px + env(safe-area-inset-bottom));background:var(--moss);color:var(--paper);font-size:.82rem;font-weight:600;padding:9px 16px;border-radius:99px;box-shadow:0 8px 20px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:5;white-space:nowrap}
+.swhint[data-p="t"]{bottom:auto;top:64px}
+.swhint.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ---- detail ---- */
 .hero{width:100%;aspect-ratio:3/4;max-height:52vh;background:var(--paper-2);border-radius:var(--r);overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:var(--shadow)}
@@ -1765,28 +1768,52 @@ function refreshApp(){
 (function(){
   let t0 = null;
   const SKIP = 'iframe,video,audio,input,textarea,select,.gstrip,.chips';
+  const TH = 70;                       // px de "sobreeiximent" per canviar
+  const hint = document.createElement('div');
+  hint.className = 'swhint'; hint.setAttribute('aria-hidden','true');
+  sheet.appendChild(hint);
+  function maxScroll(){ return Math.max(0, sbody.scrollHeight - sbody.clientHeight); }
+  // quant ha avançat el dit més enllà del que ha pogut desplaçar el contingut
+  function over(dy){
+    const scrolled = sbody.scrollTop - t0.st;          // + = contingut cap avall
+    return -dy - scrolled;                              // + = el dit ha anat amunt de més
+  }
+  function hideHint(){ hint.classList.remove('on'); }
   sbody.addEventListener('touchstart', e=>{
-    t0 = null;
+    t0 = null; hideHint();
     if(mode !== 'view' || current == null || e.touches.length !== 1) return;
     if(e.target.closest && e.target.closest(SKIP)) return;
     const tt = e.touches[0];
-    t0 = { x:tt.clientX, y:tt.clientY, t:Date.now(),
-           top: sbody.scrollTop <= 1,
-           bottom: sbody.scrollTop + sbody.clientHeight >= sbody.scrollHeight - 2 };
+    t0 = { x:tt.clientX, y:tt.clientY, t:Date.now(), st:sbody.scrollTop };
+  }, {passive:true});
+  sbody.addEventListener('touchmove', e=>{
+    if(!t0 || !e.touches.length) return;
+    const dy = e.touches[0].clientY - t0.y, dx = e.touches[0].clientX - t0.x;
+    if(Math.abs(dy) < 20 || Math.abs(dy) < Math.abs(dx)*1.4){ hideHint(); return; }
+    const idx = visibleList.findIndex(x=>x.n===current);
+    const o = over(dy);
+    const atB = sbody.scrollTop >= maxScroll() - 2, atT = sbody.scrollTop <= 1;
+    if(dy < 0 && atB && idx >= 0 && idx < visibleList.length-1 && o > 24){
+      hint.textContent = o > TH ? '↑ Deixa anar: fitxa següent' : '↑ Segueix lliscant';
+      hint.dataset.p = 'b'; hint.classList.add('on');
+    }else if(dy > 0 && atT && idx > 0 && -o > 24 && (sbody.scrollTop - t0.st) <= 0){
+      hint.textContent = (-o) > TH ? '↓ Deixa anar: fitxa anterior' : '↓ Segueix lliscant';
+      hint.dataset.p = 't'; hint.classList.add('on');
+    }else hideHint();
   }, {passive:true});
   sbody.addEventListener('touchend', e=>{
-    const s0 = t0; t0 = null;
+    const s0 = t0; t0 = null; hideHint();
     if(!s0 || mode !== 'view' || current == null || !e.changedTouches.length) return;
     const tt = e.changedTouches[0], dx = tt.clientX - s0.x, dy = tt.clientY - s0.y;
-    if(Date.now() - s0.t > 800 || Math.abs(dy) < 70 || Math.abs(dy) < Math.abs(dx)*1.6) return;
-    const atTop = s0.top && sbody.scrollTop <= 1;
-    const atBottom = s0.bottom && sbody.scrollTop + sbody.clientHeight >= sbody.scrollHeight - 2;
+    if(Date.now() - s0.t > 1500 || Math.abs(dy) < TH || Math.abs(dy) < Math.abs(dx)*1.4) return;
+    t0 = s0; const o = over(dy); t0 = null;
     const idx = visibleList.findIndex(x=>x.n===current);
     if(idx < 0) return;
-    if(dy < 0 && atBottom && idx < visibleList.length-1){ swipeDir = 'from-b'; open(visibleList[idx+1].n,'view'); }
-    else if(dy > 0 && atTop && idx > 0){ swipeDir = 'from-t'; open(visibleList[idx-1].n,'view'); }
+    const atB = sbody.scrollTop >= maxScroll() - 2, atT = sbody.scrollTop <= 1;
+    if(dy < 0 && atB && o > TH && idx < visibleList.length-1){ swipeDir = 'from-b'; open(visibleList[idx+1].n,'view'); }
+    else if(dy > 0 && atT && -o > TH && idx > 0){ swipeDir = 'from-t'; open(visibleList[idx-1].n,'view'); }
   }, {passive:true});
-  sbody.addEventListener('touchcancel', ()=>{ t0 = null; }, {passive:true});
+  sbody.addEventListener('touchcancel', ()=>{ t0 = null; hideHint(); }, {passive:true});
 })();
 
 /* ---------- PWA ---------- */
