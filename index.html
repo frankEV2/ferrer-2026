@@ -59,6 +59,8 @@ button{touch-action:manipulation}
 @keyframes pop{0%{opacity:0;transform:scale(.4) rotate(-90deg)}70%{transform:scale(1.08) rotate(6deg)}100%{opacity:1;transform:none}}
 @keyframes slideR{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
 @keyframes slideL{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
+@keyframes slideB{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes slideT{from{opacity:0;transform:translateY(-40px)}to{opacity:1;transform:none}}
 @keyframes heroin{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:none}}
 
 /* ---- header (glass) ---- */
@@ -147,6 +149,8 @@ main{padding:16px 16px 110px;max-width:900px;margin:0 auto;padding-left:calc(16p
 .sbody.stag>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--k,0)*55ms + 80ms)}
 .sbody.from-r{animation:slideR .38s var(--ease) both}
 .sbody.from-l{animation:slideL .38s var(--ease) both}
+.sbody.from-b{animation:slideB .38s var(--ease) both}
+.sbody.from-t{animation:slideT .38s var(--ease) both}
 
 /* ---- detail ---- */
 .hero{width:100%;aspect-ratio:3/4;max-height:52vh;background:var(--paper-2);border-radius:var(--r);overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:var(--shadow)}
@@ -689,7 +693,7 @@ let userName = '';
 let loaded = false;
 let unsubPieces = null, unsubHist = null;
 let visibleList = [];
-let current = null, mode = 'view';
+let current = null, mode = 'view', swipeDir = null;
 let animateGrid = true;
 let selMode = false;
 let serieSel = '';
@@ -1122,7 +1126,7 @@ function setHead(title, showEdit){
   editBtn.style.visibility = showEdit ? 'visible' : 'hidden';
 }
 function stagger(dir){
-  sbody.classList.remove('from-r','from-l','stag');
+  sbody.classList.remove('from-r','from-l','from-b','from-t','stag');
   void sbody.offsetWidth;
   if(dir){ sbody.classList.add(dir); }
   else{
@@ -1148,7 +1152,8 @@ function open(n, m){
   if(m === 'edit' && role !== 'editor') return;
   const wasOpen = sheet.classList.contains('on'), prevCur = current, prevMode = mode;
   let dir = null;
-  if(wasOpen && prevMode==='view' && m==='view' && prevCur!=null && prevCur!==n) dir = n>prevCur ? 'from-r' : 'from-l';
+  if(wasOpen && prevMode==='view' && m==='view' && prevCur!=null && prevCur!==n) dir = swipeDir || (n>prevCur ? 'from-r' : 'from-l');
+  swipeDir = null;
   if(unsubHist){ unsubHist(); unsubHist = null; }
   current = n; mode = m;
   if(m==='view'){
@@ -1754,6 +1759,34 @@ function refreshApp(){
   }
   document.addEventListener('touchend', end);
   document.addEventListener('touchcancel', end);
+})();
+
+/* ---------- lliscar amunt/avall per canviar de fitxa ---------- */
+(function(){
+  let t0 = null;
+  const SKIP = 'iframe,video,audio,input,textarea,select,.gstrip,.chips';
+  sbody.addEventListener('touchstart', e=>{
+    t0 = null;
+    if(mode !== 'view' || current == null || e.touches.length !== 1) return;
+    if(e.target.closest && e.target.closest(SKIP)) return;
+    const tt = e.touches[0];
+    t0 = { x:tt.clientX, y:tt.clientY, t:Date.now(),
+           top: sbody.scrollTop <= 1,
+           bottom: sbody.scrollTop + sbody.clientHeight >= sbody.scrollHeight - 2 };
+  }, {passive:true});
+  sbody.addEventListener('touchend', e=>{
+    const s0 = t0; t0 = null;
+    if(!s0 || mode !== 'view' || current == null || !e.changedTouches.length) return;
+    const tt = e.changedTouches[0], dx = tt.clientX - s0.x, dy = tt.clientY - s0.y;
+    if(Date.now() - s0.t > 800 || Math.abs(dy) < 70 || Math.abs(dy) < Math.abs(dx)*1.6) return;
+    const atTop = s0.top && sbody.scrollTop <= 1;
+    const atBottom = s0.bottom && sbody.scrollTop + sbody.clientHeight >= sbody.scrollHeight - 2;
+    const idx = visibleList.findIndex(x=>x.n===current);
+    if(idx < 0) return;
+    if(dy < 0 && atBottom && idx < visibleList.length-1){ swipeDir = 'from-b'; open(visibleList[idx+1].n,'view'); }
+    else if(dy > 0 && atTop && idx > 0){ swipeDir = 'from-t'; open(visibleList[idx-1].n,'view'); }
+  }, {passive:true});
+  sbody.addEventListener('touchcancel', ()=>{ t0 = null; }, {passive:true});
 })();
 
 /* ---------- PWA ---------- */
