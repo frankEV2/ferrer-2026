@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ca"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2A2825"><meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<title>Fitxa d'escultura</title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F1ECE3;--card:#FBF8F3;--ink:#1D1A17;--ink-2:#6B6359;--rule:#D9D0C0;--iron:#2A2825;--ember:#C4571B;--shadow:0 6px 18px -8px rgba(35,32,25,.25)}
+@media(prefers-color-scheme:dark){:root{--paper:#141210;--card:#1E1B18;--ink:#F1EBE0;--ink-2:#A39A8B;--rule:#38332C;--iron:#E39A55;--ember:#F0A35C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased;
+ padding:calc(16px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom))}
+main{max-width:520px;margin:0 auto;animation:in .5s ease both}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hero{border-radius:18px;overflow:hidden;background:var(--card);border:1px solid var(--rule);box-shadow:var(--shadow);min-height:120px;display:flex;align-items:center;justify-content:center}
+.hero img{width:100%;display:block}
+.none{color:var(--ink-2);font-size:.9rem;padding:40px 0}
+.strip{display:flex;gap:8px;overflow-x:auto;margin:10px 0 0;padding:2px 1px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex:0 0 auto;width:64px;height:64px;border-radius:12px;overflow:hidden;border:2px solid transparent;padding:0;background:var(--card);opacity:.7;cursor:pointer}
+.strip button.on{border-color:var(--ember);opacity:1}
+.strip img{width:100%;height:100%;object-fit:cover;display:block}
+.num{margin:18px 2px 2px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+h1{font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:2.4rem;line-height:1;margin:0 2px 14px}
+.row{display:flex;justify-content:space-between;gap:16px;padding:11px 2px;border-top:1px solid var(--rule);font-size:.93rem}
+.k{color:var(--ink-2);flex:0 0 42%}.v{text-align:right;flex:1}.v.e{color:var(--ink-2)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.acts a,.acts button{flex:1 1 auto;text-align:center;text-decoration:none;padding:11px 16px;border-radius:99px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:.85rem;cursor:pointer;font-family:inherit}
+.acts .main{background:var(--iron);color:var(--paper);border-color:var(--iron)}
+.media{margin-top:16px}
+.media audio{width:100%}
+.media .vid{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
+.media iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.desc{margin:24px 2px 0;font-size:1rem;line-height:1.65;white-space:pre-wrap}
+.desc h2{font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;text-transform:uppercase;letter-spacing:.03em;font-weight:700;font-size:1.5rem;margin:0 0 8px;color:var(--ember)}
+.notes{margin-top:14px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 14px;font-size:.92rem;line-height:1.5;white-space:pre-wrap}
+.notes span{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
+.msg{text-align:center;color:var(--ink-2);padding:60px 10px}
+.back{display:inline-block;margin:0 0 12px;padding:8px 16px;border-radius:99px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:.82rem;cursor:pointer}
+.foot{text-align:center;color:var(--ink-2);font-size:.72rem;margin-top:26px}
+</style></head><body>
+<main id="m"><p class="msg">Carregant…</p></main>
+<script>
+(function(){
+var KEY="AIzaSyCgZiUqvhmhfawhqm1HfduLi1udbUn6vVI",PROJ="escultures-inventari";
+var BASE='https://firestore.googleapis.com/v1/projects/'+PROJ+'/databases/(default)/documents/';
+var F=[['autor','Autor/a'],['serie','Sèrie / col·lecció'],['tipus','Tipus'],['any','Any'],['tecnica','Tècnica / materials'],['dim','Dimensions (alt/ample/fons)'],['lloc','Lloc per veure-la']];
+var m=document.getElementById('m');
+var fromApp=/[?&]from=app/.test(location.search);
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function safe(u){u=String(u||'').trim();return /^https?:\/\//i.test(u)?u:''}
+function val(f){if(!f)return'';if(f.stringValue!==undefined)return f.stringValue;if(f.booleanValue!==undefined)return f.booleanValue;if(f.arrayValue)return(f.arrayValue.values||[]).map(val);return''}
+var n=parseInt((location.search.match(/[?&]p=(\d+)/)||[])[1],10);
+if(!n){m.innerHTML='<p class="msg">Enllaç no vàlid.</p>';return}
+function get(path){return fetch(BASE+path+'?key='+KEY).then(function(r){if(!r.ok)throw r.status;return r.json()})}
+function media(url){
+  var u=safe(url);if(!u)return'';
+  var vm=/vimeo\.com\/(?:video\/)?(\d+)/i.exec(u),yt=/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/i.exec(u);
+  if(/\.(mp3|m4a|ogg|wav|aac)(\?|#|$)/i.test(u))return'<div class="media"><audio controls preload="none" src="'+esc(u)+'"></audio></div>';
+  if(vm)return'<div class="media"><div class="vid"><iframe src="https://player.vimeo.com/video/'+vm[1]+'?dnt=1" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen title="Vídeo"></iframe></div></div>';
+  if(yt)return'<div class="media"><div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/'+yt[1]+'" allow="fullscreen" allowfullscreen title="Vídeo"></iframe></div></div>';
+  return'<div class="media"><a href="'+esc(u)+'" target="_blank" rel="noopener" style="color:var(--ember)">▶ Escolta o mira el recurs ↗</a></div>';
+}
+get('inventari/p'+n).then(function(d){
+ var f=d.fields||{},p={};for(var k in f)p[k]=val(f[k]);
+ if(p.deleted===true)throw 404;
+ var t=String(p.titol||'').trim(),extra=Array.isArray(p.extra)?p.extra.filter(function(x){return typeof x==='string'}):[];
+ var title=t||('Peça '+n),url=location.origin+location.pathname+'?p='+n;
+ var h=(fromApp?'<button class="back" onclick="history.length>1?history.back():location.href=\'./\'">← Tornar</button>':'')+
+ '<div class="hero" id="hero">'+(p.photo?'<img alt="" src="'+esc(p.photo)+'">':'<span class="none">Sense fotografia</span>')+'</div><div class="strip" id="strip"></div>'+
+ '<div class="num">Núm. '+n+'</div><h1>'+(t?esc(t):'Sense títol')+'</h1>';
+ F.forEach(function(x){var v=String(p[x[0]]||'').trim();if(v)h+='<div class="row"><span class="k">'+x[1]+'</span><span class="v">'+esc(v)+'</span></div>'});
+ var acts='<button class="main" id="share">↗ Comparteix</button>';
+ if(String(p.lloc||'').trim())acts='<a class="main" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.lloc)+'">📍 Com arribar-hi</a>'+acts;
+ h+='<div class="acts">'+acts+'</div>'+media(p.audio);
+ if(String(p.desc||'').trim())h+='<div class="desc"><h2>La seva història</h2>'+esc(p.desc)+'</div>';
+ if(String(p.obs||'').trim())h+='<div class="notes"><span>Observacions</span>'+esc(p.obs)+'</div>';
+ h+='<p class="foot">Les peces del ferrer · Antoni Mas Castelltort</p>';
+ m.innerHTML=h;document.title=title;
+ var sh=document.getElementById('share');
+ sh.onclick=function(){
+  if(navigator.share)navigator.share({title:title,text:title+' · Antoni Mas Castelltort',url:url}).catch(function(){});
+  else if(navigator.clipboard)navigator.clipboard.writeText(url).then(function(){sh.textContent='Enllaç copiat ✓'});
+ };
+ // fotos de detall
+ var imgs=[p.photo].filter(Boolean);
+ function strip(){
+  var el=document.getElementById('strip');if(imgs.length<2){el.innerHTML='';return}
+  el.innerHTML=imgs.map(function(s,i){return'<button class="'+(i===0?'on':'')+'" data-i="'+i+'"><img alt="" src="'+esc(s)+'"></button>'}).join('');
+  [].forEach.call(el.querySelectorAll('button'),function(b){b.onclick=function(){
+   document.getElementById('hero').innerHTML='<img alt="" src="'+esc(imgs[+b.dataset.i])+'">';
+   [].forEach.call(el.querySelectorAll('button'),function(x){x.classList.toggle('on',x===b)});
+  }});
+ }
+ extra.forEach(function(id){get('fotos/'+encodeURIComponent(id)).then(function(r){var s=val((r.fields||{}).data);if(s){imgs.push(s);strip()}}).catch(function(){})});
+}).catch(function(){m.innerHTML='<p class="msg">No s\'ha trobat aquesta peça.</p>'});
+})();
+</script></body></html>
