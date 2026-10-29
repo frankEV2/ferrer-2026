@@ -455,6 +455,57 @@ header.scrolled h1{font-size:1.25rem}
 
 .hclear{display:block;width:100%;margin:0 0 14px;padding:11px 16px;border-radius:99px;border:1px solid color-mix(in srgb,var(--alert) 45%,transparent);background:transparent;color:var(--alert);font-size:.82rem;cursor:pointer}
 .hclear:disabled{opacity:.5}
+
+/* ================= VISTES (com a l'Explorador de Windows) ================= */
+.tools{position:relative}
+.viewbtn{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:0 14px;border-radius:99px;border:1px solid var(--rule);background:var(--card);cursor:pointer;font-size:.8rem;font-weight:500;transition:transform .15s var(--ease)}
+.viewbtn:active{transform:scale(.94)}
+.viewbtn svg{width:18px;height:18px;color:var(--clay)}
+.viewmenu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:220px;background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:0 18px 40px -12px rgba(0,0,0,.4);padding:6px;animation:rise .25s var(--ease) both}
+.viewmenu[hidden]{display:none}
+.vm{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:none;background:transparent;padding:11px 12px;border-radius:11px;font-size:.88rem;cursor:pointer}
+.vm i{font-style:normal;width:20px;text-align:center;color:var(--ink-2)}
+.vm.on{background:color-mix(in srgb,var(--clay) 14%,transparent);font-weight:600}
+.vm.on i{color:var(--clay)}
+.cdet{display:none}
+
+/* molt grans */
+.grid.v-xl{grid-template-columns:1fr;gap:14px}
+.grid.v-xl .card .thumb{aspect-ratio:4/3}
+.grid.v-xl .card:nth-child(6n+1){grid-column:auto}
+.grid.v-xl .card .ctitle{font-size:1.5rem}
+/* grans: és la vista per defecte (amb la peça destacada) */
+/* mitjanes */
+.grid.v-m{grid-template-columns:repeat(3,1fr);gap:8px}
+.grid.v-m .card{border-radius:14px}
+.grid.v-m .card:nth-child(6n+1){grid-column:auto}
+.grid.v-m .card:nth-child(6n+1) .thumb{aspect-ratio:4/5}
+.grid.v-m .card .thumb{aspect-ratio:1/1}
+.grid.v-m .card .ctitle,.grid.v-m .card:nth-child(6n+1) .ctitle{font-size:.82rem}
+.grid.v-m .card .cmeta,.grid.v-m .card .pending{display:none}
+.grid.v-m .card .cbody{padding:22px 8px 7px}
+/* mosaic (petites) */
+.grid.v-s{grid-template-columns:repeat(4,1fr);gap:5px}
+@media(min-width:560px){.grid.v-s{grid-template-columns:repeat(6,1fr)}}
+@media(min-width:780px){.grid.v-s{grid-template-columns:repeat(8,1fr)}}
+.grid.v-s .card{border-radius:10px}
+.grid.v-s .card:nth-child(6n+1){grid-column:auto}
+.grid.v-s .card .thumb,.grid.v-s .card:nth-child(6n+1) .thumb{aspect-ratio:1/1}
+.grid.v-s .card .cbody{display:none}
+.grid.v-s .card .num{font-size:.62rem;padding:2px 6px}
+/* llista i detalls */
+.grid.v-list,.grid.v-det{grid-template-columns:1fr;gap:8px}
+.grid.v-list .card,.grid.v-det .card{flex-direction:row;align-items:center;gap:12px;padding:8px;border:1px solid var(--rule);border-radius:14px;flex-wrap:wrap}
+.grid.v-list .card:nth-child(6n+1),.grid.v-det .card:nth-child(6n+1){grid-column:auto}
+.grid.v-list .card .thumb,.grid.v-list .card:nth-child(6n+1) .thumb{flex:0 0 58px;width:58px;height:58px;aspect-ratio:auto;border-radius:10px}
+.grid.v-det .card .thumb,.grid.v-det .card:nth-child(6n+1) .thumb{flex:0 0 44px;width:44px;height:44px;aspect-ratio:auto;border-radius:8px}
+.grid.v-list .card .num,.grid.v-det .card .num{display:none}
+.grid.v-list .card .cbody,.grid.v-det .card .cbody{position:static;background:none;color:var(--ink);padding:0;flex:1;min-width:0}
+.grid.v-list .card .ctitle,.grid.v-det .card .ctitle,.grid.v-list .card:nth-child(6n+1) .ctitle{font-size:1rem;color:var(--ink);text-transform:none;font-family:Inter,system-ui,sans-serif;font-weight:600;letter-spacing:0}
+.grid.v-list .card .cmeta,.grid.v-det .card .cmeta{color:var(--ink-2)}
+.grid.v-det .card .cdet{display:flex;flex-wrap:wrap;gap:5px;flex:1 1 100%;padding-left:56px}
+.grid.v-det .card .cdet span{font-size:.7rem;padding:3px 9px;border-radius:99px;background:var(--paper-2);color:var(--ink-2)}
+.grid.v-list .card:hover,.grid.v-det .card:hover{transform:none}
 </style></head><body class="noauth">
 
 <div class="cover" id="cover">
@@ -509,6 +560,8 @@ header.scrolled h1{font-size:1.25rem}
       <option value="__done">Ja documentades</option>
       <option value="__nophoto">Sense foto</option>
     </select>
+    <button type="button" class="viewbtn" id="viewBtn" aria-haspopup="true" aria-expanded="false" aria-label="Canvia la vista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Vista</span></button>
+    <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
   </div>
   <div class="chips" id="chips">
     <button class="chip on" data-f="">Totes</button>
@@ -628,6 +681,16 @@ let current = null, mode = 'view';
 let animateGrid = true;
 let selMode = false;
 let serieSel = '';
+const VIEWS = [
+  ['xl','Icones molt grans','▢'],
+  ['l','Icones grans','▦'],
+  ['m','Icones mitjanes','▤'],
+  ['s','Mosaic (petites)','▩'],
+  ['list','Llista','☰'],
+  ['det','Detalls','≣']
+];
+let viewMode = 'l';
+try{ const sv = localStorage.getItem('inv-view'); if(sv && VIEWS.some(v=>v[0]===sv)) viewMode = sv; }catch(e){}
 let priv = {};              // n -> {valor}  (només l'editor)
 let unsubPriv = null, unsubExtras = [];
 const extraCache = {};      // id de foto de detall -> dataURL
@@ -702,6 +765,7 @@ function render(){
   $('barFill').style.width = (list.length ? Math.round(done/list.length*100) : 0) + '%';
   visibleList = list.filter(matches);
   grid.classList.toggle('animate', animateGrid); animateGrid = false;
+  VIEWS.forEach(v=>grid.classList.toggle('v-'+v[0], v[0]===viewMode));
   if(!visibleList.length){
     let msg = 'Cap peça coincideix amb la cerca.';
     if(!list.length){
@@ -721,7 +785,8 @@ function render(){
         '<div class="ctitle'+(t?'':' untitled')+'">'+(t?esc(t):'Sense títol')+'</div>'+
         (meta?'<div class="cmeta">'+esc(meta)+'</div>':'')+
         (isDoc(p)?'':'<span class="pending">Per completar</span>')+
-      '</div></button>';
+      '</div>'+
+      '<div class="cdet">'+[p.serie,p.any,p.tecnica,p.dim,p.situacio].filter(Boolean).map(v=>'<span>'+esc(v)+'</span>').join('')+'</div></button>';
   }).join('');
   Array.prototype.forEach.call(grid.querySelectorAll('.card'), c=>{
     c.addEventListener('click', ()=>{
@@ -1548,6 +1613,25 @@ $('serieChips').addEventListener('click', e=>{
   const b = e.target.closest('.chip.serie'); if(!b) return;
   serieSel = b.dataset.s || ''; animateGrid = true; render();
 });
+(function(){ // vista: icones molt grans … detalls (com a l'Explorador de Windows)
+  const btn = $('viewBtn'), menu = $('viewMenu');
+  function paint(){
+    menu.innerHTML = VIEWS.map(v=>'<button type="button" role="menuitemradio" aria-checked="'+(v[0]===viewMode)+'" class="vm'+(v[0]===viewMode?' on':'')+'" data-v="'+v[0]+'"><i>'+v[2]+'</i>'+v[1]+'</button>').join('');
+    const cur = VIEWS.filter(v=>v[0]===viewMode)[0];
+    btn.title = 'Vista: '+cur[1];
+  }
+  function setOpen(o){ menu.hidden = !o; btn.setAttribute('aria-expanded', o?'true':'false'); }
+  btn.addEventListener('click', e=>{ e.stopPropagation(); setOpen(menu.hidden); });
+  menu.addEventListener('click', e=>{
+    const b = e.target.closest('.vm'); if(!b) return;
+    viewMode = b.dataset.v;
+    try{ localStorage.setItem('inv-view', viewMode); }catch(err){}
+    paint(); setOpen(false); animateGrid = true; render();
+  });
+  document.addEventListener('click', e=>{ if(!menu.hidden && !menu.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') setOpen(false); });
+  paint();
+})();
 $('selChip').addEventListener('click', ()=>{ if(selMode) exitSel(); else enterSel(); });
 $('selCancel').addEventListener('click', exitSel);
 $('selAll').addEventListener('click', ()=>{
