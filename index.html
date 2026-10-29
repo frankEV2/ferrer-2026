@@ -237,9 +237,15 @@ body.noauth .login{display:flex}
 .pw.show .pw-eye .slash{display:block}
 .lerr{color:var(--alert);font-size:.83rem;min-height:1.3em;margin:12px 0 0;line-height:1.4}
 .lspin{display:none;width:28px;height:28px;border:3px solid var(--rule);border-top-color:var(--moss);border-radius:50%;margin:22px auto 0;animation:spin .8s linear infinite}
-.login.loading form{display:none}
+.login.loading form,.login.loading .lchoice{display:none}
 .login.loading .lspin{display:block}
 .login.busy #lbtn{opacity:.6;pointer-events:none}
+.lchoice{display:flex;flex-direction:column;gap:10px}
+.lchoice .save{margin-top:0}
+.save.ghost{background:transparent;color:var(--moss);border:1px solid var(--rule);box-shadow:none}
+.save.ghost:active{background:var(--paper-2)}
+.lnote{color:var(--ink-2);font-size:.8rem;line-height:1.4;margin:4px 0 0}
+.lback{margin-top:12px;background:none;border:none;color:var(--ink-2);font-size:.88rem;cursor:pointer;padding:8px}
 
 /* ---- mode només lectura ---- */
 body.ro .fab,body.ro #editBtn,body.ro .editonly{display:none!important}
@@ -528,9 +534,14 @@ header.scrolled h1{font-size:1.25rem}
   <div class="lbox">
     <div class="lmark"><svg viewBox="0 0 24 24" fill="#EFEBE1"><circle cx="12" cy="6.2" r="3.3"/><path d="M7.4 11.4h9.2l2.1 8.4H5.3z"/><rect x="4.4" y="20.2" width="15.2" height="1.6" rx=".4"/></svg></div>
     <h1>Les peces del ferrer</h1>
-    <p class="lsub">Accés privat</p>
+    <p class="lsub">Tria com vols entrar</p>
     <p class="cv-credit">Fotografia: Rafael López-Monné / Tarragona Turisme</p>
-    <form id="loginForm" autocomplete="on">
+    <div class="lchoice" id="lchoice">
+      <button type="button" class="save" id="editorBtn">Entra com a editor</button>
+      <button type="button" class="save ghost" id="guestBtn">Entra com a convidat</button>
+      <p class="lnote">El convidat ho pot veure tot, però no pot editar, crear ni eliminar res.</p>
+    </div>
+    <form id="loginForm" autocomplete="on" style="display:none">
       <input id="lname" type="text" placeholder="El teu nom (per a l'historial)" autocomplete="name" maxlength="40">
       <div class="pw" id="pw">
         <input id="lpass" type="password" placeholder="Contrasenya" autocomplete="current-password" required>
@@ -539,8 +550,9 @@ header.scrolled h1{font-size:1.25rem}
         </button>
       </div>
       <button class="save" id="lbtn" type="submit">Entrar</button>
-      <p class="lerr" id="lerr" role="alert"></p>
+      <button type="button" class="lback" id="lback">← Enrere</button>
     </form>
+    <p class="lerr" id="lerr" role="alert"></p>
     <button type="button" class="authorlink" data-author>🎞 Coneix l'autor</button>
     <div class="lspin"></div>
   </div>
@@ -578,7 +590,7 @@ header.scrolled h1{font-size:1.25rem}
   <div class="footer">
     <button id="tlBtn">🕰 Línia del temps</button>
     <button id="catBtn">📄 Catàleg en PDF (peces visibles)</button>
-    <button id="histBtn">🕘 Historial de canvis</button>
+    <button id="histBtn" class="editonly">🕘 Historial de canvis</button>
     <button id="qrAllBtn">▦ Imprimir tots els QR</button>
     <button id="exportBtn">⬇ Exportar a CSV</button>
     <button id="backupBtn">⬇ Exportar còpia (JSON)</button>
@@ -641,7 +653,7 @@ header.scrolled h1{font-size:1.25rem}
 
 const FB = window.FB || null;
 const EDITOR_EMAIL = 'editor@escultures.app';
-const VIEWER_EMAIL = 'lectura@escultures.app';
+let guest = false;   // convidat: sense compte, només lectura
 const NAME_KEY = 'inventari-nom';
 
 const FIELDS = [
@@ -726,7 +738,7 @@ function setSync(state, msg){
 }
 function syncError(err){
   const c = err && err.code;
-  if(c === 'permission-denied') setSync('err','Sense permís per fer aquesta acció (rol o regles de Firestore).');
+  if(c === 'permission-denied') setSync('err', guest ? 'El mode convidat necessita que les regles de Firestore permetin la lectura pública.' : 'Sense permís per fer aquesta acció (rol o regles de Firestore).');
   else if(c === 'not-found' || c === 'failed-precondition') setSync('err','Falta crear la base de dades Firestore al projecte de Firebase.');
   else setSync('off','Sense connexió: els canvis es sincronitzaran més tard.');
 }
@@ -1435,15 +1447,12 @@ function stopData(){
 /* ---------- accés (contrasenya) ---------- */
 const CRED_ERR = ['auth/invalid-credential','auth/wrong-password','auth/user-not-found','auth/invalid-login-credentials','auth/invalid-email'];
 async function tryLogin(pw){
-  const order = [EDITOR_EMAIL, VIEWER_EMAIL];
-  for(let i=0;i<order.length;i++){
-    try{ await FB.signInWithEmailAndPassword(FB.auth, order[i], pw); return true; }
-    catch(e){ if(CRED_ERR.indexOf(e && e.code) === -1) throw e; }
-  }
+  try{ await FB.signInWithEmailAndPassword(FB.auth, EDITOR_EMAIL, pw); return true; }
+  catch(e){ if(CRED_ERR.indexOf(e && e.code) === -1) throw e; }
   return false;
 }
 function updateSession(){
-  sessionNote.textContent = role ? (who() + ' · ' + (role==='editor' ? 'Editor' : 'Només lectura')) : '';
+  sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : 'Convidat · Només lectura') : '';
 }
 if(!FB){
   loginEl.classList.remove('loading');
@@ -1469,7 +1478,24 @@ if(!FB){
     }
     loginEl.classList.remove('busy');
   });
+  function showChoice(){
+    $('loginForm').style.display = 'none'; $('lchoice').style.display = '';
+    lerr.textContent = ''; $('lpass').value = ''; setPwVisible(false);
+  }
+  $('editorBtn').addEventListener('click', ()=>{
+    $('lchoice').style.display = 'none'; $('loginForm').style.display = '';
+    lerr.textContent = ''; setTimeout(()=>$('lpass').focus(), 50);
+  });
+  $('lback').addEventListener('click', showChoice);
+  $('guestBtn').addEventListener('click', ()=>{
+    guest = true; role = 'viewer'; userName = '';
+    document.body.classList.add('ro'); document.body.classList.remove('noauth');
+    updateSession(); animateGrid = true; startData(); render();
+  });
   FB.onAuthStateChanged(FB.auth, user=>{
+    if(user && user.email !== EDITOR_EMAIL){ FB.signOut(FB.auth); return; }   // sessions antigues de lectura
+    if(!user && guest) return;
+    if(user && guest){ guest = false; stopData(); }
     if(!user){
       const hm = /^#p(\d+)$/.exec(location.hash);
       if(hm){ location.replace('fitxa.html?p='+hm[1]); return; }
@@ -1477,7 +1503,7 @@ if(!FB){
       selMode = false; selected.clear(); document.body.classList.remove('sel');
       document.body.classList.add('noauth'); document.body.classList.remove('ro');
       loginEl.classList.remove('loading');
-      $('lpass').value = ''; setPwVisible(false);
+      showChoice();
       render(); updateSession();
       return;
     }
@@ -1497,7 +1523,16 @@ function setPwVisible(on){
 }
 $('pwEye').addEventListener('mousedown', e=>e.preventDefault());   // no treu el focus del camp
 $('pwEye').addEventListener('click', ()=>setPwVisible($('lpass').type === 'password'));
-$('logoutBtn').addEventListener('click', ()=>{ if(FB) FB.signOut(FB.auth); });
+$('logoutBtn').addEventListener('click', ()=>{
+  if(!FB) return;
+  if(guest){
+    guest = false; role = null; stopData(); close();
+    document.body.classList.add('noauth'); document.body.classList.remove('ro');
+    render(); updateSession();
+    return;
+  }
+  FB.signOut(FB.auth);
+});
 window.addEventListener('hashchange', handleHash);
 window.addEventListener('online', ()=>{ if(role) setSync('wait','Reconnectant…'); });
 window.addEventListener('offline', ()=>{ if(role) setSync('off','Sense connexió: els canvis es sincronitzaran més tard.'); });
