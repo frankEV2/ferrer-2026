@@ -59,8 +59,6 @@ button{touch-action:manipulation}
 @keyframes pop{0%{opacity:0;transform:scale(.4) rotate(-90deg)}70%{transform:scale(1.08) rotate(6deg)}100%{opacity:1;transform:none}}
 @keyframes slideR{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
 @keyframes slideL{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
-@keyframes slideB{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
-@keyframes slideT{from{opacity:0;transform:translateY(-40px)}to{opacity:1;transform:none}}
 @keyframes heroin{from{opacity:0;transform:scale(1.08)}to{opacity:1;transform:none}}
 
 /* ---- header (glass) ---- */
@@ -149,11 +147,6 @@ main{padding:16px 16px 110px;max-width:900px;margin:0 auto;padding-left:calc(16p
 .sbody.stag>*{animation:rise .5s var(--ease) both;animation-delay:calc(var(--k,0)*55ms + 80ms)}
 .sbody.from-r{animation:slideR .38s var(--ease) both}
 .sbody.from-l{animation:slideL .38s var(--ease) both}
-.sbody.from-b{animation:slideB .38s var(--ease) both}
-.sbody.from-t{animation:slideT .38s var(--ease) both}
-.swhint{position:absolute;left:50%;transform:translateX(-50%) translateY(8px);bottom:calc(14px + env(safe-area-inset-bottom));background:var(--moss);color:var(--paper);font-size:.82rem;font-weight:600;padding:9px 16px;border-radius:99px;box-shadow:0 8px 20px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:5;white-space:nowrap}
-.swhint[data-p="t"]{bottom:auto;top:64px}
-.swhint.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* ---- detail ---- */
 .hero{width:100%;aspect-ratio:3/4;max-height:52vh;background:var(--paper-2);border-radius:var(--r);overflow:hidden;display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:var(--shadow)}
@@ -203,6 +196,8 @@ main{padding:16px 16px 110px;max-width:900px;margin:0 auto;padding-left:calc(16p
 .footer{margin-top:30px;padding-top:18px;border-top:1px solid var(--rule);display:flex;flex-wrap:wrap;gap:9px}
 .footer button{flex:1 1 150px;padding:12px;border:1px solid var(--rule);background:var(--card);border-radius:99px;font-size:.82rem;cursor:pointer;transition:transform .15s var(--ease),background .2s}
 .footer button:active{transform:scale(.95);background:var(--paper-2)}
+.fgroup{flex:1 1 100%;margin:14px 2px 0;font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.fgroup:first-child{margin-top:0}
 .fnote{font-size:.72rem;color:var(--ink-2);line-height:1.55;margin-top:10px;flex:1 1 100%}
 
 /* ---- toast ---- */
@@ -244,15 +239,9 @@ body.noauth .login{display:flex}
 .pw.show .pw-eye .slash{display:block}
 .lerr{color:var(--alert);font-size:.83rem;min-height:1.3em;margin:12px 0 0;line-height:1.4}
 .lspin{display:none;width:28px;height:28px;border:3px solid var(--rule);border-top-color:var(--moss);border-radius:50%;margin:22px auto 0;animation:spin .8s linear infinite}
-.login.loading form,.login.loading .lchoice{display:none}
+.login.loading form{display:none}
 .login.loading .lspin{display:block}
 .login.busy #lbtn{opacity:.6;pointer-events:none}
-.lchoice{display:flex;flex-direction:column;gap:10px}
-.lchoice .save{margin-top:0}
-.save.ghost{background:transparent;color:var(--moss);border:1px solid var(--rule);box-shadow:none}
-.save.ghost:active{background:var(--paper-2)}
-.lnote{color:var(--ink-2);font-size:.8rem;line-height:1.4;margin:4px 0 0}
-.lback{margin-top:12px;background:none;border:none;color:var(--ink-2);font-size:.88rem;cursor:pointer;padding:8px}
 
 /* ---- mode només lectura ---- */
 body.ro .fab,body.ro #editBtn,body.ro .editonly{display:none!important}
@@ -527,9 +516,9 @@ header.scrolled h1{font-size:1.25rem}
   <div class="cv-inner">
     <p class="cv-eyebrow">Antoni Mas Castelltort</p>
     <h1 class="cv-title">Les peces<br>del ferrer</h1>
-    <p class="cv-sub">Ferro, foc i paraules. L'obra d'un ferrer de Vila-seca, peça a peça.</p>
-    <button class="cv-btn" id="coverBtn">Entrar</button>
-    <button type="button" class="cv-author" data-author>🎞 Coneix l'autor</button>
+    <p class="cv-sub">Catàleg de l'obra escultòrica en ferro i acer. Vila-seca, 1949.</p>
+    <button class="cv-btn" id="coverBtn">Accedir al catàleg</button>
+    <button type="button" class="cv-author" data-author>Biografia de l'autor</button>
     <p class="cv-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Accés privat</p>
     <p class="cv-credit">Fotografia: Rafael López-Monné / Tarragona Turisme</p>
   </div>
@@ -541,15 +530,10 @@ header.scrolled h1{font-size:1.25rem}
   <div class="lbox">
     <div class="lmark"><svg viewBox="0 0 24 24" fill="#EFEBE1"><circle cx="12" cy="6.2" r="3.3"/><path d="M7.4 11.4h9.2l2.1 8.4H5.3z"/><rect x="4.4" y="20.2" width="15.2" height="1.6" rx=".4"/></svg></div>
     <h1>Les peces del ferrer</h1>
-    <p class="lsub">Tria com vols entrar</p>
+    <p class="lsub">Catàleg de l'obra · Accés restringit</p>
     <p class="cv-credit">Fotografia: Rafael López-Monné / Tarragona Turisme</p>
-    <div class="lchoice" id="lchoice">
-      <button type="button" class="save" id="editorBtn">Entra com a editor</button>
-      <button type="button" class="save ghost" id="guestBtn">Entra com a convidat</button>
-      <p class="lnote">El convidat ho pot veure tot, però no pot editar, crear ni eliminar res.</p>
-    </div>
-    <form id="loginForm" autocomplete="on" style="display:none">
-      <input id="lname" type="text" placeholder="El teu nom (per a l'historial)" autocomplete="name" maxlength="40">
+    <form id="loginForm" autocomplete="on">
+      <input id="lname" type="text" placeholder="Nom (consta a l'historial)" autocomplete="name" maxlength="40">
       <div class="pw" id="pw">
         <input id="lpass" type="password" placeholder="Contrasenya" autocomplete="current-password" required>
         <button type="button" class="pw-eye" id="pwEye" aria-label="Mostra la contrasenya" aria-pressed="false">
@@ -557,10 +541,9 @@ header.scrolled h1{font-size:1.25rem}
         </button>
       </div>
       <button class="save" id="lbtn" type="submit">Entrar</button>
-      <button type="button" class="lback" id="lback">← Enrere</button>
+      <p class="lerr" id="lerr" role="alert"></p>
     </form>
-    <p class="lerr" id="lerr" role="alert"></p>
-    <button type="button" class="authorlink" data-author>🎞 Coneix l'autor</button>
+    <button type="button" class="authorlink" data-author>Biografia de l'autor</button>
     <div class="lspin"></div>
   </div>
 </div>
@@ -587,7 +570,7 @@ header.scrolled h1{font-size:1.25rem}
     <button class="chip" data-f="__pend">Pendents</button>
     <button class="chip" data-f="__done">Documentades</button>
     <button class="chip" data-f="__nophoto">Sense foto</button>
-    <button class="chip editonly" id="selChip">☑ Selecciona</button>
+    <button class="chip editonly" id="selChip">Selecció múltiple</button>
   </div>
   <div class="chips seriechips" id="serieChips" style="display:none"></div>
 </header>
@@ -595,17 +578,20 @@ header.scrolled h1{font-size:1.25rem}
 <main>
   <div class="grid" id="grid"></div>
   <div class="footer">
-    <button id="tlBtn">🕰 Línia del temps</button>
-    <button id="catBtn">📄 Catàleg en PDF (peces visibles)</button>
-    <button id="histBtn" class="editonly">🕘 Historial de canvis</button>
-    <button id="qrAllBtn">▦ Imprimir tots els QR</button>
-    <button id="exportBtn">⬇ Exportar a CSV</button>
-    <button id="backupBtn">⬇ Exportar còpia (JSON)</button>
-    <button id="restoreBtn" class="editonly">⬆ Importar còpia (JSON)</button>
+    <p class="fgroup">Consulta</p>
+    <button id="tlBtn">Cronologia</button>
+    <button id="authorBtn2" data-author>Biografia de l'autor</button>
+    <button id="histBtn">Registre de canvis</button>
+    <p class="fgroup">Documentació i exportació</p>
+    <button id="catBtn">Catàleg en PDF</button>
+    <button id="qrAllBtn">Etiquetes QR</button>
+    <button id="exportBtn">Exportar CSV</button>
+    <button id="backupBtn">Còpia de seguretat</button>
+    <button id="restoreBtn" class="editonly">Restaurar còpia</button>
     <input type="file" id="restoreInput" accept="application/json" style="display:none">
-    <button id="installBtn" style="display:none">📲 Instal·la l'app al mòbil</button>
-    <button id="authorBtn2" data-author>🎞 Coneix l'autor</button>
-    <button id="logoutBtn">⎋ Tancar sessió</button>
+    <p class="fgroup">Sessió</p>
+    <button id="installBtn" style="display:none">Instal·lar l'aplicació</button>
+    <button id="logoutBtn">Tancar sessió</button>
     <p class="fnote" id="sessionNote"></p>
     <p class="fnote" id="syncNote"></p>
     <p class="fnote">Els canvis es guarden al dispositiu i es sincronitzen amb el núvol quan hi ha connexió. Cada canvi queda registrat a l'historial.</p>
@@ -660,7 +646,7 @@ header.scrolled h1{font-size:1.25rem}
 
 const FB = window.FB || null;
 const EDITOR_EMAIL = 'editor@escultures.app';
-let guest = false;   // convidat: sense compte, només lectura
+const VIEWER_EMAIL = 'lectura@escultures.app';
 const NAME_KEY = 'inventari-nom';
 
 const FIELDS = [
@@ -696,7 +682,7 @@ let userName = '';
 let loaded = false;
 let unsubPieces = null, unsubHist = null;
 let visibleList = [];
-let current = null, mode = 'view', swipeDir = null;
+let current = null, mode = 'view';
 let animateGrid = true;
 let selMode = false;
 let serieSel = '';
@@ -745,7 +731,7 @@ function setSync(state, msg){
 }
 function syncError(err){
   const c = err && err.code;
-  if(c === 'permission-denied') setSync('err', guest ? 'El mode convidat necessita que les regles de Firestore permetin la lectura pública.' : 'Sense permís per fer aquesta acció (rol o regles de Firestore).');
+  if(c === 'permission-denied') setSync('err','Sense permís per fer aquesta acció (rol o regles de Firestore).');
   else if(c === 'not-found' || c === 'failed-precondition') setSync('err','Falta crear la base de dades Firestore al projecte de Firebase.');
   else setSync('off','Sense connexió: els canvis es sincronitzaran més tard.');
 }
@@ -892,7 +878,7 @@ function applyBulk(){
   });
   if(cnt) commit(b);
   close(); exitSel();
-  toast(changed ? ('Canvis aplicats a '+changed+' peces ✓') : 'Cap canvi: ja tenien aquests valors');
+  toast(changed ? ('Canvis aplicats a '+changed+' peces') : 'Cap canvi: ja tenien aquests valors');
 }
 
 /* ---------- fitxa: vista ---------- */
@@ -915,8 +901,8 @@ function viewHTML(p){
     rows +
     ((p.obs||'').trim()?'<div class="dnotes"><span>Observacions</span>'+esc(p.obs)+'</div>':'')+
     '<div class="navrow qrbtnrow"><button id="fullBtn" class="fullbtn">📖 Fitxa completa</button></div>'+
-    (maps||aud?'<div class="navrow">'+(maps?'<button id="mapBtn">📍 Com arribar-hi</button>':'')+(aud?'<button id="audBtn">🎧 Escolta\'l</button>':'')+'</div>':'')+
-    '<div class="navrow"><button id="shareBtn">↗ Comparteix</button><button id="qrBtn">▦ Codi QR</button></div>'+
+    (maps||aud?'<div class="navrow">'+(maps?'<button id="mapBtn">Com arribar-hi</button>':'')+(aud?'<button id="audBtn">Àudio de la peça</button>':'')+'</div>':'')+
+    '<div class="navrow"><button id="shareBtn">Compartir</button><button id="qrBtn">Codi QR</button></div>'+
     '<div class="navrow"><button id="prevBtn"'+(idx<=0?' disabled':'')+'>Anterior</button>'+
     '<button id="nextBtn"'+(idx<0||idx>=visibleList.length-1?' disabled':'')+'>Següent</button></div>';
 }
@@ -948,7 +934,7 @@ function renderStrip(p){
 function sharePiece(p){
   const url = pieceUrl(p.n), title = (p.titol||'').trim() || ('Peça '+p.n);
   if(navigator.share){ navigator.share({title:title, text:title+' · Antoni Mas Castelltort', url:url}).catch(()=>{}); }
-  else if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(()=>toast('Enllaç copiat ✓'), ()=>toast(url)); }
+  else if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(()=>toast('Enllaç copiat'), ()=>toast(url)); }
   else toast(url);
 }
 
@@ -1105,7 +1091,7 @@ function wireForm(p, isNew){
       pieces[p.n] = Object.assign({}, before, upd);
     }
     commit(b);
-    render(); open(out.n,'view'); toast('Fitxa desada ✓');
+    render(); open(out.n,'view'); toast('Fitxa desada');
   });
 
   const del = $('delBtn');
@@ -1129,7 +1115,7 @@ function setHead(title, showEdit){
   editBtn.style.visibility = showEdit ? 'visible' : 'hidden';
 }
 function stagger(dir){
-  sbody.classList.remove('from-r','from-l','from-b','from-t','stag');
+  sbody.classList.remove('from-r','from-l','stag');
   void sbody.offsetWidth;
   if(dir){ sbody.classList.add(dir); }
   else{
@@ -1155,8 +1141,7 @@ function open(n, m){
   if(m === 'edit' && role !== 'editor') return;
   const wasOpen = sheet.classList.contains('on'), prevCur = current, prevMode = mode;
   let dir = null;
-  if(wasOpen && prevMode==='view' && m==='view' && prevCur!=null && prevCur!==n) dir = swipeDir || (n>prevCur ? 'from-r' : 'from-l');
-  swipeDir = null;
+  if(wasOpen && prevMode==='view' && m==='view' && prevCur!=null && prevCur!==n) dir = n>prevCur ? 'from-r' : 'from-l';
   if(unsubHist){ unsubHist(); unsubHist = null; }
   current = n; mode = m;
   if(m==='view'){
@@ -1339,8 +1324,8 @@ async function clearHistory(){
       }
       if(ids.length < 400) break;
     }
-    toast('Historial esborrat ✓ ('+total+' registres)');
-    setSync('ok','Sincronitzat amb el núvol ✓');
+    toast('Historial esborrat ('+total+' registres)');
+    setSync('ok','Sincronitzat amb el núvol');
   }catch(err){
     syncError(err);
     alert('No s\'ha pogut esborrar tot l\'historial ('+((err&&err.code)||'error')+'). Si diu permission-denied, falta publicar les regles noves de Firestore.');
@@ -1348,7 +1333,7 @@ async function clearHistory(){
 }
 function renderHistory(items){
   if(!items.length){ sbody.innerHTML = '<p class="hnote">Encara no hi ha cap canvi registrat.</p>'; return; }
-  let lastDay = '', html = role==='editor' ? '<button class="hclear" id="hClear">🗑 Esborra tot l\'historial</button>' : '';
+  let lastDay = '', html = role==='editor' ? '<button class="hclear" id="hClear">Esborra tot l\'historial</button>' : '';
   items.forEach(it=>{
     const dt = new Date(it.ts || 0);
     const day = dt.toLocaleDateString('ca-ES',{weekday:'long',day:'numeric',month:'long'});
@@ -1380,7 +1365,7 @@ function renderHistory(items){
   const hc = $('hClear');
   if(hc){
     const armed = ()=>Date.now() - clearArmed < 6000;
-    const label = ()=>{ hc.textContent = armed() ? 'Toca un altre cop: s\'esborra tot i no es pot desfer' : '🗑 Esborra tot l\'historial'; };
+    const label = ()=>{ hc.textContent = armed() ? 'Toca un altre cop: s\'esborra tot i no es pot desfer' : 'Esborra tot l\'historial'; };
     label();
     hc.addEventListener('click', ()=>{
       if(!armed()){ clearArmed = Date.now(); label(); setTimeout(()=>{ if(hc.isConnected) label(); }, 6100); return; }
@@ -1414,7 +1399,7 @@ function undo(it, btn){
     hist(b,'desfer',base,{info:'Fitxa amagada', desfa:'crear'});
   }else return;
   b.update(FB.doc(FB.db,'historial',it.id), {desfet:true});
-  commit(b); toast('Canvi desfet ✓');
+  commit(b); toast('Canvi desfet');
 }
 
 /* ---------- dades en directe (Firestore) ---------- */
@@ -1441,7 +1426,7 @@ function startData(){
     const md = snap.metadata;
     if(md.hasPendingWrites) setSync('wait','Sincronitzant…');
     else if(md.fromCache) setSync(navigator.onLine?'wait':'off', navigator.onLine ? 'Connectant…' : 'Sense connexió: es mostren les dades desades.');
-    else setSync('ok','Sincronitzat amb el núvol ✓');
+    else setSync('ok','Sincronitzat amb el núvol');
   }, syncError);
 }
 function stopData(){
@@ -1455,12 +1440,15 @@ function stopData(){
 /* ---------- accés (contrasenya) ---------- */
 const CRED_ERR = ['auth/invalid-credential','auth/wrong-password','auth/user-not-found','auth/invalid-login-credentials','auth/invalid-email'];
 async function tryLogin(pw){
-  try{ await FB.signInWithEmailAndPassword(FB.auth, EDITOR_EMAIL, pw); return true; }
-  catch(e){ if(CRED_ERR.indexOf(e && e.code) === -1) throw e; }
+  const order = [EDITOR_EMAIL, VIEWER_EMAIL];
+  for(let i=0;i<order.length;i++){
+    try{ await FB.signInWithEmailAndPassword(FB.auth, order[i], pw); return true; }
+    catch(e){ if(CRED_ERR.indexOf(e && e.code) === -1) throw e; }
+  }
   return false;
 }
 function updateSession(){
-  sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : 'Convidat · Només lectura') : '';
+  sessionNote.textContent = role ? (who() + ' · ' + (role==='editor' ? 'Editor' : 'Només lectura')) : '';
 }
 if(!FB){
   loginEl.classList.remove('loading');
@@ -1486,24 +1474,7 @@ if(!FB){
     }
     loginEl.classList.remove('busy');
   });
-  function showChoice(){
-    $('loginForm').style.display = 'none'; $('lchoice').style.display = '';
-    lerr.textContent = ''; $('lpass').value = ''; setPwVisible(false);
-  }
-  $('editorBtn').addEventListener('click', ()=>{
-    $('lchoice').style.display = 'none'; $('loginForm').style.display = '';
-    lerr.textContent = ''; setTimeout(()=>$('lpass').focus(), 50);
-  });
-  $('lback').addEventListener('click', showChoice);
-  $('guestBtn').addEventListener('click', ()=>{
-    guest = true; role = 'viewer'; userName = '';
-    document.body.classList.add('ro'); document.body.classList.remove('noauth');
-    updateSession(); animateGrid = true; startData(); render();
-  });
   FB.onAuthStateChanged(FB.auth, user=>{
-    if(user && user.email !== EDITOR_EMAIL){ FB.signOut(FB.auth); return; }   // sessions antigues de lectura
-    if(!user && guest) return;
-    if(user && guest){ guest = false; stopData(); }
     if(!user){
       const hm = /^#p(\d+)$/.exec(location.hash);
       if(hm){ location.replace('fitxa.html?p='+hm[1]); return; }
@@ -1511,7 +1482,7 @@ if(!FB){
       selMode = false; selected.clear(); document.body.classList.remove('sel');
       document.body.classList.add('noauth'); document.body.classList.remove('ro');
       loginEl.classList.remove('loading');
-      showChoice();
+      $('lpass').value = ''; setPwVisible(false);
       render(); updateSession();
       return;
     }
@@ -1531,16 +1502,7 @@ function setPwVisible(on){
 }
 $('pwEye').addEventListener('mousedown', e=>e.preventDefault());   // no treu el focus del camp
 $('pwEye').addEventListener('click', ()=>setPwVisible($('lpass').type === 'password'));
-$('logoutBtn').addEventListener('click', ()=>{
-  if(!FB) return;
-  if(guest){
-    guest = false; role = null; stopData(); close();
-    document.body.classList.add('noauth'); document.body.classList.remove('ro');
-    render(); updateSession();
-    return;
-  }
-  FB.signOut(FB.auth);
-});
+$('logoutBtn').addEventListener('click', ()=>{ if(FB) FB.signOut(FB.auth); });
 window.addEventListener('hashchange', handleHash);
 window.addEventListener('online', ()=>{ if(role) setSync('wait','Reconnectant…'); });
 window.addEventListener('offline', ()=>{ if(role) setSync('off','Sense connexió: els canvis es sincronitzaran més tard.'); });
@@ -1594,7 +1556,7 @@ async function runImport(list, seed){
       done = Math.min(i+CH, total);
       toast('Important… '+done+' de '+total);
     }
-    toast('Importació acabada ✓ ('+total+' peces)');
+    toast('Importació acabada ('+total+' peces)');
   }catch(err){
     syncError(err);
     alert('La importació s\'ha aturat a la peça '+done+' de '+total+' ('+((err&&err.code)||'error')+'). Torna-la a fer: no es duplica res i no es perd cap canvi.');
@@ -1764,58 +1726,6 @@ function refreshApp(){
   document.addEventListener('touchcancel', end);
 })();
 
-/* ---------- lliscar amunt/avall per canviar de fitxa ---------- */
-(function(){
-  let t0 = null;
-  const SKIP = 'iframe,video,audio,input,textarea,select,.gstrip,.chips';
-  const TH = 70;                       // px de "sobreeiximent" per canviar
-  const hint = document.createElement('div');
-  hint.className = 'swhint'; hint.setAttribute('aria-hidden','true');
-  sheet.appendChild(hint);
-  function maxScroll(){ return Math.max(0, sbody.scrollHeight - sbody.clientHeight); }
-  // quant ha avançat el dit més enllà del que ha pogut desplaçar el contingut
-  function over(dy){
-    const scrolled = sbody.scrollTop - t0.st;          // + = contingut cap avall
-    return -dy - scrolled;                              // + = el dit ha anat amunt de més
-  }
-  function hideHint(){ hint.classList.remove('on'); }
-  sbody.addEventListener('touchstart', e=>{
-    t0 = null; hideHint();
-    if(mode !== 'view' || current == null || e.touches.length !== 1) return;
-    if(e.target.closest && e.target.closest(SKIP)) return;
-    const tt = e.touches[0];
-    t0 = { x:tt.clientX, y:tt.clientY, t:Date.now(), st:sbody.scrollTop };
-  }, {passive:true});
-  sbody.addEventListener('touchmove', e=>{
-    if(!t0 || !e.touches.length) return;
-    const dy = e.touches[0].clientY - t0.y, dx = e.touches[0].clientX - t0.x;
-    if(Math.abs(dy) < 20 || Math.abs(dy) < Math.abs(dx)*1.4){ hideHint(); return; }
-    const idx = visibleList.findIndex(x=>x.n===current);
-    const o = over(dy);
-    const atB = sbody.scrollTop >= maxScroll() - 2, atT = sbody.scrollTop <= 1;
-    if(dy < 0 && atB && idx >= 0 && idx < visibleList.length-1 && o > 24){
-      hint.textContent = o > TH ? '↑ Deixa anar: fitxa següent' : '↑ Segueix lliscant';
-      hint.dataset.p = 'b'; hint.classList.add('on');
-    }else if(dy > 0 && atT && idx > 0 && -o > 24 && (sbody.scrollTop - t0.st) <= 0){
-      hint.textContent = (-o) > TH ? '↓ Deixa anar: fitxa anterior' : '↓ Segueix lliscant';
-      hint.dataset.p = 't'; hint.classList.add('on');
-    }else hideHint();
-  }, {passive:true});
-  sbody.addEventListener('touchend', e=>{
-    const s0 = t0; t0 = null; hideHint();
-    if(!s0 || mode !== 'view' || current == null || !e.changedTouches.length) return;
-    const tt = e.changedTouches[0], dx = tt.clientX - s0.x, dy = tt.clientY - s0.y;
-    if(Date.now() - s0.t > 1500 || Math.abs(dy) < TH || Math.abs(dy) < Math.abs(dx)*1.4) return;
-    t0 = s0; const o = over(dy); t0 = null;
-    const idx = visibleList.findIndex(x=>x.n===current);
-    if(idx < 0) return;
-    const atB = sbody.scrollTop >= maxScroll() - 2, atT = sbody.scrollTop <= 1;
-    if(dy < 0 && atB && o > TH && idx < visibleList.length-1){ swipeDir = 'from-b'; open(visibleList[idx+1].n,'view'); }
-    else if(dy > 0 && atT && -o > TH && idx > 0){ swipeDir = 'from-t'; open(visibleList[idx-1].n,'view'); }
-  }, {passive:true});
-  sbody.addEventListener('touchcancel', ()=>{ t0 = null; hideHint(); }, {passive:true});
-})();
-
 /* ---------- PWA ---------- */
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{ navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); });
@@ -1837,7 +1747,7 @@ function openInstallHelp(){
 if(isStandalone){ installBtn.style.display = 'none'; }
 else{
   installBtn.style.display = '';
-  installBtn.textContent = '📲 Instal·la l\'app al mòbil';
+  installBtn.textContent = 'Instal·lar l\'aplicació';
 }
 window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall = e; });
 installBtn.addEventListener('click', async ()=>{
