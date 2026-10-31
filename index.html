@@ -1444,12 +1444,56 @@ function startData(){
       if(firstLoad) handleHash();
     }
     const md = snap.metadata;
+    if(role === 'editor' && !md.fromCache && !md.hasPendingWrites) syncExcel();
     if(md.hasPendingWrites) setSync('wait','Sincronitzant…');
     else if(md.fromCache) setSync(navigator.onLine?'wait':'off', navigator.onLine ? 'Connectant…' : 'Sense connexió: es mostren les dades desades.');
     else setSync('ok','Sincronitzat amb el núvol');
   }, syncError);
 }
+/* ---------- dades de l'Excel (inventari-excel.json) ----------
+   Un cop per sessió d'editor: omple només els camps buits de cada peça i crea les que falten.
+   Mai sobreescriu un valor existent, ni toca fotos, ni recupera peces eliminades. */
+let excelDone = false;
+function excelChanges(list, cur){
+  const out = [];
+  list.forEach(p=>{
+    if(!p || typeof p.n !== 'number') return;
+    const ex = cur[p.n];
+    if(ex && ex.deleted) return;
+    const add = {};
+    Object.keys(p).forEach(k=>{
+      if(k === 'n' || k === 'photo' || k === 'extra' || !LABEL[k]) return;
+      const v = String(p[k]==null?'':p[k]).trim();
+      if(v && (!ex || String(ex[k]==null?'':ex[k]).trim() === '')) add[k] = v;
+    });
+    if(Object.keys(add).length) out.push({n:p.n, isNew:!ex, add:add, titol:(ex && ex.titol) || add.titol || ''});
+  });
+  return out;
+}
+async function syncExcel(){
+  if(excelDone || !FB) return;
+  excelDone = true;
+  let d;
+  try{ d = await fetch('inventari-excel.json', {cache:'no-store'}).then(r=>r.ok ? r.json() : null); }catch(e){ d = null; }
+  if(!d || !Array.isArray(d.pieces) || role !== 'editor') return;
+  const ch = excelChanges(d.pieces, pieces);
+  if(!ch.length) return;
+  const stamp = Date.now();
+  try{
+    for(let i=0;i<ch.length;i+=150){
+      const b = FB.writeBatch(FB.db);
+      ch.slice(i,i+150).forEach(c=>b.set(pieceRef(c.n), Object.assign({}, c.add, {n:c.n, updatedAt:stamp}), {merge:true}));
+      if(i === 0){
+        const nous = ch.filter(c=>c.isNew).length;
+        hist(b,'importar',{n:0,titol:''},{info:'Dades de l\'Excel: '+ch.length+' peces completades ('+nous+' noves)'});
+      }
+      await b.commit();
+    }
+    toast('Inventari completat amb l\'Excel ('+ch.length+' peces)');
+  }catch(err){ excelDone = false; syncError(err); }
+}
 function stopData(){
+  excelDone = false;
   if(unsubPriv){ unsubPriv(); unsubPriv = null; }
   priv = {};
   if(unsubPieces){ unsubPieces(); unsubPieces = null; }
