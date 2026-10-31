@@ -667,6 +667,8 @@ const FB = window.FB || null;
 const EDITOR_EMAIL = 'editor@escultures.app';
 let guest = false;   // convidat: sense compte, només lectura
 const NAME_KEY = 'inventari-nom';
+// Contrasenya d'administrador necessària per esborrar tot l'historial. Canvia-la aquí.
+const ADMIN_PASSWORD = 'admin-escultures';
 
 const FIELDS = [
   ['titol',   "Títol de l'obra / tema", 'text'],
@@ -1316,40 +1318,50 @@ function openHistory(){
     sbody.innerHTML = '<p class="hnote">No s\'ha pogut carregar l\'historial ('+esc((err&&err.code)||'error')+').</p>';
   });
 }
-let clearArmed = 0;
+// Llegeix una tanda d'ids de l'historial. Abans s'ignoraven les instantànies de la memòria cau
+// i, si el servidor no en tornava cap de nova (sense includeMetadataChanges no es notifica),
+// el temps d'espera retornava [] i l'esborrat acabava amb «0 registres» sense esborrar res.
 function histIdsOnce(){
-  return new Promise(res=>{
-    let un = null, done = false;
-    const fin = ids=>{ if(done) return; done = true; if(un) un(); res(ids); };
-    const t = setTimeout(()=>fin([]), 5000);
-    un = FB.onSnapshot(FB.query(FB.collection(FB.db,'historial'), FB.limit(400)), snap=>{
-      if(snap.metadata && snap.metadata.fromCache && !snap.empty && navigator.onLine === false){ clearTimeout(t); const a=[]; snap.forEach(d=>a.push(d.id)); fin(a); return; }
-      if(snap.metadata && snap.metadata.fromCache) return;
-      clearTimeout(t); const a = []; snap.forEach(d=>a.push(d.id)); fin(a);
-    }, ()=>{ clearTimeout(t); fin([]); });
+  return new Promise((res, rej)=>{
+    let un = null, done = false, cached = null;
+    const ids = snap=>{ const a = []; snap.forEach(d=>a.push(d.id)); return a; };
+    const fin = (err, a)=>{ if(done) return; done = true; clearTimeout(t); if(un) un(); err ? rej(err) : res(a); };
+    const t = setTimeout(()=>cached ? fin(null, cached) : fin(new Error('timeout')), 8000);
+    un = FB.onSnapshot(FB.query(FB.collection(FB.db,'historial'), FB.limit(400)), {includeMetadataChanges:true}, snap=>{
+      if(snap.metadata && snap.metadata.fromCache){ cached = ids(snap); if(navigator.onLine === false) fin(null, cached); return; }
+      fin(null, ids(snap));
+    }, err=>fin(err));
   });
 }
 async function clearHistory(){
   if(role !== 'editor' || !FB) return;
   setSync('wait','Esborrant l\'historial…');
-  let total = 0;
+  const deleted = new Set();
   try{
     for(let k=0;k<50;k++){
-      const ids = await histIdsOnce();
+      const ids = (await histIdsOnce()).filter(id=>!deleted.has(id));
       if(!ids.length) break;
       for(let i=0;i<ids.length;i+=400){
-        const b = FB.writeBatch(FB.db);
-        ids.slice(i,i+400).forEach(id=>b.delete(FB.doc(FB.db,'historial',id)));
-        await b.commit(); total += Math.min(400, ids.length-i);
+        const part = ids.slice(i,i+400), b = FB.writeBatch(FB.db);
+        part.forEach(id=>b.delete(FB.doc(FB.db,'historial',id)));
+        await b.commit(); part.forEach(id=>deleted.add(id));
       }
-      if(ids.length < 400) break;
     }
-    toast('Historial esborrat ('+total+' registres)');
     setSync('ok','Sincronitzat amb el núvol');
+    if(mode === 'hist') openHistory();
+    toast(deleted.size ? 'Historial esborrat: '+deleted.size+' registres eliminats' : 'L\'historial ja era buit');
   }catch(err){
     syncError(err);
-    alert('No s\'ha pogut esborrar tot l\'historial ('+((err&&err.code)||'error')+'). Si diu permission-denied, falta publicar les regles noves de Firestore.');
+    if(mode === 'hist') openHistory();
+    alert('No s\'ha pogut esborrar tot l\'historial ('+((err&&err.code)||err.message||'error')+'). Registres eliminats: '+deleted.size+'. Si diu permission-denied, falta publicar les regles noves de Firestore.');
   }
+}
+function askClearHistory(btn){
+  const pass = prompt('Contrasenya d\'administrador per esborrar tot l\'historial:');
+  if(pass === null) return;
+  if(pass !== ADMIN_PASSWORD){ alert('Contrasenya incorrecta. No s\'ha esborrat res.'); return; }
+  if(!confirm('ATENCIÓ: s\'esborraran TOTS els registres de l\'historial de manera definitiva.\nAquesta acció és irreversible i no es podrà desfer.\n\nVols continuar?')) return;
+  btn.disabled = true; btn.textContent = 'Esborrant…'; clearHistory();
 }
 function renderHistory(items){
   if(!items.length){ sbody.innerHTML = '<p class="hnote">Encara no hi ha cap canvi registrat.</p>'; return; }
@@ -1383,15 +1395,7 @@ function renderHistory(items){
   });
   sbody.innerHTML = html;
   const hc = $('hClear');
-  if(hc){
-    const armed = ()=>Date.now() - clearArmed < 6000;
-    const label = ()=>{ hc.textContent = armed() ? 'Toca un altre cop: s\'esborra tot i no es pot desfer' : 'Esborra tot l\'historial'; };
-    label();
-    hc.addEventListener('click', ()=>{
-      if(!armed()){ clearArmed = Date.now(); label(); setTimeout(()=>{ if(hc.isConnected) label(); }, 6100); return; }
-      clearArmed = 0; hc.disabled = true; hc.textContent = 'Esborrant…'; clearHistory();
-    });
-  }
+  if(hc) hc.addEventListener('click', ()=>askClearHistory(hc));
   const byId = {}; items.forEach(i=>byId[i.id]=i);
   Array.prototype.forEach.call(sbody.querySelectorAll('.hundo'), b=>b.addEventListener('click', ()=>undo(byId[b.dataset.id], b)));
   Array.prototype.forEach.call(sbody.querySelectorAll('.hpiece'), b=>b.addEventListener('click', ()=>{
