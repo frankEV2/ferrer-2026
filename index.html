@@ -408,6 +408,36 @@ header.scrolled h1{font-size:1.25rem}
 .bar i{background:linear-gradient(90deg,#8b3a10,#E8923A)}
 .progress b{color:var(--clay)}
 .chip.serie{border-style:dashed}
+/* ---- preferides i etiqueta QR ---- */
+.fav{position:absolute;top:6px;right:6px;z-index:2;width:34px;height:34px;border-radius:50%;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:var(--paper);background:color-mix(in srgb,var(--paper) 78%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.18);transition:transform .2s var(--ease)}
+.fav svg{width:18px;height:18px;fill:none;stroke:var(--ink-2);stroke-width:2}
+.fav.on svg{fill:#d64545;stroke:#d64545}
+.fav:active{transform:scale(.85)}
+.fav,.qrb{position:absolute;top:6px;z-index:2;width:34px;height:34px;border-radius:50%;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:var(--paper);background:color-mix(in srgb,var(--paper) 78%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 1px 4px rgba(0,0,0,.18);transition:transform .2s var(--ease),background .2s}
+.qrb{left:6px}
+.qrb svg{width:18px;height:18px;fill:none;stroke:var(--ink-2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.qrb.on{background:var(--moss)}
+.qrb.on svg{stroke:var(--paper)}
+.qrb:active{transform:scale(.85)}
+span.qrb{cursor:default}
+.thumb.hq .num{left:46px}
+body.sel .fav,body.sel .qrb{display:none}
+body.sel .thumb.hq .num{left:8px}
+.grid.v-s .fav,.grid.v-s .qrb{width:26px;height:26px;top:4px}.grid.v-s .fav{right:4px}.grid.v-s .qrb{left:4px}.grid.v-s .fav svg,.grid.v-s .qrb svg{width:14px;height:14px}
+.grid.v-s .thumb.hq .num{left:34px}
+.grid.v-list .card .thumb,.grid.v-det .card .thumb{position:relative}
+.grid.v-list .fav,.grid.v-det .fav,.grid.v-list .qrb,.grid.v-det .qrb{width:24px;height:24px;top:2px}.grid.v-list .fav,.grid.v-det .fav{right:2px}.grid.v-list .qrb,.grid.v-det .qrb{left:2px}
+.grid.v-list .qrb svg,.grid.v-det .qrb svg{width:13px;height:13px}.grid.v-list .fav svg,.grid.v-det .fav svg{width:13px;height:13px}
+.favsec{margin:0 0 18px}
+.favsec h2{font-size:.95rem;margin:0 0 8px;display:flex;align-items:center;gap:6px}
+.favsec h2 i{font-style:normal;font-weight:400;color:var(--ink-2);font-size:.8rem}
+.favrow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.favrow .card{flex:0 0 120px;scroll-snap-align:start}
+.favrow .cbody{padding:7px 8px 9px}
+.favrow .ctitle{font-size:.78rem}
+.favrow .cdet{display:none}
 .chip.serie.on{background:var(--clay);border-color:var(--clay);color:#fff;border-style:solid}
 .chip.serie i{font-style:normal;opacity:.65;font-size:.7rem;margin-left:3px}
 .seriechips{margin-top:7px}
@@ -580,6 +610,9 @@ header.scrolled h1{font-size:1.25rem}
       <option value="__pend">Pendents de completar</option>
       <option value="__done">Ja documentades</option>
       <option value="__nophoto">Sense foto</option>
+      <option value="__fav">Preferides</option>
+      <option value="__qr">Amb etiqueta QR</option>
+      <option value="__noqr">Sense etiqueta QR</option>
     </select>
     <button type="button" class="viewbtn" id="viewBtn" aria-haspopup="true" aria-expanded="false" aria-label="Canvia la vista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Vista</span></button>
     <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
@@ -589,12 +622,16 @@ header.scrolled h1{font-size:1.25rem}
     <button class="chip" data-f="__pend">Pendents</button>
     <button class="chip" data-f="__done">Documentades</button>
     <button class="chip" data-f="__nophoto">Sense foto</button>
+    <button class="chip" data-f="__fav">❤️ Preferides</button>
+    <button class="chip" data-f="__qr">Amb QR</button>
+    <button class="chip" data-f="__noqr">Sense QR</button>
     <button class="chip editonly" id="selChip">Selecció múltiple</button>
   </div>
   <div class="chips seriechips" id="serieChips" style="display:none"></div>
 </header>
 
 <main>
+  <section class="favsec" id="favSec" hidden><h2>❤️ Preferides <i id="favCount"></i></h2><div class="favrow" id="favRow"></div></section>
   <div class="grid" id="grid"></div>
   <div class="footer">
     <p class="fgroup">Consulta</p>
@@ -687,7 +724,7 @@ const FIELDS = [
   ['obs',     'Observacions',           'textarea'],
   ['desc',    'Història / introducció (fitxa completa)', 'textarea']
 ];
-const LABEL = {}; FIELDS.forEach(f=>LABEL[f[0]] = f[1]);
+const LABEL = {qr:'Etiqueta QR'}; FIELDS.forEach(f=>LABEL[f[0]] = f[1]);
 const ESTATS = ['','Excel·lent','Bo','Regular','Necessita restauració','Greu'];
 const SITUACIONS = ['','Al taller','Exposada','Cedida','Venuda','Magatzem','Obra pública'];
 const SELECTS = {estat:ESTATS, situacio:SITUACIONS};
@@ -717,6 +754,11 @@ const VIEWS = [
 ];
 let viewMode = 'l';
 try{ const sv = localStorage.getItem('inv-view'); if(sv && VIEWS.some(v=>v[0]===sv)) viewMode = sv; }catch(e){}
+// preferides: es guarden en aquest dispositiu (cada persona té les seves)
+const FAV_KEY = 'inv-favs';
+let favs = new Set();
+try{ const fv = JSON.parse(localStorage.getItem(FAV_KEY)||'[]'); if(Array.isArray(fv)) favs = new Set(fv.filter(x=>typeof x==='number')); }catch(e){}
+function saveFavs(){ try{ localStorage.setItem(FAV_KEY, JSON.stringify(Array.from(favs))); }catch(e){} }
 let priv = {};              // n -> {valor}  (només l'editor)
 let unsubPriv = null, unsubExtras = [];
 const extraCache = {};      // id de foto de detall -> dataURL
@@ -728,6 +770,7 @@ const $ = id => document.getElementById(id);
 function listAll(){
   return Object.keys(pieces).map(k=>pieces[k]).filter(p=>p && typeof p.n==='number' && !p.deleted).sort((a,b)=>a.n-b.n);
 }
+function hasQR(p){ return p.qr === true || p.qr === 'Sí'; } // 'Sí' si s'ha desfet des de l'historial
 function isDoc(p){ return DOCFIELDS.some(k => (p[k]||'').trim() !== ''); }
 function photo(p){ return p.photo || null; }
 function safeUrl(u){ u = String(u||'').trim(); return /^https?:\/\//i.test(u) ? u : ''; }
@@ -773,6 +816,9 @@ function matches(p){
   if(f === '__pend' && isDoc(p)) return false;
   if(f === '__done' && !isDoc(p)) return false;
   if(f === '__nophoto' && photo(p)) return false;
+  if(f === '__fav' && !favs.has(p.n)) return false;
+  if(f === '__qr' && !hasQR(p)) return false;
+  if(f === '__noqr' && hasQR(p)) return false;
   if(serieSel && String(p.serie||'').trim() !== serieSel) return false;
   const s = q.value.trim().toLowerCase();
   if(!s) return true;
@@ -789,6 +835,7 @@ function render(){
   sc.innerHTML = ns ? ('<button class="chip serie'+(serieSel?'':' on')+'" data-s="">Totes les sèries</button>' +
     Object.keys(sr).sort().map(k=>'<button class="chip serie'+(serieSel===k?' on':'')+'" data-s="'+esc(k)+'">'+esc(k)+' <i>'+sr[k]+'</i></button>').join('')) : '';
   $('barFill').style.width = (list.length ? Math.round(done/list.length*100) : 0) + '%';
+  renderFavs(list);
   visibleList = list.filter(matches);
   grid.classList.toggle('animate', animateGrid); animateGrid = false;
   VIEWS.forEach(v=>grid.classList.toggle('v-'+v[0], v[0]===viewMode));
@@ -801,26 +848,67 @@ function render(){
     grid.innerHTML = '<p class="noresults">' + msg + '</p>';
     return;
   }
-  grid.innerHTML = visibleList.map((p,i)=>{
-    const src = photo(p), t = (p.titol||'').trim();
+  grid.innerHTML = visibleList.map(cardHtml).join('');
+  bindCards(grid);
+}
+const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4h2c.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+function renderFavs(list){
+  const fl = list.filter(p=>favs.has(p.n));
+  $('favSec').hidden = !fl.length;
+  $('favCount').textContent = fl.length ? '('+fl.length+')' : '';
+  $('favRow').innerHTML = fl.map(cardHtml).join('');
+  bindCards($('favRow'));
+}
+function toggleFav(n){
+  if(favs.has(n)) favs.delete(n); else favs.add(n);
+  saveFavs(); render();
+}
+function bindCards(root){
+  Array.prototype.forEach.call(root.querySelectorAll('button.qrb'), h=>{
+    h.addEventListener('click', e=>{ e.stopPropagation(); toggleQR(parseInt(h.dataset.n,10)); });
+  });
+  Array.prototype.forEach.call(root.querySelectorAll('.fav'), h=>{
+    h.addEventListener('click', e=>{ e.stopPropagation(); toggleFav(parseInt(h.dataset.n,10)); });
+  });
+  Array.prototype.forEach.call(root.querySelectorAll('.card'), c=>{
+    const go = ()=>{
+      const n = parseInt(c.dataset.n,10);
+      if(selMode){ toggleSel(n, c); return; }
+      open(n,'view');
+    };
+    c.addEventListener('click', go);
+    c.addEventListener('keydown', e=>{ if(e.target===c && (e.key==='Enter'||e.key===' ')){ e.preventDefault(); go(); } });
+  });
+}
+const QRICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>';
+function qrBtn(p){
+  const on = hasQR(p);
+  if(role === 'editor') return '<button type="button" class="qrb'+(on?' on':'')+'" data-n="'+p.n+'" aria-pressed="'+on+'" aria-label="'+(on?'Desmarca l\'etiqueta QR':'Marca l\'etiqueta QR com a assignada')+'" title="'+(on?'Etiqueta QR assignada':'Sense etiqueta QR')+'">'+QRICON+'</button>';
+  return on ? '<span class="qrb on" title="Etiqueta QR assignada">'+QRICON+'</span>' : '';
+}
+function toggleQR(n){
+  const p = find(n);
+  if(!p || role !== 'editor' || !FB) return;
+  const v = !hasQR(p), b = FB.writeBatch(FB.db), upd = {n:n, qr:v, updatedAt:Date.now()};
+  b.set(pieceRef(n), upd, {merge:true});
+  hist(b,'editar',p,{canvis:{qr:[hasQR(p)?'S\u00ed':'No', v?'S\u00ed':'No']}, info:'Etiqueta QR'});
+  pieces[n] = Object.assign({}, p, upd); commit(b);
+  toast(v ? 'Etiqueta QR assignada' : 'Etiqueta QR desmarcada'); render();
+}
+function cardHtml(p,i){
+    const src = photo(p), t = (p.titol||'').trim(), fv = favs.has(p.n);
     const meta = [p.serie, p.any].filter(Boolean).join(' · ');
-    return '<button class="card'+(selected.has(p.n)?' picked':'')+'" style="--i:'+Math.min(i,14)+'" data-n="'+p.n+'">'+
-      '<div class="thumb">'+(src?'<img loading="lazy" src="'+src+'" alt="">':'<span class="none">Sense foto</span>')+
-      '<span class="num">'+p.n+'</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7"/></svg></span></div>'+
+    return '<div class="card'+(selected.has(p.n)?' picked':'')+'" role="button" tabindex="0" style="--i:'+Math.min(i,14)+'" data-n="'+p.n+'">'+
+      '<div class="thumb'+(qrBtn(p)?' hq':'')+'">'+(src?'<img loading="lazy" src="'+src+'" alt="">':'<span class="none">Sense foto</span>')+
+      '<span class="num">'+p.n+'</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7"/></svg></span>'+
+      qrBtn(p)+
+      '<button type="button" class="fav'+(fv?' on':'')+'" data-n="'+p.n+'" aria-pressed="'+fv+'" aria-label="'+(fv?'Treu de preferides':'Afegeix a preferides')+'">'+HEART+'</button></div>'+
       '<div class="cbody">'+
         '<div class="ctitle'+(t?'':' untitled')+'">'+(t?esc(t):'Sense títol')+'</div>'+
         (meta?'<div class="cmeta">'+esc(meta)+'</div>':'')+
         (isDoc(p)?'':'<span class="pending">Per completar</span>')+
       '</div>'+
-      '<div class="cdet">'+[p.serie,p.any,p.tecnica,p.dim,p.situacio].filter(Boolean).map(v=>'<span>'+esc(v)+'</span>').join('')+'</div></button>';
-  }).join('');
-  Array.prototype.forEach.call(grid.querySelectorAll('.card'), c=>{
-    c.addEventListener('click', ()=>{
-      const n = parseInt(c.dataset.n,10);
-      if(selMode){ toggleSel(n, c); return; }
-      open(n,'view');
-    });
-  });
+      '<div class="cdet">'+[p.serie,p.any,p.tecnica,p.dim,p.situacio].filter(Boolean).map(v=>'<span>'+esc(v)+'</span>').join('')+'</div></div>';
 }
 
 /* ---------- selecció i edició múltiple ---------- */
@@ -1236,7 +1324,9 @@ function openQR(n){
     '<h3 class="dtitle'+((p.titol||'').trim()?'':' untitled')+'">'+(esc((p.titol||'').trim())||'Sense títol')+'</h3>'+
     '<p class="qrurl">'+esc(url)+'</p></div>'+
     '<div class="navrow"><button id="qrPrint">Imprimir etiqueta</button><button id="qrPng">Descarregar PNG</button></div>'+
+    (role==='editor'?'<div class="navrow"><button id="qrMark">'+(hasQR(p)?'✓ Etiqueta QR assignada (desmarca)':'Marca l\'etiqueta QR com a assignada')+'</button></div>':'')+
     '<div class="navrow"><button id="qrBack">Tornar a la fitxa</button></div>';
+  if($('qrMark')) $('qrMark').addEventListener('click', ()=>{ toggleQR(n); openQR(n); });
   $('qrPrint').addEventListener('click', ()=>printLabels([p], true));
   $('qrPng').addEventListener('click', ()=>qrPng(url, blob=>saveBlob('qr-escultura-'+n+'.png', blob)));
   $('qrBack').addEventListener('click', ()=>open(n,'view'));
