@@ -366,6 +366,17 @@ body.sel .selbar{display:flex;animation:rise .4s var(--ease) both}
 .cv-sound svg{width:18px;height:18px;flex:none}
 .cv-sound:active{transform:scale(.95)}
 @media(hover:hover){.cv-sound:hover{background:rgba(20,22,15,.7)}}
+.cv-nav{position:absolute;z-index:6;top:42%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(239,235,225,.45);background:rgba(20,22,15,.45);color:#EFEBE1;cursor:pointer;padding:0;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .2s,transform .15s}
+.cv-nav svg{width:22px;height:22px}
+.cv-prev{left:14px}.cv-next{right:14px}
+.cv-nav[hidden],.cv-dots[hidden]{display:none}
+.cv-nav:active{transform:translateY(-50%) scale(.92)}
+@media(hover:hover){.cv-nav:hover{background:rgba(20,22,15,.7)}}
+.cv-dots{position:absolute;z-index:6;top:calc(28px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.cv-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:none;background:rgba(239,235,225,.45);cursor:pointer;transition:width .3s,background .3s}
+.cv-dots button.on{width:22px;background:#EFEBE1}
 .cv-video iframe{position:absolute;top:50%;left:50%;border:0;width:max(100vw,177.78vh);height:max(100vh,56.25vw);transform:translate(-50%,-50%)}
 .cv-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,8,.25) 0%,rgba(10,12,8,0) 30%,rgba(10,12,8,.55) 60%,rgba(10,12,8,.92) 100%)}
 .cv-inner{padding-bottom:6px}
@@ -2773,7 +2784,10 @@ function refreshApp(){
 (function(){
   const box = document.getElementById('cvVideo');
   if(!box) return;
-  const VID = '542240274', T0 = 551, T1 = 585;   // 9:11 – 9:45 de «El ferrer del meu poble»
+  const VID = '542240274';                       // «El ferrer del meu poble» (Pere Martell)
+  // Fragments on només surt l'autor parlant a càmera [inici, final] en segons
+  const CLIPS = [[551,585],[57,76],[474,493],[506,522],[866,895]];
+  let ci = 0, T0 = CLIPS[0][0], T1 = CLIPS[0][1], switching = false;
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const save = navigator.connection && navigator.connection.saveData;
   if(reduce || save) return;                     // es queda la foto fixa
@@ -2806,6 +2820,30 @@ function refreshApp(){
     coverEl.removeEventListener('pointerdown', firstTouch); document.removeEventListener('keydown', firstTouch);
   }
   coverEl.addEventListener('pointerdown', firstTouch); document.addEventListener('keydown', firstTouch);
+  // fletxes ‹ › i punts per canviar de fragment
+  const ARR_L = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"/></svg>';
+  const ARR_R = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 5 16 12 9 19"/></svg>';
+  const prevB = document.createElement('button'), nextB = document.createElement('button'), dots = document.createElement('div');
+  prevB.type = nextB.type = 'button';
+  prevB.className = 'cv-nav cv-prev'; nextB.className = 'cv-nav cv-next';
+  prevB.innerHTML = ARR_L; nextB.innerHTML = ARR_R;
+  prevB.setAttribute('aria-label','Vídeo anterior'); nextB.setAttribute('aria-label','Vídeo següent');
+  dots.className = 'cv-dots';
+  dots.innerHTML = CLIPS.map((c,i)=>'<button type="button" aria-label="Vídeo '+(i+1)+' de '+CLIPS.length+'"></button>').join('');
+  prevB.hidden = nextB.hidden = dots.hidden = true;
+  coverEl.append(prevB, nextB, dots);
+  function paintDots(){ [...dots.children].forEach((d,i)=>d.classList.toggle('on', i===ci)); }
+  function goClip(i){
+    ci = (i + CLIPS.length) % CLIPS.length; T0 = CLIPS[ci][0]; T1 = CLIPS[ci][1];
+    switching = true; box.classList.remove('on');           // fosa breu entre fragments
+    setTimeout(()=>{ post('setCurrentTime', T0); post('play'); setTimeout(()=>{ switching = false; box.classList.add('on'); }, 450); }, 350);
+    paintDots();
+  }
+  prevB.addEventListener('click', e=>{ e.stopPropagation(); goClip(ci-1); });
+  nextB.addEventListener('click', e=>{ e.stopPropagation(); goClip(ci+1); });
+  dots.addEventListener('click', e=>{ e.stopPropagation(); const i=[...dots.children].indexOf(e.target.closest('button')); if(i>=0 && i!==ci) goClip(i); });
+  paintDots();
+
   // quan es tanca la portada s'atura el vídeo
   new MutationObserver(()=>{
     if(active && coverEl.classList.contains('out')){ active = false; post('pause'); post('setMuted', true); }
@@ -2828,12 +2866,14 @@ function refreshApp(){
     }else if(d.event === 'play'){
       if(!active){ post('pause'); return; }
       box.classList.add('on');
-      if(btn.hidden){ btn.hidden = false; setSound(!muted); }
+      if(btn.hidden){ btn.hidden = prevB.hidden = nextB.hidden = dots.hidden = false; setSound(!muted); }
     }else if((d.event === 'timeupdate' || d.event === 'playProgress') && d.data){
-      if(d.data.seconds >= T1 || d.data.seconds < T0 - 1) post('setCurrentTime', T0);
+      if(switching) return;
+      if(d.data.seconds >= T1) goClip(ci+1);                  // en acabar, passa al fragment següent
+      else if(d.data.seconds < T0 - 1) post('setCurrentTime', T0);
       else if(d.data.seconds > T0) box.classList.add('on');
     }else if(d.event === 'ended'){
-      post('setCurrentTime', T0); post('play');
+      goClip(ci+1);
     }
   });
 })();
