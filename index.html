@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Escultures">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
 <script src="forja.js"></script>
@@ -816,6 +816,49 @@ main{position:relative;z-index:1}
 .scanframe{position:relative;width:min(68vw,300px);aspect-ratio:1;border-radius:22px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5);border:3px solid #E8923A}
 .scanmsg{position:absolute;left:16px;right:16px;top:calc(24px + env(safe-area-inset-top));margin:0;text-align:center;color:#fff;font-size:.92rem;text-shadow:0 1px 6px rgba(0,0,0,.7)}
 .scanclose{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:13px 38px;border-radius:99px;border:none;background:#fff;color:#111;font-weight:600;font-size:.95rem;cursor:pointer}
+/* ===== capçalera i filtres (redisseny) ===== */
+header{padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:10px}
+.hrow{align-items:center;margin-bottom:8px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.bmark{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff;
+  background:radial-gradient(circle at 70% 25%,#F0A35C 0%,#C4571B 55%,#7A2E0E 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 6px 14px -8px rgba(196,87,27,.8);transition:width .3s var(--ease),height .3s var(--ease)}
+.bmark svg{width:26px;height:26px}
+.bmark .bm-s{fill:#FFE2A8}
+.fx .bmark .bm-h{transform-origin:22px 4px;animation:hammer 3.2s ease-in-out infinite}
+.fx .bmark .bm-s{animation:spark 3.2s ease-out infinite}
+@keyframes hammer{0%,70%,100%{transform:rotate(0)}78%{transform:rotate(-14deg)}86%{transform:rotate(4deg)}}
+@keyframes spark{0%,84%{opacity:0}87%{opacity:1}100%{opacity:0}}
+.btxt{min-width:0}
+.beyebrow{margin:0 0 1px;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header h1{font-size:1.45rem;line-height:1;white-space:nowrap}
+header.scrolled h1{font-size:1.15rem}
+header.scrolled .beyebrow{display:none}
+header.scrolled .bmark{width:30px;height:30px}
+header.scrolled .bmark svg{width:21px;height:21px}
+.progress{display:flex;align-items:baseline;gap:1px;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;max-width:120px}
+.progress b{font-size:1.05rem}
+.progress span{font-size:.75rem;color:var(--ink-2)}
+.progress i{flex-basis:100%;text-align:right;font-style:normal;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+header.scrolled .progress i{display:none}
+.bar{height:2px;margin-bottom:10px;background:color-mix(in srgb,var(--rule) 70%,transparent)}
+.bar i{box-shadow:0 0 8px rgba(232,146,58,.7)}
+.fbtn{position:relative}
+.fbtn[aria-expanded="true"],.fbtn.act{border-color:var(--clay);color:var(--clay)}
+.adv{margin-top:10px;padding:14px;display:grid;gap:14px;box-shadow:0 18px 40px -22px rgba(0,0,0,.45)}
+.fsec{display:grid;gap:8px}
+.flab{margin:0;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+.adv .chips{flex-wrap:wrap;overflow:visible;margin:0;padding:0}
+.fbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.fbar .advclear{margin:0}
+.fdone{padding:9px 22px;border-radius:99px;border:none;background:var(--moss);color:var(--paper);font-weight:600;font-size:.82rem;cursor:pointer}
+.navrow2 .cats{margin-top:0}
+.fsum{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.fsum[hidden],.seriechips{display:none!important}
+.ftag{display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 11px;border-radius:99px;border:1px solid var(--clay);background:color-mix(in srgb,var(--clay) 12%,transparent);color:var(--ink);font-size:.74rem;cursor:pointer}
+.ftag span{font-size:.95rem;line-height:1;opacity:.7}
+.fres{margin-left:auto;font-size:.74rem;color:var(--ink-2)}
+.fres b{color:var(--ink)}
+@media(max-width:440px){.beyebrow{font-size:.56rem;letter-spacing:.14em}header h1{font-size:1.2rem}.bmark{width:34px;height:34px}.progress{max-width:74px}}
 </style></head><body class="noauth">
 
 <div class="cover" id="cover">
@@ -862,7 +905,13 @@ main{position:relative;z-index:1}
 
 <header>
   <div class="hrow">
-    <h1>Les peces del ferrer<span class="dot" id="dot" role="img" aria-label="Estat de sincronització"></span></h1>
+    <div class="brand">
+      <span class="bmark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 21h20l-2.4 3.2H8.4z" fill="currentColor" opacity=".9"/><path d="M4 17.5c0-1 .8-1.8 1.8-1.8h17.6c2.7 0 4.6 1 4.6 1v1.6s-1.9 1.2-4.6 1.2H11.5L9.6 21H6.4z" fill="currentColor"/><rect x="13" y="24" width="6" height="3" rx=".6" fill="currentColor" opacity=".75"/><g class="bm-h"><rect x="16.6" y="3.2" width="2.2" height="10" rx="1.1" transform="rotate(32 17.7 8.2)" fill="currentColor" opacity=".55"/><rect x="18.4" y="1.6" width="7.4" height="3.8" rx="1" transform="rotate(32 22.1 3.5)" fill="currentColor"/></g><circle class="bm-s" cx="15.2" cy="13.6" r=".9"/><circle class="bm-s" cx="12.6" cy="12.4" r=".6"/></svg></span>
+      <div class="btxt">
+        <p class="beyebrow">Antoni Mas Castelltort · Catàleg</p>
+        <h1>Les peces del ferrer<span class="dot" id="dot" role="img" aria-label="Estat de sincronització"></span></h1>
+      </div>
+    </div>
     <div class="progress" id="prog"></div>
   </div>
   <div class="bar"><i id="barFill"></i></div>
@@ -877,34 +926,43 @@ main{position:relative;z-index:1}
       <option value="__qr">Amb etiqueta QR</option>
       <option value="__noqr">Sense etiqueta QR</option>
     </select>
+    <button type="button" class="viewbtn fbtn" id="advBtn" aria-expanded="false" aria-controls="adv" aria-label="Filtres"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg><span>Filtres</span><b class="advn" id="advN" hidden></b></button>
     <button type="button" class="viewbtn" id="viewBtn" aria-haspopup="true" aria-expanded="false" aria-label="Canvia la vista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Vista</span></button>
     <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
-    <button type="button" class="viewbtn iconly" id="advBtn" aria-expanded="false" aria-controls="adv" aria-label="Cerca avançada" title="Cerca avançada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg><b class="advn" id="advN" hidden></b></button>
     <button type="button" class="viewbtn iconly" id="scanBtn" aria-label="Escaneja un codi QR" title="Escaneja un codi QR"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><line x1="7" y1="12" x2="17" y2="12"/></svg></button>
   </div>
   <div class="adv" id="adv" hidden>
-    <div class="advgrid">
-      <label>Sèrie<select id="a_serie"></select></label>
-      <label>Estat<select id="a_estat"></select></label>
-      <label>Ubicació<select id="a_ubic"></select></label>
-      <label>Situació<select id="a_sit"></select></label>
-      <label>Any des de<input type="number" id="a_y0" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 1980"></label>
-      <label>Any fins a<input type="number" id="a_y1" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 2005"></label>
+    <div class="fsec">
+      <p class="flab">Mostra</p>
+      <div class="chips fstat" id="chips" role="group" aria-label="Estat de les peces">
+      <button class="chip on" data-f="" aria-pressed="true">Tots els estats<b class="cn"></b></button>
+      <button class="chip" data-f="__pend" aria-pressed="false"><i class="cdot c-pend"></i>Pendents<b class="cn"></b></button>
+      <button class="chip" data-f="__done" aria-pressed="false"><i class="cdot c-done"></i>Documentades<b class="cn"></b></button>
+      <button class="chip" data-f="__nophoto" aria-pressed="false"><i class="cdot c-nophoto"></i>Sense foto<b class="cn"></b></button>
+      <button class="chip" data-f="__fav" aria-pressed="false"><i class="cdot c-fav"></i>Preferides<b class="cn"></b></button>
+      <button class="chip" data-f="__qr" aria-pressed="false"><i class="cdot c-qr"></i>Amb QR<b class="cn"></b></button>
+      <button class="chip" data-f="__noqr" aria-pressed="false"><i class="cdot c-noqr"></i>Sense QR<b class="cn"></b></button>
+      <button class="chip editonly" id="selChip">Selecció múltiple</button>
+      </div>
     </div>
-    <button type="button" class="advclear" id="advClear">Neteja els filtres</button>
+    <div class="fsec">
+      <p class="flab">Més filtres</p>
+      <div class="advgrid">
+        <label>Sèrie<select id="a_serie"></select></label>
+        <label>Conservació<select id="a_estat"></select></label>
+        <label>Ubicació<select id="a_ubic"></select></label>
+        <label>Situació<select id="a_sit"></select></label>
+        <label>Any des de<input type="number" id="a_y0" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 1980"></label>
+        <label>Any fins a<input type="number" id="a_y1" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 2005"></label>
+      </div>
+    </div>
+    <div class="fbar"><button type="button" class="advclear" id="advClear">Neteja els filtres</button><button type="button" class="fdone" id="advDone">Fet</button></div>
   </div>
-  <div class="cats" id="catTabs" role="tablist" aria-label="Categories"></div>
-  <div class="chips" id="chips" role="group" aria-label="Estat de les peces">
-    <button class="chip on" data-f="" aria-pressed="true">Tots els estats<b class="cn"></b></button>
-    <button class="chip" data-f="__pend" aria-pressed="false"><i class="cdot c-pend"></i>Pendents<b class="cn"></b></button>
-    <button class="chip" data-f="__done" aria-pressed="false"><i class="cdot c-done"></i>Documentades<b class="cn"></b></button>
-    <button class="chip" data-f="__nophoto" aria-pressed="false"><i class="cdot c-nophoto"></i>Sense foto<b class="cn"></b></button>
-    <button class="chip" data-f="__fav" aria-pressed="false"><i class="cdot c-fav"></i>Preferides<b class="cn"></b></button>
-    <button class="chip" data-f="__qr" aria-pressed="false"><i class="cdot c-qr"></i>Amb QR<b class="cn"></b></button>
-    <button class="chip" data-f="__noqr" aria-pressed="false"><i class="cdot c-noqr"></i>Sense QR<b class="cn"></b></button>
-    <button class="chip editonly" id="selChip">Selecció múltiple</button>
+  <div class="navrow2">
+    <div class="cats" id="catTabs" role="tablist" aria-label="Categories"></div>
   </div>
-  <div class="chips seriechips" id="serieChips" style="display:none"></div>
+  <div class="fsum" id="fsum" hidden aria-live="polite"></div>
+  <div class="chips seriechips" id="serieChips" hidden></div>
 </header>
 
 <main>
@@ -1077,7 +1135,7 @@ const FIELDS = [
 ];
 const LABEL = {qr:'Etiqueta QR', destacada:'Obra destacada'}; FIELDS.forEach(f=>LABEL[f[0]] = f[1]);
 // Ordre de visualització: aquestes peces surten primer (la numeració i els QR no canvien)
-const TOP = [66, 71, 72];
+const TOP = [];   // buit: ordre numèric ascendent
 // Categories (segons el camp «Tipus»)
 const CATS = [['', 'Totes'], ['esc', 'Escultures'], ['fest', 'Figures festives'], ['cep', 'Cèptres']];
 function catOf(p){
@@ -1107,6 +1165,20 @@ let selMode = false;
 let serieSel = '';
 let catSel = '';
 const STATUS = {'':()=>true, __pend:p=>!isDoc(p), __done:isDoc, __nophoto:p=>!photo(p), __fav:p=>favs.has(p.n), __qr:hasQR, __noqr:p=>!hasQR(p)};
+const FNAME = {__pend:'Pendents', __done:'Documentades', __nophoto:'Sense foto', __fav:'Preferides', __qr:'Amb QR', __noqr:'Sense QR'};
+function renderSummary(nVisible, nTotal){
+  const tags = [];
+  if(filt.value) tags.push(['f', FNAME[filt.value] || filt.value]);
+  if(serieSel) tags.push(['serie', serieSel]);
+  if(adv.estat) tags.push(['estat', adv.estat]);
+  if(adv.ubic) tags.push(['ubic', adv.ubic]);
+  if(adv.sit) tags.push(['sit', adv.sit]);
+  if(adv.y0 || adv.y1) tags.push(['any', (adv.y0||'…')+'–'+(adv.y1||'…')]);
+  const el = $('fsum');
+  el.hidden = !tags.length;
+  el.innerHTML = tags.length ? tags.map(t=>'<button type="button" class="ftag" data-k="'+t[0]+'" aria-label="Treu el filtre '+esc(t[1])+'">'+esc(t[1])+'<span aria-hidden="true">×</span></button>').join('') +
+    '<span class="fres"><b>'+nVisible+'</b> de '+nTotal+'</span>' : '';
+}
 function renderFilters(list){
   // pestanyes de categoria amb comptador (només les que tenen peces)
   const cnt = {}; list.forEach(p=>{ const c = catOf(p); cnt[c] = (cnt[c]||0)+1; });
@@ -1229,7 +1301,7 @@ function matches(p){
 }
 function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
 const adv = {estat:'', ubic:'', sit:'', y0:0, y1:0};
-function advActive(){ return (serieSel?1:0) + (adv.estat?1:0) + (adv.ubic?1:0) + (adv.sit?1:0) + ((adv.y0||adv.y1)?1:0); }
+function advActive(){ return (filt.value?1:0) + (serieSel?1:0) + (adv.estat?1:0) + (adv.ubic?1:0) + (adv.sit?1:0) + ((adv.y0||adv.y1)?1:0); }
 function fillSel(el, vals, cur){
   el.innerHTML = '<option value="">Totes</option>' + vals.map(v=>'<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(v)+'</option>').join('');
   el.value = cur;
@@ -1246,13 +1318,15 @@ function renderAdv(list){
   fillSel($('a_sit'), distinct(list,'situacio',SITUACIONS.slice(1)), adv.sit);
   const na = advActive(), an = $('advN');
   an.hidden = !na; an.textContent = na || '';
+  $('advBtn').classList.toggle('act', na > 0);
 }
 function render(){
   const list = listAll();
   const done = list.filter(isDoc).length;
   const sr = seriesList(list), ns = Object.keys(sr).length;
   if(serieSel && !sr[serieSel]) serieSel = '';
-  prog.innerHTML = '<b>' + done + '</b> de ' + list.length + ' peces documentades' + (ns ? ' · ' + ns + (ns===1?' sèrie':' sèries') : '');
+  prog.innerHTML = '<b>' + done + '</b><span>/' + list.length + '</span><i>documentades</i>';
+  prog.title = done + ' de ' + list.length + ' peces documentades' + (ns ? ' · ' + ns + (ns===1?' sèrie':' sèries') : '');
   const sc = $('serieChips');
   sc.style.display = ns ? '' : 'none';
   sc.innerHTML = ns ? ('<button class="chip serie'+(serieSel?'':' on')+'" data-s="">Totes les sèries</button>' +
@@ -1264,7 +1338,8 @@ function render(){
   renderAdv(list);
   const rc = $('resCount'), filtering = !!(q.value.trim() || filt.value || advActive() || catSel);
   renderFeat(list, filtering);
-  rc.hidden = !filtering || !list.length;
+  renderSummary(visibleList.length, list.length);
+  rc.hidden = !filtering || !list.length || !$('fsum').hidden;
   rc.innerHTML = '<b>'+visibleList.length+'</b> '+(visibleList.length===1?'resultat':'resultats')+' de '+list.length+' peces';
   grid.classList.toggle('animate', animateGrid); animateGrid = false;
   VIEWS.forEach(v=>grid.classList.toggle('v-'+v[0], v[0]===viewMode));
@@ -2015,25 +2090,53 @@ function startData(){
    Un cop per sessió d'editor: omple només els camps buits de cada peça i crea les que falten.
    Mai sobreescriu un valor existent, ni toca fotos, ni recupera peces eliminades. */
 let excelDone = false;
-function excelChanges(list, cur){
+// Fotos de detall que va afegir la mateixa importació (mai les que ha pujat la família)
+const IMPORTED_X = /^p\d+_x/;
+function onlyImported(ex){ const ids = extraIds(ex); return ids.length > 0 && ids.every(id=>IMPORTED_X.test(id)); }
+function excelChanges(list, cur, importedUrls){
   const out = [];
   list.forEach(p=>{
     if(!p || typeof p.n !== 'number') return;
     const ex = cur[p.n];
     if(ex && ex.deleted) return;
-    const add = {};
+    const add = {}, prev = (p.prev && typeof p.prev === 'object') ? p.prev : {};
     Object.keys(p).forEach(k=>{
       if(k === 'n' || k === 'photo' || k === 'extra' || !LABEL[k]) return;
-      const v = String(p[k]==null?'':p[k]).trim();
-      if(v && (!ex || String(ex[k]==null?'':ex[k]).trim() === '')) add[k] = v;
+      const v = String(p[k]==null?'':p[k]).trim(), now = ex ? String(ex[k]==null?'':ex[k]).trim() : '';
+      if(!v || v === now) return;
+      // camp buit, o un text que encara és exactament el que va posar una importació anterior
+      if(!now || (prev[k] != null && now === String(prev[k]).trim())) add[k] = v;
     });
     // fotos per enllaç (https): només si la peça encara no en té
     const ph = safeUrl(p.photo);
     if(ph && !(ex && ex.photo)) add.photo = ph;
     const xs = (Array.isArray(p.extra) ? p.extra : []).map(safeUrl).filter(Boolean);
-    const extra = (xs.length && !extraIds(ex).length) ? xs : [];
-    if(Object.keys(add).length || extra.length) out.push({n:p.n, isNew:!ex, add:add, extra:extra, titol:(ex && ex.titol) || add.titol || ''});
+    let extra = [], replace = [];
+    if(xs.length && !extraIds(ex).length) extra = xs;
+    else if(xs.length && onlyImported(ex)){
+      // només es substitueixen si eren de la importació i la llista ha canviat
+      const old = (importedUrls && importedUrls[p.n]) || null;
+      if(old && old.join('\n') !== xs.join('\n')){ extra = xs; replace = extraIds(ex); }
+    }
+    if(Object.keys(add).length || extra.length) out.push({n:p.n, isNew:!ex, add:add, extra:extra, replace:replace, titol:(ex && ex.titol) || add.titol || ''});
   });
+  return out;
+}
+function docOnce(ref){
+  return new Promise(res=>{
+    let un = null, done = false;
+    un = FB.onSnapshot(ref, s=>{ if(done) return; done = true; res(s.exists() ? s.data() : null); if(un) setTimeout(un,0); }, ()=>{ if(!done){ done = true; res(null); } });
+  });
+}
+async function importedExtraUrls(list){
+  const out = {};
+  for(const p of list){
+    const ex = p && pieces[p.n];
+    if(!ex || !Array.isArray(p.extra) || !onlyImported(ex)) continue;
+    const urls = [];
+    for(const id of extraIds(ex)){ const d = await docOnce(FB.doc(FB.db,'fotos',id)); urls.push(d && d.data || ''); }
+    out[p.n] = urls;
+  }
   return out;
 }
 async function syncExcel(){
@@ -2042,7 +2145,9 @@ async function syncExcel(){
   let d;
   try{ d = await fetch('inventari-excel.json', {cache:'no-store'}).then(r=>r.ok ? r.json() : null); }catch(e){ d = null; }
   if(!d || !Array.isArray(d.pieces) || role !== 'editor') return;
-  const ch = excelChanges(d.pieces, pieces);
+  let iu = {};
+  try{ iu = await importedExtraUrls(d.pieces); }catch(e){ iu = {}; }
+  const ch = excelChanges(d.pieces, pieces, iu);
   if(!ch.length) return;
   const stamp = Date.now();
   try{
@@ -2053,6 +2158,7 @@ async function syncExcel(){
         if(c.extra.length){
           const ids = c.extra.map((u,j)=>{ const id = 'p'+c.n+'_x'+stamp.toString(36)+j; b.set(FB.doc(FB.db,'fotos',id), {n:c.n, data:u, ts:stamp}); return id; });
           upd.extra = ids;
+          c.replace.forEach(id=>{ b.delete(FB.doc(FB.db,'fotos',id)); delete extraCache[id]; });
         }
         b.set(pieceRef(c.n), upd, {merge:true});
       });
@@ -2767,7 +2873,21 @@ $('serieChips').addEventListener('click', e=>{
 })();
 (function(){ // cerca avançada
   const panel = $('adv'), btn = $('advBtn');
-  btn.addEventListener('click', ()=>{ panel.hidden = !panel.hidden; btn.setAttribute('aria-expanded', panel.hidden?'false':'true'); });
+  function setOpen(o){ panel.hidden = !o; btn.setAttribute('aria-expanded', o?'true':'false'); }
+  btn.addEventListener('click', ()=>setOpen(panel.hidden));
+  $('advDone').addEventListener('click', ()=>{ setOpen(false); btn.focus(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !panel.hidden && !sheet.classList.contains('on')){ setOpen(false); btn.focus(); } });
+  $('fsum').addEventListener('click', e=>{
+    const t = e.target.closest('.ftag'); if(!t) return;
+    const k = t.dataset.k;
+    if(k==='f'){ filt.value = ''; Array.prototype.forEach.call(document.querySelectorAll('.chip[data-f]'), x=>x.classList.toggle('on', x.dataset.f==='')); }
+    if(k==='serie'){ serieSel = ''; }
+    if(k==='estat') adv.estat = '';
+    if(k==='ubic') adv.ubic = '';
+    if(k==='sit') adv.sit = '';
+    if(k==='any'){ adv.y0 = adv.y1 = 0; $('a_y0').value = $('a_y1').value = ''; }
+    animateGrid = true; render();
+  });
   const yr = v=>{ const n = parseInt(v,10); return (n>=1000 && n<=2200) ? n : 0; };
   function read(){
     serieSel = $('a_serie').value; adv.estat = $('a_estat').value; adv.ubic = $('a_ubic').value; adv.sit = $('a_sit').value;
