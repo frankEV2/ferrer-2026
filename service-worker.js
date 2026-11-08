@@ -1,7 +1,7 @@
 // Service worker — xarxa primer (així les actualitzacions arriben i "arrossegar per
 // refrescar" carrega la versió nova) i, si no hi ha connexió, l'app es serveix de la caché.
 // Puja la versió (CACHE_NAME) cada cop que publiquis canvis.
-const CACHE_NAME = 'inventari-escultures-v28';
+const CACHE_NAME = 'inventari-escultures-v29';
 const APP_SHELL = [
   './',
   './index.html',
@@ -14,7 +14,8 @@ const APP_SHELL = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-192-maskable.png',
-  './icons/icon-512-maskable.png'
+  './icons/icon-512-maskable.png',
+  './icons/apple-touch-icon.png'
 ];
 // Únics orígens externs que es poden desar a la caché (tipografies).
 // Mai es toca Firebase/Firestore: va per xarxa i té la seva pròpia caché.
