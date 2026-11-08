@@ -374,7 +374,7 @@ body.sel .selbar{display:flex;animation:rise .4s var(--ease) both}
 .cv-nav[hidden],.cv-dots[hidden]{display:none}
 .cv-nav:active{transform:translateY(-50%) scale(.92)}
 @media(hover:hover){.cv-nav:hover{background:rgba(20,22,15,.7)}}
-.cv-dots{position:absolute;z-index:6;top:calc(28px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.cv-dots{position:absolute;z-index:6;top:calc(35px + env(safe-area-inset-top));left:20px;display:flex;gap:8px}
 .cv-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:none;background:rgba(239,235,225,.45);cursor:pointer;transition:width .3s,background .3s}
 .cv-dots button.on{width:22px;background:#EFEBE1}
 .cv-video iframe{position:absolute;top:50%;left:50%;border:0;width:max(100vw,177.78vh);height:max(100vh,56.25vw);transform:translate(-50%,-50%)}
@@ -2785,13 +2785,13 @@ function refreshApp(){
   const box = document.getElementById('cvVideo');
   if(!box) return;
   const VID = '542240274';                       // «El ferrer del meu poble» (Pere Martell)
-  // Fragments [inici, final] en segons: l'autor parlant i les seves obres (sense altres persones)
+  // Fragments [inici, final, punt d'interès horitzontal 0–1] — al mòbil (vertical) el retall se centra en aquest punt
   const CLIPS = [
-    [551,585],   // l'autor parlant al taller
-    [341,377],   // escultures sobre fons negre, amb el cavall i genet
-    [220,228],   // l'Àliga de Tarragona
-    [506,522],   // primer pla de l'autor
-    [866,895]    // l'autor parlant al taller
+    [551,585,.59],   // l'autor parlant al taller
+    [341,377,.58],   // escultures sobre fons negre, amb el cavall i genet
+    [220,228,.58],   // l'Àliga de Tarragona
+    [506,522,.68],   // primer pla de l'autor
+    [866,895,.60]    // l'autor parlant al taller
   ];
   let ci = 0, T0 = CLIPS[0][0], T1 = CLIPS[0][1], switching = false;
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2804,6 +2804,14 @@ function refreshApp(){
   f.allow = 'autoplay; fullscreen; picture-in-picture';
   f.title = 'Antoni Mas parlant al seu taller'; f.tabIndex = -1;
   box.appendChild(f);
+  // encadrament: desplaça el vídeo perquè el punt d'interès quedi al centre de la pantalla
+  function frame(){
+    const W = f.offsetWidth, vw = box.clientWidth;
+    if(!W || W <= vw + 1){ f.style.left = ''; f.style.transform = ''; return; }
+    const x = Math.min(0, Math.max(vw - W, vw/2 - CLIPS[ci][2]*W));
+    f.style.left = x + 'px'; f.style.transform = 'translateY(-50%)';
+  }
+  window.addEventListener('resize', frame);
   const post = (method, value)=>{ try{ f.contentWindow.postMessage(JSON.stringify(value===undefined?{method}:{method,value}), 'https://player.vimeo.com'); }catch(e){} };
 
   // botó de so
@@ -2842,13 +2850,13 @@ function refreshApp(){
   function goClip(i){
     ci = (i + CLIPS.length) % CLIPS.length; T0 = CLIPS[ci][0]; T1 = CLIPS[ci][1];
     switching = true; box.classList.remove('on');           // fosa breu entre fragments
-    setTimeout(()=>{ post('setCurrentTime', T0); post('play'); setTimeout(()=>{ switching = false; box.classList.add('on'); }, 450); }, 350);
+    setTimeout(()=>{ frame(); post('setCurrentTime', T0); post('play'); setTimeout(()=>{ switching = false; box.classList.add('on'); }, 450); }, 350);
     paintDots();
   }
   prevB.addEventListener('click', e=>{ e.stopPropagation(); goClip(ci-1); });
   nextB.addEventListener('click', e=>{ e.stopPropagation(); goClip(ci+1); });
   dots.addEventListener('click', e=>{ e.stopPropagation(); const i=[...dots.children].indexOf(e.target.closest('button')); if(i>=0 && i!==ci) goClip(i); });
-  paintDots();
+  paintDots(); frame();
 
   // quan es tanca la portada s'atura el vídeo
   new MutationObserver(()=>{
