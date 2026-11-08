@@ -2757,6 +2757,21 @@ function refreshApp(){
   sbody.addEventListener('touchcancel', ()=>{ t0 = null; hideHint(); }, {passive:true});
 })();
 
+/* ---------- fletxes del teclat per canviar de fitxa ---------- */
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if(!sheet.classList.contains('on') || mode !== 'view' || current == null) return;
+  if(e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
+  if(document.querySelector('.viewer.on:not([hidden])')) return;   // visor de fotos obert
+  const idx = visibleList.findIndex(x=>x.n===current);
+  if(idx < 0) return;
+  const j = e.key === 'ArrowRight' ? idx + 1 : idx - 1;
+  if(j < 0 || j >= visibleList.length) return;
+  e.preventDefault();
+  open(visibleList[j].n, 'view');
+});
+
 /* ================= FASE 3: estadístiques, mapa i preferències ================= */
 function countBy(list, fn){
   const o = {};
