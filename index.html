@@ -426,6 +426,25 @@ body.sel .selbar{display:flex;animation:rise .4s var(--ease) both}
 .au-works summary{flex-direction:column;align-items:flex-start;gap:2px;padding:12px 40px 12px 14px;position:relative}
 .au-works summary::after{position:absolute;right:14px;top:50%;margin-top:-.6em}
 .au-works summary b{font-size:1rem}
+.au-media{display:grid;gap:8px;margin:0 10px 12px}
+.au-media figure{margin:0;border-radius:12px;overflow:hidden;background:var(--paper-2)}
+.au-media img{width:100%;max-height:340px;object-fit:cover;object-position:50% 15%;display:block}
+.au-media figcaption{padding:6px 10px;font-size:.7rem;color:var(--ink-2)}
+.au-media figcaption a{color:inherit}
+.au-clip{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-size:.88rem;font-weight:500;cursor:pointer;text-align:left;transition:border-color .2s}
+.au-clip span{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--clay);color:#fff;font-size:.7rem;flex:none}
+.au-clip small{margin-left:auto;color:var(--ink-2);font-size:.72rem}
+.au-clip[aria-expanded="true"]{border-color:var(--clay)}
+@media(hover:hover){.au-clip:hover{border-color:var(--clay)}}
+.au-clipbox:empty{display:none}
+.au-clipbox{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000}
+.au-clipbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.au-body a.au-news{color:var(--ink)}
+.au-news{display:flex;flex-direction:column;gap:1px;padding:10px 36px 10px 12px;border-radius:12px;border:1px solid var(--rule);background:var(--paper);text-decoration:none;color:var(--ink);position:relative}
+.au-news::after{content:"↗";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--clay)}
+.au-news b{font-size:.86rem;font-weight:600}
+.au-news span{font-size:.72rem;color:var(--ink-2)}
+@media(hover:hover){.au-news:hover{border-color:var(--clay)}}
 .au-wy{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--clay)}
 .au-vtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 .au-vtabs button{text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,box-shadow .2s}
@@ -934,10 +953,28 @@ main{position:relative;z-index:1}
 
     <h3>Obra destacada</h3>
     <div class="au-works">
-      <details><summary><span class="au-wy">2006 · Tarragona</span><b>La Torre dels Vents</b></summary><p>Escultura pública de 32 metres a la plaça de les Corts Catalanes, il·luminada des de l'interior. Forma part del paisatge urbà de la Rambla Nova.</p></details>
-      <details><summary><span class="au-wy">Tarragona</span><b>L'Àliga de Tarragona</b></summary><p>És obra seva el treball cisellat de l'Àliga, una de les figures més estimades del Seguici Popular de Tarragona.</p></details>
-      <details><summary><span class="au-wy">2019 · Vila-seca</span><b>El Cavall Alat</b></summary><p>Figura del bestiari de Vila-seca inspirada en les antigues joguines articulades, el Cós de Sant Antoni i el mite de Pegàs. Va començar amb una planxa d'acer inoxidable. Música d'Antoni Alburquerque, coreografia de Marià Gil i vestuari de Mar Altadill.</p></details>
-      <details><summary><span class="au-wy">Andorra</span><b>Església d'Ordino</b></summary><p>Escultures per a l'església d'Ordino.</p></details>
+      <details><summary><span class="au-wy">2006 · Tarragona</span><b>La Torre dels Vents</b></summary><p>Escultura pública de 32 metres a la plaça de les Corts Catalanes, il·luminada des de l'interior. Forma part del paisatge urbà de la Rambla Nova.</p>
+        <div class="au-media">
+          <button type="button" class="au-clip" data-t="331"><span>▶</span>Veure-la al documental <small>5:31</small></button><div class="au-clipbox"></div>
+          <a class="au-news" href="https://tarragona.cat/patrimoni/arxiu-municipal/fitxers/altres/altres-bhmt/llibret-de-la-ruta-les-estatues-ens-parlen-de-la-rambla-nova-de-tarragona" target="_blank" rel="noopener"><b>Les estàtues ens parlen: ruta de la Rambla Nova</b><span>Ajuntament de Tarragona · PDF</span></a>
+        </div></details>
+      <details><summary><span class="au-wy">Tarragona</span><b>L'Àliga de Tarragona</b></summary><p>És obra seva el treball cisellat de l'Àliga, una de les figures més estimades del Seguici Popular de Tarragona.</p>
+        <div class="au-media">
+          <figure><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/%C3%80ligaballant.JPG/960px-%C3%80ligaballant.JPG" alt="L'Àliga de Tarragona ballant a la plaça de les Cols"><figcaption>L'Àliga ballant a la plaça de les Cols · <a href="https://commons.wikimedia.org/wiki/File:%C3%80ligaballant.JPG" target="_blank" rel="noopener">Wikimedia Commons</a> (domini públic)</figcaption></figure>
+          <button type="button" class="au-clip" data-t="220"><span>▶</span>Veure-la al documental <small>3:40</small></button><div class="au-clipbox"></div>
+        </div></details>
+      <details><summary><span class="au-wy">2019 · Vila-seca</span><b>El Cavall Alat</b></summary><p>Figura del bestiari de Vila-seca inspirada en les antigues joguines articulades, el Cós de Sant Antoni i el mite de Pegàs. Va començar amb una planxa d'acer inoxidable. Música d'Antoni Alburquerque, coreografia de Marià Gil i vestuari de Mar Altadill.</p>
+        <div class="au-media">
+          <button type="button" class="au-clip" data-yt="St61vkQTFVc"><span>▶</span>Reportatge de l'estrena <small>TAC12</small></button><div class="au-clipbox"></div>
+          <button type="button" class="au-clip" data-t="428"><span>▶</span>Veure'l al documental <small>7:08</small></button><div class="au-clipbox"></div>
+          <a class="au-news" href="https://vila-seca.cat/ca/destacats/la-creacio-del-cavall-alat-dantoni-mas-sexposa-en-fotografies-al-castell-de-vila-seca" target="_blank" rel="noopener"><b>«De la ferralla al vol»: la creació del Cavall Alat en fotografies</b><span>Ajuntament de Vila-seca</span></a>
+          <a class="au-news" href="https://www.diaridetarragona.com/costa/250328/making-of-cavall-alat-vila-seca-foto-foto-exposicion-castell.html" target="_blank" rel="noopener"><b>El «making of» del Cavall Alat, foto a foto</b><span>Diari de Tarragona</span></a>
+          <a class="au-news" href="https://www.culturalvila-seca.cat/cavallalat/historia/" target="_blank" rel="noopener"><b>Història del Cavall Alat</b><span>Portants del Cavall Alat</span></a>
+        </div></details>
+      <details><summary><span class="au-wy">Andorra</span><b>Església d'Ordino</b></summary><p>Escultures per a l'església de Sant Corneli i Sant Cebrià d'Ordino.</p>
+        <div class="au-media">
+          <figure><img loading="lazy" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Esgl%C3%A9sia_de_Sant_Corneli_i_Sant_Cebri%C3%A0_%28Ordino%29_-_1.jpg/960px-Esgl%C3%A9sia_de_Sant_Corneli_i_Sant_Cebri%C3%A0_%28Ordino%29_-_1.jpg" alt="Església de Sant Corneli i Sant Cebrià d'Ordino"><figcaption>Església de Sant Corneli i Sant Cebrià · Foto: Jaume Meneses, <a href="https://commons.wikimedia.org/wiki/File:Esgl%C3%A9sia_de_Sant_Corneli_i_Sant_Cebri%C3%A0_(Ordino)_-_1.jpg" target="_blank" rel="noopener">CC BY-SA 2.0</a></figcaption></figure>
+        </div></details>
       <details><summary><span class="au-wy">Vila-seca · La Pineda</span><b>Vitralls</b></summary><p>Disseny de vitralls per a diverses esglésies, entre elles Sant Esteve de Vila-seca i l'Esperit Sant de La Pineda.</p></details>
     </div>
 
@@ -3163,6 +3200,24 @@ render();
     if(vlink) vlink.innerHTML = '<a href="'+v.link+'" target="_blank" rel="noopener">Obre el vídeo a '+v.site+' ↗</a>';
   }
   tabs.forEach((t,k)=>t.addEventListener('click', ()=>{ if(k!==cur || !vid.firstChild) loadVideo(k); }));
+  // obra destacada: fragments de vídeo dins de cada fitxa
+  function stopClips(scope){ (scope||box).querySelectorAll('.au-clipbox').forEach(c=>{ c.innerHTML=''; }); (scope||box).querySelectorAll('.au-clip').forEach(b=>b.setAttribute('aria-expanded','false')); }
+  box.querySelectorAll('.au-clip').forEach(b=>{
+    b.setAttribute('aria-expanded','false');
+    b.addEventListener('click', ()=>{
+      const cb = b.nextElementSibling, open = b.getAttribute('aria-expanded') === 'true';
+      stopClips();
+      if(open) return;
+      vid.innerHTML = '';                                   // no dos vídeos alhora
+      const f = document.createElement('iframe');
+      f.src = b.dataset.yt ? 'https://www.youtube-nocookie.com/embed/'+b.dataset.yt+'?rel=0&autoplay=1'
+                           : 'https://player.vimeo.com/video/542240274?dnt=1&autoplay=1#t='+b.dataset.t+'s';
+      f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.allowFullscreen = true;
+      f.referrerPolicy = 'strict-origin-when-cross-origin'; f.title = b.textContent.trim();
+      cb.appendChild(f); b.setAttribute('aria-expanded','true');
+    });
+  });
+  box.querySelectorAll('.au-works details').forEach(d=>d.addEventListener('toggle', ()=>{ if(!d.open) stopClips(d); }));
   function openAuthor(){
     box.hidden = false; box.scrollTop = 0;
     if(!vid.firstChild) loadVideo(cur);
