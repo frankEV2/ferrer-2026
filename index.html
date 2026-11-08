@@ -356,6 +356,17 @@ body.sel .selbar{display:flex;animation:rise .4s var(--ease) both}
 .cover{background:#14160f;align-items:flex-end}
 .cv-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% 30%;animation:kb 14s ease-out both}
 @keyframes kb{from{transform:scale(1.08)}to{transform:scale(1)}}
+/* portada: vídeo de l'autor parlant (en bucle, amb botó de so) sobre la foto */
+.cv-video{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity 1.2s ease}
+.cv-video.on{opacity:1}
+.cv-sound{position:absolute;z-index:6;top:calc(16px + env(safe-area-inset-top));right:16px;display:flex;align-items:center;gap:8px;
+  padding:10px 16px;border-radius:99px;border:1px solid rgba(239,235,225,.45);background:rgba(20,22,15,.45);color:#EFEBE1;
+  font-size:.85rem;font-weight:500;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .2s,transform .15s}
+.cv-sound[hidden]{display:none}
+.cv-sound svg{width:18px;height:18px;flex:none}
+.cv-sound:active{transform:scale(.95)}
+@media(hover:hover){.cv-sound:hover{background:rgba(20,22,15,.7)}}
+.cv-video iframe{position:absolute;top:50%;left:50%;border:0;width:max(100vw,177.78vh);height:max(100vh,56.25vw);transform:translate(-50%,-50%)}
 .cv-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,12,8,.25) 0%,rgba(10,12,8,0) 30%,rgba(10,12,8,.55) 60%,rgba(10,12,8,.92) 100%)}
 .cv-inner{padding-bottom:6px}
 .cv-title{text-shadow:0 2px 18px rgba(0,0,0,.5)}
@@ -709,6 +720,7 @@ main{position:relative;z-index:1}
 
 <div class="cover" id="cover">
   <img class="cv-photo" src="portada.jpg" alt="Antoni Mas, a la seva farga, amb el cap de l'Àliga">
+  <div class="cv-video" id="cvVideo" aria-hidden="true"></div>
   <div class="cv-shade"></div>
   <div class="cv-inner">
     <p class="cv-eyebrow">Antoni Mas Castelltort</p>
@@ -2755,6 +2767,75 @@ function refreshApp(){
     else if(dy > 0 && atT && -o > TH && idx > 0){ swipeDir = 'from-t'; open(visibleList[idx-1].n,'view'); }
   }, {passive:true});
   sbody.addEventListener('touchcancel', ()=>{ t0 = null; hideHint(); }, {passive:true});
+})();
+
+/* ---------- portada: fragment del documental amb l'autor parlant ---------- */
+(function(){
+  const box = document.getElementById('cvVideo');
+  if(!box) return;
+  const VID = '542240274', T0 = 551, T1 = 585;   // 9:11 – 9:45 de «El ferrer del meu poble»
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const save = navigator.connection && navigator.connection.saveData;
+  if(reduce || save) return;                     // es queda la foto fixa
+  if(coverEl.style.display === 'none') return;   // ja s'ha entrat: no hi ha portada
+  const f = document.createElement('iframe');
+  // Els navegadors només deixen començar sense so: el so s'activa al primer toc/clic o amb el botó.
+  f.src = 'https://player.vimeo.com/video/'+VID+'?autoplay=1&muted=1&controls=0&title=0&byline=0&portrait=0&loop=0&dnt=1#t='+T0+'s';
+  f.allow = 'autoplay; fullscreen; picture-in-picture';
+  f.title = 'Antoni Mas parlant al seu taller'; f.tabIndex = -1;
+  box.appendChild(f);
+  const post = (method, value)=>{ try{ f.contentWindow.postMessage(JSON.stringify(value===undefined?{method}:{method,value}), 'https://player.vimeo.com'); }catch(e){} };
+
+  // botó de so
+  const ICON_ON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+  const ICON_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>';
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'cv-sound'; btn.hidden = true;
+  coverEl.appendChild(btn);
+  let muted = true, userChose = false, active = true;
+  function setSound(on){
+    muted = !on;
+    post('setMuted', muted); if(on) post('setVolume', 1);
+    btn.innerHTML = (muted ? ICON_OFF : ICON_ON) + '<span>' + (muted ? 'Activar el so' : 'Silenciar') + '</span>';
+    btn.setAttribute('aria-pressed', String(!muted));
+  }
+  btn.addEventListener('click', e=>{ e.stopPropagation(); userChose = true; setSound(muted); });
+  // primer toc, clic o tecla a la portada: s'activa el so (si no s'ha triat res amb el botó)
+  function firstTouch(){
+    if(!userChose && active) setSound(true);
+    coverEl.removeEventListener('pointerdown', firstTouch); document.removeEventListener('keydown', firstTouch);
+  }
+  coverEl.addEventListener('pointerdown', firstTouch); document.addEventListener('keydown', firstTouch);
+  // quan es tanca la portada s'atura el vídeo
+  new MutationObserver(()=>{
+    if(active && coverEl.classList.contains('out')){ active = false; post('pause'); post('setMuted', true); }
+  }).observe(coverEl, {attributes:true, attributeFilter:['class']});
+  // i mentre la biografia és oberta (té el seu propi vídeo)
+  const au = document.getElementById('author');
+  if(au) new MutationObserver(()=>{
+    if(!active) return;
+    if(!au.hidden){ post('pause'); } else { post('play'); }
+  }).observe(au, {attributes:true, attributeFilter:['hidden']});
+
+  window.addEventListener('message', e=>{
+    if(e.origin !== 'https://player.vimeo.com' || e.source !== f.contentWindow) return;
+    let d; try{ d = typeof e.data === 'string' ? JSON.parse(e.data) : e.data; }catch(err){ return; }
+    if(!d) return;
+    if(d.event === 'ready'){
+      post('addEventListener','timeupdate'); post('addEventListener','playProgress');
+      post('addEventListener','play'); post('addEventListener','ended');
+      post('setCurrentTime', T0); post('play');
+    }else if(d.event === 'play'){
+      if(!active){ post('pause'); return; }
+      box.classList.add('on');
+      if(btn.hidden){ btn.hidden = false; setSound(!muted); }
+    }else if((d.event === 'timeupdate' || d.event === 'playProgress') && d.data){
+      if(d.data.seconds >= T1 || d.data.seconds < T0 - 1) post('setCurrentTime', T0);
+      else if(d.data.seconds > T0) box.classList.add('on');
+    }else if(d.event === 'ended'){
+      post('setCurrentTime', T0); post('play');
+    }
+  });
 })();
 
 /* ---------- fletxes del teclat per canviar de fitxa ---------- */
