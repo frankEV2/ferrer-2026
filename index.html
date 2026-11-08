@@ -1081,9 +1081,9 @@ const TOP = [66, 71, 72];
 // Categories (segons el camp «Tipus»)
 const CATS = [['', 'Totes'], ['esc', 'Escultures'], ['fest', 'Figures festives'], ['cep', 'Cèptres']];
 function catOf(p){
-  const t = norm(p.tipus);
+  const t = norm(p.tipus) + ' ' + norm(p.serie);
   if(/ceptr/.test(t)) return 'cep';
-  if(/festiv/.test(t)) return 'fest';
+  if(/festiv|bestiari/.test(t)) return 'fest';
   return 'esc';
 }
 const ESTATS = ['','Excel·lent','Bo','Regular','Necessita restauració','Greu'];
