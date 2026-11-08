@@ -97,6 +97,42 @@ header.scrolled .hrow{margin-bottom:8px}
   transition:background .25s,color .25s,border-color .25s,transform .15s var(--ease)}
 .chip:active{transform:scale(.94)}
 .chip.on{background:var(--moss);color:var(--paper);border-color:var(--moss)}
+/* filtres: indicadors i comptadors */
+.chip{display:inline-flex;align-items:center;gap:6px}
+.chip .cn{font-weight:600;font-size:.68rem;min-width:1.7em;padding:1px 6px;border-radius:99px;background:var(--paper-2);color:var(--ink-2);text-align:center}
+.chip .cn:empty{display:none}
+.chip.on .cn{background:color-mix(in srgb,var(--paper) 22%,transparent);color:inherit}
+.chip.zero{opacity:.45}
+.chip:focus-visible,.cat:focus-visible,.fcard:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+.cdot{width:8px;height:8px;border-radius:50%;flex:none;font-style:normal}
+.c-pend{background:#D08A2E}.c-done{background:#5E9B6E}.c-nophoto{background:transparent;border:1.5px dashed var(--ink-2)}
+.c-fav{background:#C94F5D}.c-qr{background:var(--ink)}.c-noqr{background:transparent;border:1.5px solid var(--ink-2)}
+.cats{display:flex;gap:4px;margin:12px 0 0;padding:4px;border-radius:14px;background:var(--paper-2);overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cats[hidden]{display:none}
+.cat{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;border:none;border-radius:10px;background:transparent;color:var(--ink-2);font-size:.8rem;font-weight:500;cursor:pointer;transition:background .25s,color .25s,box-shadow .25s}
+.cat b{font-size:.68rem;font-weight:600;opacity:.7}
+.cat.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.cat.on.c-cep{color:var(--clay)}
+@media(hover:hover){.cat:not(.on):hover{color:var(--ink)}}
+/* obres destacades */
+.feat{margin:0 0 22px}
+.feathead{display:flex;align-items:baseline;gap:8px;margin:0 0 10px}
+.feathead h2{font-family:var(--display);font-size:1.05rem;text-transform:uppercase;letter-spacing:.04em;margin:0}
+.featn{font-size:.75rem;color:var(--ink-2)}
+.featrow{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(220px,1fr);gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:4px;scrollbar-width:none}
+.featrow::-webkit-scrollbar{display:none}
+@media(max-width:600px){.featrow{grid-auto-columns:72%}.fcard{aspect-ratio:auto;height:230px}}
+.fcard{position:relative;scroll-snap-align:start;aspect-ratio:4/5;border:none;padding:0;border-radius:18px;overflow:hidden;cursor:pointer;background:var(--moss);color:#fff;text-align:left;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
+.fcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
+.fnone{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:5rem;opacity:.25;background:linear-gradient(160deg,var(--moss-2),var(--moss))}
+.fshade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,10,8,.85))}
+.ftxt{position:absolute;left:14px;right:14px;bottom:38px;display:flex;flex-direction:column;gap:3px}
+.ftxt b{font-family:var(--display);font-size:1.25rem;line-height:1.05;text-transform:uppercase;letter-spacing:.01em}
+.ftxt i{font-style:normal;font-size:.75rem;opacity:.8}
+.fgo{position:absolute;left:14px;bottom:12px;font-size:.72rem;opacity:.85;letter-spacing:.04em}
+@media(hover:hover){.fcard:hover{transform:translateY(-3px)}.fcard:hover img{transform:scale(1.05)}}
+.featbtn.on{background:var(--clay);color:#fff;border-color:var(--clay)}
 
 /* ---- grid ---- */
 main{padding:16px 16px 110px;max-width:900px;margin:0 auto;padding-left:calc(16px + env(safe-area-inset-left));padding-right:calc(16px + env(safe-area-inset-right))}
@@ -857,20 +893,22 @@ main{position:relative;z-index:1}
     </div>
     <button type="button" class="advclear" id="advClear">Neteja els filtres</button>
   </div>
-  <div class="chips" id="chips">
-    <button class="chip on" data-f="">Totes</button>
-    <button class="chip" data-f="__pend">Pendents</button>
-    <button class="chip" data-f="__done">Documentades</button>
-    <button class="chip" data-f="__nophoto">Sense foto</button>
-    <button class="chip" data-f="__fav">❤️ Preferides</button>
-    <button class="chip" data-f="__qr">Amb QR</button>
-    <button class="chip" data-f="__noqr">Sense QR</button>
+  <div class="cats" id="catTabs" role="tablist" aria-label="Categories"></div>
+  <div class="chips" id="chips" role="group" aria-label="Estat de les peces">
+    <button class="chip on" data-f="" aria-pressed="true">Tots els estats<b class="cn"></b></button>
+    <button class="chip" data-f="__pend" aria-pressed="false"><i class="cdot c-pend"></i>Pendents<b class="cn"></b></button>
+    <button class="chip" data-f="__done" aria-pressed="false"><i class="cdot c-done"></i>Documentades<b class="cn"></b></button>
+    <button class="chip" data-f="__nophoto" aria-pressed="false"><i class="cdot c-nophoto"></i>Sense foto<b class="cn"></b></button>
+    <button class="chip" data-f="__fav" aria-pressed="false"><i class="cdot c-fav"></i>Preferides<b class="cn"></b></button>
+    <button class="chip" data-f="__qr" aria-pressed="false"><i class="cdot c-qr"></i>Amb QR<b class="cn"></b></button>
+    <button class="chip" data-f="__noqr" aria-pressed="false"><i class="cdot c-noqr"></i>Sense QR<b class="cn"></b></button>
     <button class="chip editonly" id="selChip">Selecció múltiple</button>
   </div>
   <div class="chips seriechips" id="serieChips" style="display:none"></div>
 </header>
 
 <main>
+  <section class="feat" id="featSec" hidden aria-labelledby="featH"><div class="feathead"><h2 id="featH">Obres destacades</h2><span class="featn" id="featCount"></span></div><div class="featrow" id="featRow"></div></section>
   <section class="favsec" id="favSec" hidden><h2>❤️ Preferides <i id="favCount"></i></h2><div class="favrow" id="favRow"></div></section>
   <p class="rescount" id="resCount" aria-live="polite" hidden></p>
   <div class="grid" id="grid"></div>
@@ -1037,7 +1075,17 @@ const FIELDS = [
   ['obs',     'Observacions',           'textarea'],
   ['desc',    'Història / introducció (fitxa completa)', 'textarea']
 ];
-const LABEL = {qr:'Etiqueta QR'}; FIELDS.forEach(f=>LABEL[f[0]] = f[1]);
+const LABEL = {qr:'Etiqueta QR', destacada:'Obra destacada'}; FIELDS.forEach(f=>LABEL[f[0]] = f[1]);
+// Ordre de visualització: aquestes peces surten primer (la numeració i els QR no canvien)
+const TOP = [66, 71, 72];
+// Categories (segons el camp «Tipus»)
+const CATS = [['', 'Totes'], ['esc', 'Escultures'], ['fest', 'Figures festives'], ['cep', 'Cèptres']];
+function catOf(p){
+  const t = norm(p.tipus);
+  if(/ceptr/.test(t)) return 'cep';
+  if(/festiv/.test(t)) return 'fest';
+  return 'esc';
+}
 const ESTATS = ['','Excel·lent','Bo','Regular','Necessita restauració','Greu'];
 const SITUACIONS = ['','Al taller','Exposada','Cedida','Venuda','Magatzem','Obra pública'];
 const SELECTS = {estat:ESTATS, situacio:SITUACIONS};
@@ -1057,6 +1105,28 @@ let current = null, mode = 'view', swipeDir = null;
 let animateGrid = true;
 let selMode = false;
 let serieSel = '';
+let catSel = '';
+const STATUS = {'':()=>true, __pend:p=>!isDoc(p), __done:isDoc, __nophoto:p=>!photo(p), __fav:p=>favs.has(p.n), __qr:hasQR, __noqr:p=>!hasQR(p)};
+function renderFilters(list){
+  // pestanyes de categoria amb comptador (només les que tenen peces)
+  const cnt = {}; list.forEach(p=>{ const c = catOf(p); cnt[c] = (cnt[c]||0)+1; });
+  if(catSel && !cnt[catSel]) catSel = '';
+  const ct = $('catTabs');
+  const tabs = CATS.filter(c=>!c[0] || cnt[c[0]]);
+  ct.hidden = tabs.length < 3;
+  ct.innerHTML = tabs.map(c=>{
+    const n = c[0] ? cnt[c[0]] : list.length, on = catSel === c[0];
+    return '<button type="button" role="tab" class="cat c-'+(c[0]||'all')+(on?' on':'')+'" data-c="'+c[0]+'" aria-selected="'+on+'">'+esc(c[1])+'<b>'+n+'</b></button>';
+  }).join('');
+  // comptadors dels xips d'estat (dins la categoria triada)
+  const base = catSel ? list.filter(p=>catOf(p)===catSel) : list;
+  Array.prototype.forEach.call(document.querySelectorAll('.chip[data-f]'), c=>{
+    const f = STATUS[c.dataset.f], n = f ? base.filter(f).length : 0, b = c.querySelector('.cn');
+    if(b) b.textContent = n;
+    c.classList.toggle('zero', !n && c.dataset.f !== '' && filt.value !== c.dataset.f);
+    c.setAttribute('aria-pressed', String(filt.value === c.dataset.f));
+  });
+}
 const VIEWS = [
   ['xl','Icones molt grans','▢'],
   ['l','Icones grans','▦'],
@@ -1087,8 +1157,10 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;'
 const $ = id => document.getElementById(id);
 function LOC(){ return (window.Prefs && window.Prefs.get().lang === 'es') ? 'es-ES' : 'ca-ES'; }
 function listAll(){
-  return Object.keys(pieces).map(k=>pieces[k]).filter(p=>p && typeof p.n==='number' && !p.deleted).sort((a,b)=>a.n-b.n);
+  const rank = p=>{ const i = TOP.indexOf(p.n); return i < 0 ? 1e6 : i; };
+  return Object.keys(pieces).map(k=>pieces[k]).filter(p=>p && typeof p.n==='number' && !p.deleted).sort((a,b)=>rank(a)-rank(b) || a.n-b.n);
 }
+function isFeat(p){ return p.destacada === true || /^s[íi]$/i.test(String(p.destacada||'').trim()); }
 function hasQR(p){ return p.qr === true || p.qr === 'Sí'; } // 'Sí' si s'ha desfet des de l'historial
 function isDoc(p){ return DOCFIELDS.some(k => (p[k]||'').trim() !== ''); }
 function photo(p){ return p.photo || null; }
@@ -1139,6 +1211,7 @@ function matches(p){
   if(f === '__qr' && !hasQR(p)) return false;
   if(f === '__noqr' && hasQR(p)) return false;
   if(serieSel && String(p.serie||'').trim() !== serieSel) return false;
+  if(catSel && catOf(p) !== catSel) return false;
   if(adv.estat && String(p.estat||'').trim() !== adv.estat) return false;
   if(adv.ubic && String(p.ubic||'').trim() !== adv.ubic) return false;
   if(adv.sit && String(p.situacio||'').trim() !== adv.sit) return false;
@@ -1186,9 +1259,11 @@ function render(){
     Object.keys(sr).sort().map(k=>'<button class="chip serie'+(serieSel===k?' on':'')+'" data-s="'+esc(k)+'">'+esc(k)+' <i>'+sr[k]+'</i></button>').join('')) : '';
   $('barFill').style.width = (list.length ? Math.round(done/list.length*100) : 0) + '%';
   renderFavs(list);
+  renderFilters(list);
   visibleList = list.filter(matches);
   renderAdv(list);
-  const rc = $('resCount'), filtering = !!(q.value.trim() || filt.value || advActive());
+  const rc = $('resCount'), filtering = !!(q.value.trim() || filt.value || advActive() || catSel);
+  renderFeat(list, filtering);
   rc.hidden = !filtering || !list.length;
   rc.innerHTML = '<b>'+visibleList.length+'</b> '+(visibleList.length===1?'resultat':'resultats')+' de '+list.length+' peces';
   grid.classList.toggle('animate', animateGrid); animateGrid = false;
@@ -1248,6 +1323,30 @@ function toggleQR(n){
   hist(b,'editar',p,{canvis:{qr:[hasQR(p)?'S\u00ed':'No', v?'S\u00ed':'No']}, info:'Etiqueta QR'});
   pieces[n] = Object.assign({}, p, upd); commit(b);
   toast(v ? 'Etiqueta QR assignada' : 'Etiqueta QR desmarcada'); render();
+}
+/* ---------- obres destacades ---------- */
+function toggleFeat(n){
+  const p = find(n);
+  if(!p || role !== 'editor' || !FB) return;
+  const was = isFeat(p), v = was ? '' : 'Sí', b = FB.writeBatch(FB.db), upd = {n:n, destacada:v, updatedAt:Date.now()};
+  b.set(pieceRef(n), upd, {merge:true});
+  hist(b,'editar',p,{canvis:{destacada:[was?'Sí':'No', v?'Sí':'No']}, info:'Obra destacada'});
+  pieces[n] = Object.assign({}, p, upd); commit(b);
+  toast(v ? 'Afegida a Obres destacades' : 'Treta de Obres destacades'); render();
+}
+function renderFeat(list, filtering){
+  const fl = list.filter(isFeat), sec = $('featSec');
+  sec.hidden = !fl.length || filtering;
+  $('featCount').textContent = fl.length || '';
+  $('featRow').innerHTML = fl.map(p=>{
+    const src = photo(p), t = (p.titol||'').trim() || 'Sense títol';
+    const meta = [p.any, p.tipus].filter(Boolean).join(' · ');
+    return '<button type="button" class="fcard" data-n="'+p.n+'">'+
+      (src ? '<img loading="lazy" src="'+esc(src)+'" alt="">' : '<span class="fnone" aria-hidden="true">'+esc(t.charAt(0))+'</span>')+
+      '<span class="fshade"></span><span class="ftxt"><b>'+esc(t)+'</b>'+(meta?'<i>'+esc(meta)+'</i>':'')+'</span>'+
+      '<span class="fgo" aria-hidden="true">Veure fitxa →</span></button>';
+  }).join('');
+  Array.prototype.forEach.call($('featRow').querySelectorAll('.fcard'), c=>c.addEventListener('click', ()=>open(parseInt(c.dataset.n,10),'view')));
 }
 function cardHtml(p,i){
     const src = photo(p), t = (p.titol||'').trim(), fv = favs.has(p.n);
@@ -1365,7 +1464,8 @@ function viewHTML(p){
     ((p.obs||'').trim()?'<div class="dnotes"><span>Observacions</span>'+esc(p.obs)+'</div>':'')+
     '<div class="navrow qrbtnrow"><button id="fullBtn" class="fullbtn">Fitxa completa</button></div>'+
     (maps||aud?'<div class="navrow">'+(maps?'<button id="mapBtn">Com arribar-hi</button>':'')+(aud?'<button id="audBtn">Àudio de la peça</button>':'')+'</div>':'')+
-    '<div class="navrow"><button id="shareBtn">Compartir</button><button id="qrBtn">Codi QR</button></div>'+
+    '<div class="navrow"><button id="shareBtn">Compartir</button><button id="qrBtn">Codi QR</button>'+
+      (role==='editor' ? '<button id="featBtn" class="featbtn'+(isFeat(p)?' on':'')+'" aria-pressed="'+isFeat(p)+'">'+(isFeat(p)?'★ Destacada':'☆ Destacar')+'</button>' : '')+'</div>'+
     '<div id="xsec"></div>'+
     '<div class="navrow"><button id="prevBtn"'+(idx<=0?' disabled':'')+'>Anterior</button>'+
     '<button id="nextBtn"'+(idx<0||idx>=visibleList.length-1?' disabled':'')+'>Següent</button></div>';
@@ -1626,6 +1726,7 @@ function open(n, m){
     $('qrBtn').addEventListener('click', ()=>openQR(n));
     $('fullBtn').addEventListener('click', ()=>{ location.href = 'fitxa.html?p='+n+'&from=app'; });
     $('shareBtn').addEventListener('click', ()=>sharePiece(p));
+    if($('featBtn')) $('featBtn').addEventListener('click', ()=>{ toggleFeat(n); open(n,'view'); });
     if($('mapBtn')) $('mapBtn').addEventListener('click', ()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.lloc),'_blank','noopener'));
     if($('audBtn')) $('audBtn').addEventListener('click', ()=>window.open(safeUrl(p.audio),'_blank','noopener'));
     loadExtras(p, ()=>renderStrip(p)); renderStrip(p);
@@ -1926,7 +2027,12 @@ function excelChanges(list, cur){
       const v = String(p[k]==null?'':p[k]).trim();
       if(v && (!ex || String(ex[k]==null?'':ex[k]).trim() === '')) add[k] = v;
     });
-    if(Object.keys(add).length) out.push({n:p.n, isNew:!ex, add:add, titol:(ex && ex.titol) || add.titol || ''});
+    // fotos per enllaç (https): només si la peça encara no en té
+    const ph = safeUrl(p.photo);
+    if(ph && !(ex && ex.photo)) add.photo = ph;
+    const xs = (Array.isArray(p.extra) ? p.extra : []).map(safeUrl).filter(Boolean);
+    const extra = (xs.length && !extraIds(ex).length) ? xs : [];
+    if(Object.keys(add).length || extra.length) out.push({n:p.n, isNew:!ex, add:add, extra:extra, titol:(ex && ex.titol) || add.titol || ''});
   });
   return out;
 }
@@ -1942,7 +2048,14 @@ async function syncExcel(){
   try{
     for(let i=0;i<ch.length;i+=150){
       const b = FB.writeBatch(FB.db);
-      ch.slice(i,i+150).forEach(c=>b.set(pieceRef(c.n), Object.assign({}, c.add, {n:c.n, updatedAt:stamp}), {merge:true}));
+      ch.slice(i,i+150).forEach(c=>{
+        const upd = Object.assign({}, c.add, {n:c.n, updatedAt:stamp});
+        if(c.extra.length){
+          const ids = c.extra.map((u,j)=>{ const id = 'p'+c.n+'_x'+stamp.toString(36)+j; b.set(FB.doc(FB.db,'fotos',id), {n:c.n, data:u, ts:stamp}); return id; });
+          upd.extra = ids;
+        }
+        b.set(pieceRef(c.n), upd, {merge:true});
+      });
       if(i === 0){
         const nous = ch.filter(c=>c.isNew).length;
         hist(b,'importar',{n:0,titol:''},{info:'Dades de l\'Excel: '+ch.length+' peces completades ('+nous+' noves)'});
@@ -2615,6 +2728,19 @@ Array.prototype.forEach.call(document.querySelectorAll('.chip[data-f]'), c=>{
     filt.value = c.dataset.f; animateGrid = true; render();
     window.scrollTo({top:0, behavior:'smooth'});
   });
+});
+$('catTabs').addEventListener('click', e=>{
+  const b = e.target.closest('.cat'); if(!b) return;
+  catSel = b.dataset.c || ''; animateGrid = true; render();
+});
+$('catTabs').addEventListener('keydown', e=>{   // fletxes per moure's entre pestanyes
+  if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  const t = Array.from($('catTabs').querySelectorAll('.cat')), i = t.indexOf(document.activeElement);
+  if(i < 0) return;
+  e.preventDefault(); e.stopPropagation();
+  const j = (i + (e.key === 'ArrowRight' ? 1 : -1) + t.length) % t.length;
+  catSel = t[j].dataset.c || ''; render();
+  const nb = $('catTabs').querySelector('.cat[data-c="'+catSel+'"]'); if(nb) nb.focus();
 });
 $('serieChips').addEventListener('click', e=>{
   const b = e.target.closest('.chip.serie'); if(!b) return;
