@@ -551,6 +551,74 @@ body.sel .thumb.hq .num{left:8px}
 .grid.v-det .card .cdet{display:flex;flex-wrap:wrap;gap:5px;flex:1 1 100%;padding-left:56px}
 .grid.v-det .card .cdet span{font-size:.7rem;padding:3px 9px;border-radius:99px;background:var(--paper-2);color:var(--ink-2)}
 .grid.v-list .card:hover,.grid.v-det .card:hover{transform:none}
+
+/* ---- cerca avançada ---- */
+.viewbtn.iconly{padding:0 11px;position:relative}
+@media(max-width:440px){.viewbtn span{display:none}.viewbtn{padding:0 11px}.tools{gap:6px}}
+.viewbtn[aria-expanded="true"]{border-color:var(--clay)}
+.advn{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:99px;background:var(--clay);color:#fff;font-size:.62rem;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.advn[hidden]{display:none}
+.adv{margin-top:10px;background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:12px;animation:rise .25s var(--ease) both}
+.adv[hidden]{display:none}
+.advgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media(min-width:620px){.advgrid{grid-template-columns:repeat(3,1fr)}}
+.advgrid label{display:flex;flex-direction:column;gap:4px;font-size:.7rem;color:var(--ink-2);min-width:0}
+.advgrid select,.advgrid input{width:100%;min-width:0;padding:9px 10px;border:1px solid var(--rule);border-radius:10px;background:var(--paper);font-size:.86rem;color:var(--ink)}
+.advclear{margin-top:10px;width:100%;padding:9px;border-radius:99px;border:1px dashed var(--rule);background:transparent;font-size:.8rem;color:var(--clay);cursor:pointer}
+.rescount{margin:0 2px 10px;font-size:.8rem;color:var(--ink-2)}
+.rescount b{color:var(--clay);font-size:.95rem}
+.rescount[hidden]{display:none}
+
+/* ---- fase 2: seccions de la fitxa i panells de gestió ---- */
+.xs{margin-top:22px;padding-top:14px;border-top:1px solid var(--rule)}
+.xs h4{margin:0 0 10px;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;color:var(--clay)}
+.xitem{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-sm);padding:11px 13px;margin-bottom:8px;font-size:.86rem}
+.xitem.pend{border-style:dashed;border-color:var(--clay)}
+.xtext{margin-top:6px;line-height:1.55;white-space:pre-wrap}
+.xmeta{margin-top:5px;font-size:.74rem;color:var(--ink-2)}
+.xacts{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.xacts button,.rvbtns button{padding:7px 13px;border-radius:99px;border:1px solid var(--rule);background:var(--paper);font-size:.76rem;cursor:pointer;transition:transform .15s var(--ease)}
+.xacts button:active,.rvbtns button:active{transform:scale(.94)}
+.xacts button.ok{border-color:var(--clay);color:var(--clay);font-weight:600}
+.xempty{font-size:.8rem;color:var(--ink-2);margin:0 0 8px}
+.xsub{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin:14px 0 6px}
+.xhint{font-size:.76rem;color:var(--ink-2);margin:-4px 0 10px}
+.xline{margin:0 0 9px;font-size:.84rem;color:var(--ink-2)}
+.xadd{margin-top:6px}
+.xadd summary{cursor:pointer;color:var(--clay);font-size:.84rem;font-weight:500;padding:8px 0;list-style:none}
+.xadd summary::-webkit-details-marker{display:none}
+.xadd[open] summary{margin-bottom:8px}
+.rvpill{display:inline-block;font-size:.66rem;font-weight:600;padding:2px 9px;border-radius:99px;background:color-mix(in srgb,var(--ink-2) 16%,transparent);color:var(--ink);vertical-align:1px}
+.rvpill.verificada{background:color-mix(in srgb,#4f9a6b 22%,transparent);color:#3d8a5a}
+.rvpill.absent{background:color-mix(in srgb,var(--alert) 20%,transparent);color:var(--alert)}
+.rvpill.prestada{background:color-mix(in srgb,var(--clay) 20%,transparent);color:var(--clay)}
+.rvbtns{display:flex;gap:7px;flex-wrap:wrap}
+.rvbtns button.on{background:var(--clay);border-color:var(--clay);color:#fff;font-weight:600}
+.rvstats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px}
+.rvstats div{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-sm);padding:10px 6px;text-align:center;font-size:.7rem;color:var(--ink-2)}
+.rvstats b{display:block;font-family:var(--display);font-size:1.6rem;color:var(--ink);line-height:1.1}
+.rvrow{display:flex;gap:6px;align-items:stretch}
+.rvrow .tlitem{flex:1;min-width:0}
+.rvq{flex:0 0 46px;margin-bottom:8px;border-radius:var(--r-sm);border:1px solid var(--rule);background:var(--card);font-size:1.1rem;cursor:pointer;color:var(--alert)}
+.rvq.ok{color:#3d8a5a}
+.tlitem.late{border-color:var(--alert)}
+.footer button.alertbtn{border-color:var(--clay);color:var(--clay);font-weight:600}
+@media print{
+  .rep{font-family:Inter,sans-serif;color:#111}
+  .rep h1{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;font-size:24pt;margin:0 0 2mm}
+  .rep p{font-size:10pt;color:#444;margin:0 0 5mm}
+  .rep table{width:100%;border-collapse:collapse;font-size:9pt}
+  .rep th,.rep td{border-bottom:.3pt solid #bbb;padding:1.5mm 2mm;text-align:left}
+  .rep th{background:#eee}
+}
+
+/* ---- escàner QR ---- */
+.scan{position:fixed;inset:0;z-index:160;background:#000;display:flex;align-items:center;justify-content:center}
+.scan[hidden]{display:none}
+.scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scanframe{position:relative;width:min(68vw,300px);aspect-ratio:1;border-radius:22px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5);border:3px solid #E8923A}
+.scanmsg{position:absolute;left:16px;right:16px;top:calc(24px + env(safe-area-inset-top));margin:0;text-align:center;color:#fff;font-size:.92rem;text-shadow:0 1px 6px rgba(0,0,0,.7)}
+.scanclose{position:absolute;bottom:calc(28px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:13px 38px;border-radius:99px;border:none;background:#fff;color:#111;font-weight:600;font-size:.95rem;cursor:pointer}
 </style></head><body class="noauth">
 
 <div class="cover" id="cover">
@@ -616,6 +684,19 @@ body.sel .thumb.hq .num{left:8px}
     </select>
     <button type="button" class="viewbtn" id="viewBtn" aria-haspopup="true" aria-expanded="false" aria-label="Canvia la vista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Vista</span></button>
     <div class="viewmenu" id="viewMenu" hidden role="menu"></div>
+    <button type="button" class="viewbtn iconly" id="advBtn" aria-expanded="false" aria-controls="adv" aria-label="Cerca avançada" title="Cerca avançada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg><b class="advn" id="advN" hidden></b></button>
+    <button type="button" class="viewbtn iconly" id="scanBtn" aria-label="Escaneja un codi QR" title="Escaneja un codi QR"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/><line x1="7" y1="12" x2="17" y2="12"/></svg></button>
+  </div>
+  <div class="adv" id="adv" hidden>
+    <div class="advgrid">
+      <label>Sèrie<select id="a_serie"></select></label>
+      <label>Estat<select id="a_estat"></select></label>
+      <label>Ubicació<select id="a_ubic"></select></label>
+      <label>Situació<select id="a_sit"></select></label>
+      <label>Any des de<input type="number" id="a_y0" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 1980"></label>
+      <label>Any fins a<input type="number" id="a_y1" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 2005"></label>
+    </div>
+    <button type="button" class="advclear" id="advClear">Neteja els filtres</button>
   </div>
   <div class="chips" id="chips">
     <button class="chip on" data-f="">Totes</button>
@@ -632,12 +713,17 @@ body.sel .thumb.hq .num{left:8px}
 
 <main>
   <section class="favsec" id="favSec" hidden><h2>❤️ Preferides <i id="favCount"></i></h2><div class="favrow" id="favRow"></div></section>
+  <p class="rescount" id="resCount" aria-live="polite" hidden></p>
   <div class="grid" id="grid"></div>
   <div class="footer">
     <p class="fgroup">Consulta</p>
     <button id="tlBtn">Cronologia</button>
     <button id="authorBtn2" data-author>Biografia de l'autor</button>
     <button id="histBtn" class="editonly">Registre de canvis</button>
+    <p class="fgroup editonly">Gestió</p>
+    <button id="reviewBtn" class="editonly">Revisió d'inventari</button>
+    <button id="loansBtn" class="editonly">Préstecs i conservació</button>
+    <button id="modBtn" class="editonly">Històries pendents</button>
     <p class="fgroup">Documentació i exportació</p>
     <button id="catBtn">Catàleg en PDF</button>
     <button id="qrAllBtn">Etiquetes QR</button>
@@ -692,6 +778,13 @@ body.sel .thumb.hq .num{left:8px}
     <div class="au-video" id="auVideo"></div>
     <p class="au-src"><a href="https://vimeo.com/542240274" target="_blank" rel="noopener">Obre el vídeo a Vimeo ↗</a></p>
   </article>
+</div>
+
+<div class="scan" id="scan" role="dialog" aria-modal="true" aria-label="Escàner de codis QR" hidden>
+  <video id="scanVideo" playsinline muted autoplay></video>
+  <div class="scanframe" aria-hidden="true"></div>
+  <p class="scanmsg" id="scanMsg">Apunta la càmera a l'etiqueta QR de la peça</p>
+  <button type="button" class="scanclose" id="scanClose">Tanca</button>
 </div>
 
 <div id="printArea" aria-hidden="true"></div>
@@ -763,6 +856,11 @@ let priv = {};              // n -> {valor}  (només l'editor)
 let unsubPriv = null, unsubExtras = [];
 const extraCache = {};      // id de foto de detall -> dataURL
 const selected = new Set();
+// fase 2 (revisió, préstecs, restauracions, documents, històries)
+const XCOLS = ['revisio','prestecs','restauracions','documents','docdata','histories','propostes'];
+const X = {revisio:{}, prestecs:{}, restauracions:{}, documents:{}, histories:{}, propostes:{}};
+const Xready = {};
+let unsubX = [], alerted = false;
 
 /* ---------- utilitats ---------- */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -820,9 +918,40 @@ function matches(p){
   if(f === '__qr' && !hasQR(p)) return false;
   if(f === '__noqr' && hasQR(p)) return false;
   if(serieSel && String(p.serie||'').trim() !== serieSel) return false;
-  const s = q.value.trim().toLowerCase();
+  if(adv.estat && String(p.estat||'').trim() !== adv.estat) return false;
+  if(adv.ubic && String(p.ubic||'').trim() !== adv.ubic) return false;
+  if(adv.sit && String(p.situacio||'').trim() !== adv.sit) return false;
+  if(adv.y0 || adv.y1){
+    const y = yearOf(p);
+    if(y == null) return false;
+    if(adv.y0 && y < adv.y0) return false;
+    if(adv.y1 && y > adv.y1) return false;
+  }
+  const s = norm(q.value.trim());
   if(!s) return true;
-  return [p.n,p.titol,p.autor,p.serie,p.tipus,p.tecnica,p.ubic,p.prop,p.obs,p.estat,p.any].join(' ').toLowerCase().indexOf(s) !== -1;
+  // totes les paraules han d'aparèixer (en qualsevol camp i ordre), sense tenir en compte accents
+  const hay = norm([p.n,p.titol,p.autor,p.serie,p.tipus,p.tecnica,p.dim,p.ubic,p.lloc,p.prop,p.obs,p.desc,p.estat,p.situacio,p.any].join(' '));
+  return s.split(/\s+/).every(w=>hay.indexOf(w) !== -1);
+}
+function norm(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''); }
+const adv = {estat:'', ubic:'', sit:'', y0:0, y1:0};
+function advActive(){ return (serieSel?1:0) + (adv.estat?1:0) + (adv.ubic?1:0) + (adv.sit?1:0) + ((adv.y0||adv.y1)?1:0); }
+function fillSel(el, vals, cur){
+  el.innerHTML = '<option value="">Totes</option>' + vals.map(v=>'<option value="'+esc(v)+'"'+(v===cur?' selected':'')+'>'+esc(v)+'</option>').join('');
+  el.value = cur;
+}
+function distinct(list, k, base){
+  const o = {}; (base||[]).forEach(v=>{ if(v) o[v] = 1; });
+  list.forEach(p=>{ const v = String(p[k]||'').trim(); if(v) o[v] = 1; });
+  return Object.keys(o).sort((a,b)=>a.localeCompare(b,'ca'));
+}
+function renderAdv(list){
+  fillSel($('a_serie'), Object.keys(seriesList(list)).sort((a,b)=>a.localeCompare(b,'ca')), serieSel);
+  fillSel($('a_estat'), distinct(list,'estat',ESTATS.slice(1)), adv.estat);
+  fillSel($('a_ubic'), distinct(list,'ubic'), adv.ubic);
+  fillSel($('a_sit'), distinct(list,'situacio',SITUACIONS.slice(1)), adv.sit);
+  const na = advActive(), an = $('advN');
+  an.hidden = !na; an.textContent = na || '';
 }
 function render(){
   const list = listAll();
@@ -837,6 +966,10 @@ function render(){
   $('barFill').style.width = (list.length ? Math.round(done/list.length*100) : 0) + '%';
   renderFavs(list);
   visibleList = list.filter(matches);
+  renderAdv(list);
+  const rc = $('resCount'), filtering = !!(q.value.trim() || filt.value || advActive());
+  rc.hidden = !filtering || !list.length;
+  rc.innerHTML = '<b>'+visibleList.length+'</b> '+(visibleList.length===1?'resultat':'resultats')+' de '+list.length+' peces';
   grid.classList.toggle('animate', animateGrid); animateGrid = false;
   VIEWS.forEach(v=>grid.classList.toggle('v-'+v[0], v[0]===viewMode));
   if(!visibleList.length){
@@ -1012,6 +1145,7 @@ function viewHTML(p){
     '<div class="navrow qrbtnrow"><button id="fullBtn" class="fullbtn">Fitxa completa</button></div>'+
     (maps||aud?'<div class="navrow">'+(maps?'<button id="mapBtn">Com arribar-hi</button>':'')+(aud?'<button id="audBtn">Àudio de la peça</button>':'')+'</div>':'')+
     '<div class="navrow"><button id="shareBtn">Compartir</button><button id="qrBtn">Codi QR</button></div>'+
+    '<div id="xsec"></div>'+
     '<div class="navrow"><button id="prevBtn"'+(idx<=0?' disabled':'')+'>Anterior</button>'+
     '<button id="nextBtn"'+(idx<0||idx>=visibleList.length-1?' disabled':'')+'>Següent</button></div>';
 }
@@ -1268,6 +1402,7 @@ function open(n, m){
     if($('mapBtn')) $('mapBtn').addEventListener('click', ()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.lloc),'_blank','noopener'));
     if($('audBtn')) $('audBtn').addEventListener('click', ()=>window.open(safeUrl(p.audio),'_blank','noopener'));
     loadExtras(p, ()=>renderStrip(p)); renderStrip(p);
+    renderSec(p);
   }else{
     setHead('Editar fitxa', false);
     sbody.innerHTML = formHTML(p,false);
@@ -1390,7 +1525,8 @@ function printCatalog(){
 }
 
 /* ---------- historial ---------- */
-const ACCIO = {crear:'Nova', editar:'Edició', eliminar:'Eliminada', desfer:'Desfet', importar:'Importació'};
+const ACCIO = {crear:'Nova', editar:'Edició', eliminar:'Eliminada', desfer:'Desfet', importar:'Importació',
+  revisio:'Revisió', prestec:'Préstec', restauracio:'Restauració', document:'Document', historia:'Història'};
 function short(v){ v = String(v==null?'':v); if(!v) return '—'; return v.length>46 ? v.slice(0,44)+'…' : v; }
 function openHistory(){
   if(!FB) return;
@@ -1520,6 +1656,7 @@ function undo(it, btn){
 function startData(){
   if(unsubPieces || !FB) return;
   setSync('wait','Connectant amb el núvol…');
+  startX();
   if(role === 'editor' && !unsubPriv){
     unsubPriv = FB.onSnapshot(FB.collection(FB.db,'privat'), snap=>{
       const m = {}; snap.forEach(d=>{ const v = d.data(); if(typeof v.n === 'number') m[v.n] = v; }); priv = m;
@@ -1588,6 +1725,7 @@ async function syncExcel(){
 }
 function stopData(){
   excelDone = false;
+  stopX();
   if(unsubPriv){ unsubPriv(); unsubPriv = null; }
   priv = {};
   if(unsubPieces){ unsubPieces(); unsubPieces = null; }
@@ -1688,6 +1826,395 @@ window.addEventListener('hashchange', handleHash);
 window.addEventListener('online', ()=>{ if(role) setSync('wait','Reconnectant…'); });
 window.addEventListener('offline', ()=>{ if(role) setSync('off','Sense connexió: els canvis es sincronitzaran més tard.'); });
 
+/* ================= FASE 2: revisió, préstecs, restauracions, històries i documents =================
+   Tot es desa en col·leccions noves (no es toca l'estructura de les peces). */
+const REV = {verificada:'Verificada', absent:'Absent', prestada:'Prestada'};
+const HTIPUS = {anecdota:'Anècdota', autoria:'Autoria', encarrec:'Encàrrec', comentari:'Comentari'};
+const RTIPUS = ['Neteja','Tractament antioxidant','Soldadura / reparació','Pintura / protecció','Revisió de conservació','Altres'];
+const DTIPUS = ['Certificat','Factura','Taxació','Altres'];
+const DOC_MAX = 700*1024;
+function today(){ const d = new Date(), z = x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
+function addDays(iso, k){ const d = new Date(iso+'T12:00:00'); d.setDate(d.getDate()+k); const z = x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
+function fmtD(iso){ if(!iso) return '—'; const d = new Date(String(iso)+'T12:00:00'); return isNaN(d) ? esc(iso) : d.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'}); }
+function fmtTs(ts){ return ts ? new Date(ts).toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'}) : '—'; }
+function newId(n){ return 'p'+n+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function vals(col){ return Object.keys(X[col]).map(k=>X[col][k]); }
+function byPiece(col, n){ return vals(col).filter(x=>x.n === n); }
+function ptitle(n){ const p = find(n); return 'Núm. '+n+(p && (p.titol||'').trim() ? ' · '+p.titol.trim() : ''); }
+function wb(fn, msg){ const b = FB.writeBatch(FB.db); fn(b); commit(b); if(msg) toast(msg); }
+function xdoc(col, id){ return FB.doc(FB.db, col, id); }
+
+function subX(col){
+  unsubX.push(FB.onSnapshot(FB.collection(FB.db,col), snap=>{
+    const m = {}; snap.forEach(d=>{ m[d.id] = Object.assign({}, d.data(), {id:d.id}); });
+    X[col] = m; Xready[col] = true;
+    refreshX(); updateBadges();
+  }, ()=>{}));
+}
+function startX(){
+  if(!FB || unsubX.length) return;
+  subX('histories');
+  if(role === 'editor') ['revisio','prestecs','restauracions','documents','propostes'].forEach(subX);
+}
+function stopX(){
+  unsubX.forEach(u=>{ try{u();}catch(e){} }); unsubX = [];
+  Object.keys(X).forEach(k=>{ X[k] = {}; Xready[k] = false; }); alerted = false;
+}
+function refreshX(){
+  if(!sheet.classList.contains('on')) return;
+  if(mode === 'view' && current != null){ const p = find(current); if(p) renderSec(p); }
+  else if(mode === 'review') renderReview();
+  else if(mode === 'loans') renderLoans();
+  else if(mode === 'mod') renderMod();
+}
+
+/* ---- avisos: préstecs vençuts o a punt de vèncer, revisions de conservació ---- */
+function alerts(){
+  const t = today(), soon = addDays(t,7), soonR = addDays(t,30);
+  const loans = vals('prestecs').filter(l=>!l.retornat && find(l.n));
+  const late = loans.filter(l=>l.retorn && l.retorn < t);
+  const due = loans.filter(l=>l.retorn && l.retorn >= t && l.retorn <= soon);
+  const last = {};
+  vals('restauracions').forEach(r=>{ if(!find(r.n)) return; if(!last[r.n] || (r.data||'') > (last[r.n].data||'')) last[r.n] = r; });
+  const rev = Object.keys(last).map(k=>last[k]).filter(r=>r.propera && r.propera <= soonR).sort((a,b)=>a.propera<b.propera?-1:1);
+  return {t:t, loans:loans, late:late, due:due, rev:rev, revLate:rev.filter(r=>r.propera < t)};
+}
+function setBadge(id, k){
+  const b = $(id); if(!b) return;
+  if(!b.dataset.base) b.dataset.base = b.textContent;
+  b.textContent = b.dataset.base + (k ? ' ('+k+')' : '');
+  b.classList.toggle('alertbtn', !!k);
+}
+function updateBadges(){
+  if(role !== 'editor') return;
+  const a = alerts();
+  setBadge('loansBtn', a.late.length + a.due.length + a.rev.length);
+  setBadge('modBtn', Object.keys(X.propostes).length);
+  if(!alerted && Xready.prestecs && Xready.restauracions && loaded){
+    alerted = true;
+    const m = [];
+    if(a.late.length) m.push(a.late.length+(a.late.length===1?' préstec vençut':' préstecs vençuts'));
+    if(a.due.length) m.push(a.due.length+' a retornar aviat');
+    if(a.revLate.length) m.push(a.revLate.length+(a.revLate.length===1?' revisió de conservació endarrerida':' revisions de conservació endarrerides'));
+    if(m.length) setTimeout(()=>toast('Avís: '+m.join(' · ')), 1200);
+  }
+}
+
+/* ---- secció de la fitxa ---- */
+function secSkeleton(p){
+  const ed = role === 'editor';
+  const opt = (arr, lab)=>arr.map(v=>'<option value="'+esc(v)+'">'+esc(lab ? lab[v] : v)+'</option>').join('');
+  let h = '';
+  if(ed) h += '<section class="xs"><h4>Revisió d\'inventari</h4><div id="xs_rev"></div></section>';
+  h += '<section class="xs"><h4>Històries</h4><div id="xs_hist"></div>'+
+    '<details class="xadd"><summary>+ Afegeix una història, anècdota o comentari</summary>'+
+      '<div class="fg"><label>Tipus</label><select id="h_tipus">'+opt(Object.keys(HTIPUS), HTIPUS)+'</select></div>'+
+      '<div class="fg"><label>Text</label><textarea id="h_text" maxlength="2000"></textarea></div>'+
+      '<div class="fg"><label>Qui ho explica</label><input type="text" id="h_autor" maxlength="60" value="'+esc(userName)+'"></div>'+
+      (ed ? '' : '<p class="xhint">L\'editor la revisarà abans de publicar-la.</p>')+
+      '<button class="save" data-act="hsave">'+(ed?'Publica':'Envia')+'</button></details></section>';
+  if(ed){
+    h += '<section class="xs"><h4>Préstecs</h4><div id="xs_loan"></div>'+
+      '<details class="xadd"><summary>+ Registra un préstec</summary>'+
+        '<div class="fg"><label>Destinatari</label><input type="text" id="l_dest" maxlength="120"></div>'+
+        '<div class="two"><div class="fg"><label>Sortida</label><input type="date" id="l_sort" value="'+today()+'"></div>'+
+        '<div class="fg"><label>Retorn previst</label><input type="date" id="l_ret"></div></div>'+
+        '<div class="fg"><label>Notes</label><textarea id="l_nota" maxlength="1000"></textarea></div>'+
+        '<button class="save" data-act="lsave">Desa el préstec</button></details></section>';
+    h += '<section class="xs"><h4>Restauració i conservació</h4><div id="xs_rest"></div>'+
+      '<details class="xadd"><summary>+ Registra una intervenció</summary>'+
+        '<div class="two"><div class="fg"><label>Data</label><input type="date" id="r_data" value="'+today()+'"></div>'+
+        '<div class="fg"><label>Tipus</label><select id="r_tipus">'+opt(RTIPUS)+'</select></div></div>'+
+        '<div class="fg"><label>Qui l\'ha feta</label><input type="text" id="r_qui" maxlength="120"></div>'+
+        '<div class="fg"><label>Descripció (estat, oxidació, productes…)</label><textarea id="r_desc" maxlength="2000"></textarea></div>'+
+        '<div class="fg"><label>Propera revisió</label><input type="date" id="r_prop"></div>'+
+        '<button class="save" data-act="rsave">Desa la intervenció</button></details></section>';
+    h += '<section class="xs"><h4>Documents privats</h4><div id="xs_doc"></div>'+
+      '<details class="xadd"><summary>+ Adjunta un document</summary>'+
+        '<div class="two"><div class="fg"><label>Tipus</label><select id="d_tipus">'+opt(DTIPUS)+'</select></div>'+
+        '<div class="fg"><label>Nom</label><input type="text" id="d_nom" maxlength="120" placeholder="Opcional"></div></div>'+
+        '<div class="fg"><label>Fitxer (PDF o imatge, màx. 700 KB)</label><input type="file" id="d_file" accept="application/pdf,image/*"></div>'+
+        '<button class="save" data-act="dsave">Desa el document</button></details></section>';
+  }
+  return h;
+}
+function renderSec(p){
+  const box = $('xsec'); if(!box) return;
+  if(box.dataset.n !== String(p.n)){ box.dataset.n = String(p.n); box.innerHTML = secSkeleton(p); }
+  const ed = role === 'editor', n = p.n, t = today();
+  // revisió
+  if(ed && $('xs_rev')){
+    const r = revState(p);
+    $('xs_rev').innerHTML = '<p class="xline">'+(r ? '<span class="rvpill '+esc(r.estat)+'">'+esc(REV[r.estat]||r.estat)+'</span> '+fmtD(r.data)+' · '+esc(r.qui||'') : '<span class="rvpill">Pendent</span> No s\'ha revisat en aquesta revisió')+'</p>'+
+      '<div class="rvbtns">'+Object.keys(REV).map(k=>'<button data-act="rev" data-v="'+k+'" class="'+(r&&r.estat===k?'on':'')+'">'+REV[k]+'</button>').join('')+'</div>';
+  }
+  // històries
+  const hs = byPiece('histories', n).sort((a,b)=>(a.ts||0)-(b.ts||0));
+  let hh = hs.length ? hs.map(x=>storyHtml(x, ed ? '<button data-act="hdel" data-id="'+esc(x.id)+'">Elimina</button>' : '')).join('') : '<p class="xempty">Encara no hi ha cap història d\'aquesta peça.</p>';
+  if(ed){
+    const pr = byPiece('propostes', n);
+    if(pr.length) hh += '<p class="xsub">Pendents d\'aprovar</p>' + pr.map(x=>storyHtml(x, '<button data-act="happ" data-id="'+esc(x.id)+'" class="ok">Aprova</button><button data-act="hrej" data-id="'+esc(x.id)+'">Rebutja</button>', true)).join('');
+  }
+  $('xs_hist').innerHTML = hh;
+  if(!ed) return;
+  // préstecs
+  const ls = byPiece('prestecs', n).sort((a,b)=>(b.sortida||'')<(a.sortida||'')?-1:1);
+  $('xs_loan').innerHTML = ls.length ? ls.map(l=>{
+    const st = l.retornat ? '<span class="rvpill verificada">Retornat '+fmtD(l.dataRetorn)+'</span>' :
+      (l.retorn && l.retorn < t ? '<span class="rvpill absent">Vençut</span>' : '<span class="rvpill prestada">Actiu</span>');
+    return '<div class="xitem"><b>'+esc(l.dest||'—')+'</b> '+st+'<div class="xmeta">Sortida '+fmtD(l.sortida)+' · Retorn previst '+fmtD(l.retorn)+'</div>'+
+      (l.nota?'<div class="xtext">'+esc(l.nota)+'</div>':'')+
+      '<div class="xacts">'+(l.retornat?'':'<button data-act="lret" data-id="'+esc(l.id)+'" class="ok">Marca com a retornat</button>')+'<button data-act="ldel" data-id="'+esc(l.id)+'">Elimina</button></div></div>';
+  }).join('') : '<p class="xempty">Sense préstecs registrats.</p>';
+  // restauracions
+  const rs = byPiece('restauracions', n).sort((a,b)=>(b.data||'')<(a.data||'')?-1:1);
+  $('xs_rest').innerHTML = rs.length ? rs.map((r,i)=>'<div class="xitem"><b>'+esc(r.tipus||'Intervenció')+'</b> · '+fmtD(r.data)+(r.restaurador?' · '+esc(r.restaurador):'')+
+      (r.desc?'<div class="xtext">'+esc(r.desc)+'</div>':'')+
+      (r.propera?'<div class="xmeta">Propera revisió: '+(i===0 && r.propera < t ? '<span class="rvpill absent">'+fmtD(r.propera)+' (endarrerida)</span>' : fmtD(r.propera))+'</div>':'')+
+      '<div class="xacts"><button data-act="rdel" data-id="'+esc(r.id)+'">Elimina</button></div></div>').join('') : '<p class="xempty">Sense intervencions registrades.</p>';
+  // documents
+  const ds = byPiece('documents', n).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  $('xs_doc').innerHTML = ds.length ? ds.map(d=>'<div class="xitem"><b>'+esc(d.nom||'Document')+'</b> <span class="rvpill">'+esc(d.tipus||'')+'</span>'+
+      '<div class="xmeta">'+fmtTs(d.ts)+' · '+Math.round((d.mida||0)/1024)+' KB</div>'+
+      '<div class="xacts"><button data-act="dopen" data-id="'+esc(d.id)+'" class="ok">Descarrega</button><button data-act="ddel" data-id="'+esc(d.id)+'">Elimina</button></div></div>').join('') : '<p class="xempty">Sense documents adjunts.</p>';
+}
+function storyHtml(x, acts, pending){
+  return '<div class="xitem story'+(pending?' pend':'')+'"><span class="rvpill">'+esc(HTIPUS[x.tipus]||x.tipus||'')+'</span>'+
+    '<div class="xtext">'+esc(x.text)+'</div><div class="xmeta">— '+esc(x.autor||'Anònim')+', '+fmtTs(x.ts)+'</div>'+
+    (acts?'<div class="xacts">'+acts+'</div>':'')+'</div>';
+}
+
+/* ---- revisió d'inventari ---- */
+function revState(p){
+  const r = X.revisio['p'+p.n], c = (X.revisio.campanya||{}).inici || 0;
+  return (r && (r.ts||0) >= c) ? r : null;
+}
+function setRev(n, estat){
+  const p = find(n); if(!p || role !== 'editor' || !REV[estat]) return;
+  wb(b=>{
+    b.set(xdoc('revisio','p'+n), {n:n, estat:estat, data:today(), ts:Date.now(), qui:who()});
+    hist(b,'revisio',p,{info:'Revisió d\'inventari: '+REV[estat]});
+  }, 'Núm. '+n+': '+REV[estat]);
+}
+function revGroups(){
+  const list = listAll(), g = {pend:[], verificada:[], absent:[], prestada:[]};
+  list.forEach(p=>{ const r = revState(p); (r ? (g[r.estat] = g[r.estat]||[]) : g.pend).push(p); });
+  return {list:list, g:g};
+}
+function openReview(){ current = null; mode = 'review'; setHead('Revisió d\'inventari', false); renderReview(); sbody.scrollTop = 0; stagger(null); show(); }
+function renderReview(){
+  const R = revGroups(), g = R.g, tot = R.list.length, done = tot - g.pend.length, c = X.revisio.campanya;
+  const row = (p, quick)=>{
+    const r = revState(p), src = photo(p);
+    return '<div class="rvrow"><button class="tlitem" data-act="openp" data-n="'+p.n+'"><span class="tlth">'+(src?'<img src="'+src+'" alt="" loading="lazy">':'')+'</span>'+
+      '<span class="tltx"><b>'+esc(ptitle(p.n))+'</b><i>'+esc([p.ubic, r ? fmtD(r.data)+' · '+(r.qui||'') : ''].filter(Boolean).join(' · '))+'</i></span></button>'+
+      (quick?'<button class="rvq ok" data-act="rvq" data-n="'+p.n+'" data-v="verificada" aria-label="Verificada">✓</button><button class="rvq" data-act="rvq" data-n="'+p.n+'" data-v="absent" aria-label="Absent">✗</button>':'')+'</div>';
+  };
+  const sec = (t, arr, quick)=>arr.length ? '<div class="hday tly">'+t+' ('+arr.length+')</div>'+arr.map(p=>row(p,quick)).join('') : '';
+  sbody.innerHTML =
+    '<p class="bulknote">Revisió '+(c ? 'iniciada el <b>'+fmtTs(c.inici)+'</b>' : 'en curs')+'. Revisades <b>'+done+' de '+tot+'</b> peces ('+(tot?Math.round(done/tot*100):0)+'%).</p>'+
+    '<div class="rvstats"><div><b>'+(g.verificada||[]).length+'</b>Verificades</div><div><b>'+(g.absent||[]).length+'</b>Absents</div><div><b>'+(g.prestada||[]).length+'</b>Prestades</div><div><b>'+g.pend.length+'</b>Pendents</div></div>'+
+    '<div class="navrow"><button data-act="rvprint">Imprimir informe</button><button data-act="rvcsv">Exportar CSV</button></div>'+
+    '<div class="navrow"><button data-act="rvnew">Comença una revisió nova</button></div>'+
+    sec('Pendents', g.pend, true) + sec('Absents', g.absent||[]) + sec('Prestades', g.prestada||[]);
+}
+function reviewReport(){
+  const R = revGroups(), c = X.revisio.campanya;
+  const tr = p=>{ const r = revState(p); return '<tr><td>'+p.n+'</td><td>'+esc((p.titol||'').trim()||'Sense títol')+'</td><td>'+esc(p.ubic||'')+'</td><td>'+(r?esc(REV[r.estat]):'Pendent')+'</td><td>'+(r?fmtD(r.data):'')+'</td><td>'+(r?esc(r.qui||''):'')+'</td></tr>'; };
+  const order = R.g.pend.concat(R.g.absent||[], R.g.prestada||[], R.g.verificada||[]);
+  const area = $('printArea');
+  area.innerHTML = '<div class="rep"><h1>Revisió d\'inventari</h1><p>'+(c?'Iniciada el '+fmtTs(c.inici)+' · ':'')+'Informe del '+fmtD(today())+' · '+R.list.length+' peces · '+R.g.pend.length+' pendents · '+(R.g.absent||[]).length+' absents · '+(R.g.prestada||[]).length+' prestades</p>'+
+    '<table><thead><tr><th>Núm.</th><th>Títol</th><th>Ubicació</th><th>Estat</th><th>Data</th><th>Qui</th></tr></thead><tbody>'+order.map(tr).join('')+'</tbody></table></div>';
+  document.body.classList.add('printing-cat');
+  window.addEventListener('afterprint', ()=>{ document.body.classList.remove('printing-cat'); area.innerHTML = ''; }, {once:true});
+  setTimeout(()=>window.print(), 80);
+}
+function reviewCsv(){
+  const R = revGroups(), q2 = v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows = R.list.map(p=>{ const r = revState(p); return [p.n, p.titol, p.ubic, r?REV[r.estat]:'Pendent', r?r.data:'', r?r.qui:''].map(q2).join(';'); });
+  saveBlob('revisio-inventari_'+today()+'.csv', new Blob(['﻿'+['Núm.','Títol','Ubicació','Estat','Data','Qui'].map(q2).join(';')+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8'}));
+}
+
+/* ---- préstecs i conservació (panell) ---- */
+function openLoans(){ current = null; mode = 'loans'; setHead('Préstecs i conservació', false); renderLoans(); sbody.scrollTop = 0; stagger(null); show(); }
+function renderLoans(){
+  const a = alerts();
+  const li = (n, main, sub, cls)=>'<button class="tlitem'+(cls?' '+cls:'')+'" data-act="openp" data-n="'+n+'"><span class="tltx"><b>'+esc(main)+'</b><i>'+sub+'</i></span></button>';
+  const active = a.loans.slice().sort((x,y)=>(x.retorn||'9')<(y.retorn||'9')?-1:1);
+  let h = '<p class="bulknote">Préstecs actius: <b>'+active.length+'</b> · vençuts: <b>'+a.late.length+'</b> · revisions de conservació en els propers 30 dies o endarrerides: <b>'+a.rev.length+'</b>.</p>';
+  h += '<div class="hday tly">Préstecs actius</div>' + (active.length ? active.map(l=>{
+    const late = l.retorn && l.retorn < a.t, soon = !late && l.retorn && l.retorn <= addDays(a.t,7);
+    return li(l.n, ptitle(l.n), esc(l.dest||'—')+' · sortida '+fmtD(l.sortida)+' · retorn '+fmtD(l.retorn)+(late?' · <span class="rvpill absent">Vençut</span>':soon?' · <span class="rvpill prestada">Aviat</span>':''), late?'late':'');
+  }).join('') : '<p class="xempty">Cap préstec actiu.</p>');
+  h += '<div class="hday tly">Revisions de conservació</div>' + (a.rev.length ? a.rev.map(r=>li(r.n, ptitle(r.n), 'Propera revisió '+fmtD(r.propera)+(r.propera < a.t?' · <span class="rvpill absent">Endarrerida</span>':'')+' · última: '+esc(r.tipus||'')+' ('+fmtD(r.data)+')', r.propera < a.t?'late':'')).join('') : '<p class="xempty">Cap revisió prevista per als propers 30 dies.</p>');
+  sbody.innerHTML = h;
+}
+
+/* ---- històries pendents (moderació) ---- */
+function openMod(){ current = null; mode = 'mod'; setHead('Històries pendents', false); renderMod(); sbody.scrollTop = 0; stagger(null); show(); }
+function renderMod(){
+  const pr = vals('propostes').sort((a,b)=>(a.ts||0)-(b.ts||0));
+  sbody.innerHTML = pr.length ? '<p class="bulknote">Històries enviades per convidats. Només es publiquen si les aproves.</p>' + pr.map(x=>
+    '<p class="xsub"><button class="hpiece" data-act="openp" data-n="'+x.n+'">'+esc(ptitle(x.n))+'</button></p>'+
+    storyHtml(x, '<button data-act="happ" data-id="'+esc(x.id)+'" class="ok">Aprova</button><button data-act="hrej" data-id="'+esc(x.id)+'">Rebutja</button>', true)).join('')
+    : '<p class="hnote">No hi ha cap història pendent d\'aprovar.</p>';
+}
+
+/* ---- documents ---- */
+function readOnce(col, id){
+  return new Promise((res, rej)=>{
+    let un = null, done = false;
+    const fin = (e, v)=>{ if(done) return; done = true; clearTimeout(t); if(un) un(); e ? rej(e) : res(v); };
+    const t = setTimeout(()=>fin(new Error('timeout')), 15000);
+    un = FB.onSnapshot(xdoc(col,id), s=>{ if(s.exists()) fin(null, s.data()); else if(!s.metadata.fromCache) fin(null, null); }, e=>fin(e));
+  });
+}
+function fileToData(file){
+  return new Promise((res, rej)=>{
+    const rd = new FileReader();
+    rd.onerror = ()=>rej(new Error('read'));
+    rd.onload = e=>{
+      const url = e.target.result;
+      if(!/^image\//.test(file.type) || file.type === 'image/svg+xml'){ res({data:url, mime:file.type||'application/octet-stream', size:file.size}); return; }
+      const img = new Image();
+      img.onerror = ()=>res({data:url, mime:file.type, size:file.size});
+      img.onload = ()=>{  // les imatges es redueixen perquè càpiguen a la base de dades
+        const max = 1800; let w = img.width, h = img.height;
+        if(w>max||h>max){ const k = max/Math.max(w,h); w = Math.round(w*k); h = Math.round(h*k); }
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img,0,0,w,h);
+        let qy = 0.85, d = cv.toDataURL('image/jpeg',qy);
+        while(d.length > DOC_MAX*1.33 && qy > 0.35){ qy -= 0.1; d = cv.toDataURL('image/jpeg',qy); }
+        res({data:d, mime:'image/jpeg', size:Math.round(d.length*0.75)});
+      };
+      img.src = url;
+    };
+    rd.readAsDataURL(file);
+  });
+}
+async function saveDoc(n, btn){
+  const f = ($('d_file').files||[])[0];
+  if(!f){ toast('Tria un fitxer'); return; }
+  let r;
+  try{ r = await fileToData(f); }catch(e){ alert('No s\'ha pogut llegir el fitxer.'); return; }
+  if(r.size > DOC_MAX){ alert('El fitxer és massa gran ('+Math.round(r.size/1024)+' KB). El màxim és 700 KB: redueix-lo o escaneja\'l amb menys resolució.'); return; }
+  const id = newId(n), nom = ($('d_nom').value.trim() || f.name).slice(0,120), tipus = $('d_tipus').value;
+  const p = find(n);
+  wb(b=>{
+    b.set(xdoc('docdata',id), {n:n, data:r.data});
+    b.set(xdoc('documents',id), {n:n, nom:nom, tipus:tipus, mime:r.mime, mida:r.size, ts:Date.now(), qui:who()});
+    hist(b,'document',p,{info:'Document adjuntat: '+tipus+' · '+nom});
+  }, 'Document desat');
+  if(btn) resetDetails(btn);
+}
+async function openDoc(id, btn){
+  const m = X.documents[id]; if(!m) return;
+  const t0 = btn.textContent; btn.textContent = 'Carregant…'; btn.disabled = true;
+  try{
+    const d = await readOnce('docdata', id);
+    if(!d || !d.data) throw new Error('buit');
+    const blob = await fetch(d.data).then(r=>r.blob());
+    const ext = m.mime === 'application/pdf' ? '.pdf' : (/^image\/jpe?g/.test(m.mime) ? '.jpg' : /^image\/png/.test(m.mime) ? '.png' : '');
+    const nm = /\.[a-z0-9]{2,4}$/i.test(m.nom||'') ? m.nom : (m.nom||'document')+ext;
+    saveBlob(nm.replace(/[\\/:*?"<>|]/g,'_'), blob);
+  }catch(e){ alert('No s\'ha pogut obrir el document. Comprova la connexió.'); }
+  btn.textContent = t0; btn.disabled = false;
+}
+
+/* ---- accions (delegades) ---- */
+function resetDetails(b){
+  const dt = b.closest('details'); if(!dt) return;
+  dt.querySelectorAll('input[type=text],textarea,input[type=file]').forEach(i=>{ if(i.id !== 'h_autor') i.value = ''; });
+  dt.open = false;
+}
+function confirmTap(btn, txt){
+  if(btn.dataset.sure) return true;
+  btn.dataset.sure = '1'; const t0 = btn.textContent; btn.textContent = txt || 'Toca un altre cop per confirmar';
+  setTimeout(()=>{ if(btn.isConnected){ delete btn.dataset.sure; btn.textContent = t0; } }, 4000);
+  return false;
+}
+sbody.addEventListener('click', e=>{
+  const b = e.target.closest('[data-act]'); if(!b || !FB) return;
+  const act = b.dataset.act, id = b.dataset.id, ed = role === 'editor';
+  const n = b.dataset.n ? parseInt(b.dataset.n,10) : current;
+  const p = n != null ? find(n) : null;
+  if(act === 'openp'){ if(find(n)) open(n,'view'); return; }
+  if(act === 'hsave'){
+    if(!p) return;
+    const tx = $('h_text').value.trim(), au = $('h_autor').value.trim().slice(0,60) || 'Anònim', tp = $('h_tipus').value;
+    if(tx.length < 3){ toast('Escriu el text de la història'); return; }
+    const sid = newId(p.n), d = {n:p.n, tipus:tp, text:tx.slice(0,2000), autor:au, ts:Date.now()};
+    if(ed) wb(bb=>{ bb.set(xdoc('histories',sid), Object.assign({}, d, {aprovadaPer:who()})); hist(bb,'historia',p,{info:'Història publicada ('+HTIPUS[tp]+')'}); }, 'Història publicada');
+    else wb(bb=>bb.set(xdoc('propostes',sid), d), 'Gràcies! L\'editor la revisarà abans de publicar-la');
+    $('h_text').value = ''; b.closest('details').open = false;
+    return;
+  }
+  if(!ed) return;
+  const pr = id ? X.propostes[id] : null;
+  switch(act){
+    case 'rev': setRev(n, b.dataset.v); break;
+    case 'rvq': setRev(n, b.dataset.v); break;
+    case 'rvprint': reviewReport(); break;
+    case 'rvcsv': reviewCsv(); break;
+    case 'rvnew':
+      if(!confirmTap(b, 'Toca un altre cop: totes les peces tornaran a quedar pendents')) return;
+      wb(bb=>{ bb.set(xdoc('revisio','campanya'), {inici:Date.now(), qui:who()}); hist(bb,'revisio',{n:0,titol:''},{info:'Nova revisió d\'inventari iniciada'}); }, 'Nova revisió iniciada');
+      break;
+    case 'happ':
+      if(!pr) return;
+      wb(bb=>{ const d = Object.assign({}, pr); delete d.id; d.aprovadaPer = who(); bb.set(xdoc('histories',id), d); bb.delete(xdoc('propostes',id)); hist(bb,'historia',find(pr.n)||{n:pr.n,titol:''},{info:'Història aprovada ('+(HTIPUS[pr.tipus]||'')+', de '+(pr.autor||'')+')'}); }, 'Història aprovada i publicada');
+      break;
+    case 'hrej':
+      if(!pr || !confirmTap(b, 'Confirma')) return;
+      wb(bb=>bb.delete(xdoc('propostes',id)), 'Història rebutjada');
+      break;
+    case 'hdel':
+      if(!confirmTap(b, 'Confirma')) return;
+      wb(bb=>bb.delete(xdoc('histories',id)), 'Història eliminada');
+      break;
+    case 'lsave': {
+      if(!p) return;
+      const dest = $('l_dest').value.trim(), so = $('l_sort').value, re = $('l_ret').value;
+      if(!dest){ toast('Indica el destinatari'); return; }
+      if(re && so && re < so){ toast('El retorn no pot ser abans de la sortida'); return; }
+      wb(bb=>{
+        bb.set(xdoc('prestecs',newId(p.n)), {n:p.n, dest:dest.slice(0,120), sortida:so, retorn:re, nota:$('l_nota').value.trim().slice(0,1000), retornat:false, ts:Date.now(), qui:who()});
+        bb.set(xdoc('revisio','p'+p.n), {n:p.n, estat:'prestada', data:today(), ts:Date.now(), qui:who()});
+        hist(bb,'prestec',p,{info:'Préstec a '+dest+(re?' fins al '+re:'')});
+      }, 'Préstec registrat');
+      resetDetails(b);
+      break;
+    }
+    case 'lret': {
+      const l = X.prestecs[id]; if(!l) return;
+      wb(bb=>{ bb.set(xdoc('prestecs',id), {retornat:true, dataRetorn:today()}, {merge:true}); hist(bb,'prestec',find(l.n)||{n:l.n,titol:''},{info:'Préstec retornat ('+(l.dest||'')+')'}); }, 'Préstec marcat com a retornat');
+      break;
+    }
+    case 'ldel': if(!confirmTap(b,'Confirma')) return; wb(bb=>bb.delete(xdoc('prestecs',id)), 'Préstec eliminat'); break;
+    case 'rsave': {
+      if(!p) return;
+      const d = $('r_data').value, pr2 = $('r_prop').value;
+      if(!d){ toast('Indica la data'); return; }
+      wb(bb=>{
+        bb.set(xdoc('restauracions',newId(p.n)), {n:p.n, data:d, tipus:$('r_tipus').value, restaurador:$('r_qui').value.trim().slice(0,120), desc:$('r_desc').value.trim().slice(0,2000), propera:pr2, ts:Date.now(), qui:who()});
+        hist(bb,'restauracio',p,{info:'Intervenció: '+$('r_tipus').value+' ('+d+')'});
+      }, 'Intervenció desada');
+      resetDetails(b);
+      break;
+    }
+    case 'rdel': if(!confirmTap(b,'Confirma')) return; wb(bb=>bb.delete(xdoc('restauracions',id)), 'Intervenció eliminada'); break;
+    case 'dsave': if(p) saveDoc(p.n, b); break;
+    case 'dopen': openDoc(id, b); break;
+    case 'ddel':
+      if(!confirmTap(b,'Confirma')) return;
+      wb(bb=>{ bb.delete(xdoc('documents',id)); bb.delete(xdoc('docdata',id)); }, 'Document eliminat');
+      break;
+  }
+});
+$('reviewBtn').addEventListener('click', openReview);
+$('loansBtn').addEventListener('click', openLoans);
+$('modBtn').addEventListener('click', openMod);
+
 /* ---------- exportar / importar ---------- */
 $('exportBtn').addEventListener('click', ()=>{
   const heads = ['Núm.'].concat(FIELDS.map(f=>f[1]));
@@ -1695,7 +2222,51 @@ $('exportBtn').addEventListener('click', ()=>{
   const rows = listAll().map(p=>keys.map(k=>'"'+String(p[k]==null?'':p[k]).replace(/"/g,'""')+'"').join(';'));
   saveBlob('inventari-escultures.csv', new Blob(['﻿'+heads.map(h=>'"'+h+'"').join(';')+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8'}));
 });
-$('backupBtn').addEventListener('click', ()=>{
+/* Llegeix una col·lecció sencera, preferint la resposta del servidor (no la caché local). */
+function readCollection(name){
+  return new Promise((res, rej)=>{
+    let un = null, done = false, cached = null;
+    const rows = snap=>{ const a = []; snap.forEach(d=>a.push(Object.assign({}, d.data(), {_id:d.id}))); return a; };
+    const fin = (err, a, fromCache)=>{ if(done) return; done = true; clearTimeout(t); if(un) un(); err ? rej(err) : res({rows:a, fromCache:!!fromCache}); };
+    const t = setTimeout(()=>cached ? fin(null, cached, true) : fin(new Error('timeout')), 15000);
+    un = FB.onSnapshot(FB.collection(FB.db, name), {includeMetadataChanges:true}, snap=>{
+      if(snap.metadata && snap.metadata.fromCache){ cached = rows(snap); if(navigator.onLine === false) fin(null, cached, true); return; }
+      fin(null, rows(snap), false);
+    }, err=>fin(err));
+  });
+}
+function stamp(){ const d = new Date(), z = x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'_'+z(d.getHours())+z(d.getMinutes()); }
+let backingUp = false;
+async function fullBackup(btn){
+  if(backingUp || !FB) return;
+  backingUp = true; const t0 = btn.textContent; btn.textContent = 'Preparant la còpia…'; btn.disabled = true;
+  setSync('wait','Preparant la còpia de seguretat…');
+  try{
+    const cols = ['inventari','privat','fotos','historial'].concat(XCOLS), out = {};
+    let anyCache = false;
+    for(const c of cols){ const r = await readCollection(c); out[c] = r.rows; anyCache = anyCache || r.fromCache; }
+    const strip = a=>a.map(x=>{ const o = Object.assign({}, x); delete o._id; return o; });
+    const withId = a=>a.map(x=>{ const o = Object.assign({}, x); o.id = o._id; delete o._id; return o; });
+    const data = {
+      version:3, app:'les-peces-del-ferrer', full:true,
+      exported:new Date().toISOString(), by:who(),
+      counts:{pieces:out.inventari.length},
+      pieces:strip(out.inventari)
+    };
+    cols.slice(1).forEach(c=>{ data[c] = withId(out[c]); data.counts[c] = out[c].length; });
+    saveBlob('les-peces-del-ferrer_copia-completa_'+stamp()+'.json', new Blob([JSON.stringify(data)], {type:'application/json'}));
+    setSync('ok','Sincronitzat amb el núvol');
+    toast('Còpia completa: '+data.counts.pieces+' peces, '+data.counts.fotos+' fotos de detall, '+data.counts.historial+' registres');
+    if(anyCache) alert('Atenció: sense connexió amb el servidor, la còpia s\'ha fet amb les dades desades en aquest dispositiu i pot ser incompleta. Repeteix-la amb connexió.');
+  }catch(err){
+    syncError(err);
+    alert('No s\'ha pogut fer la còpia completa ('+((err&&err.code)||err.message||'error')+').');
+  }
+  btn.textContent = t0; btn.disabled = false; backingUp = false;
+}
+$('backupBtn').addEventListener('click', e=>{
+  if(role === 'editor'){ fullBackup(e.currentTarget); return; }
+  // convidat: només la informació pública del catàleg
   const data = {version:2, exported:new Date().toISOString(), pieces:Object.keys(pieces).map(k=>pieces[k])};
   saveBlob('inventari-copia.json', new Blob([JSON.stringify(data)], {type:'application/json'}));
 });
@@ -1709,11 +2280,30 @@ function parseImport(d){
     (d.deleted||[]).forEach(n=>list.push({n:n, deleted:true}));
   }
   if(!list.length) throw new Error('buit');
-  return {list:list, seed:seed};
+  const okId = x=>x && typeof x.id === 'string' && /^[A-Za-z0-9_-]{1,120}$/.test(x.id);
+  const arr = k=>Array.isArray(d[k]) ? d[k].filter(okId) : [];
+  const r = {list:list, seed:seed, full:!!d.full};
+  ['privat','fotos','historial'].concat(XCOLS).forEach(k=>{ r[k] = arr(k); });
+  return r;
+}
+// Col·leccions addicionals d'una còpia completa (valoracions, fotos de detall, historial).
+// Es desen amb el mateix identificador: tornar a importar no duplica res.
+async function restoreExtras(parsed){
+  const SIZE = {fotos:4, docdata:2};
+  const parts = ['privat','fotos','historial'].concat(XCOLS).map(c=>[c, parsed[c]||[], SIZE[c]||150]);
+  for(const pt of parts){
+    const col = pt[0], rows = pt[1], CH = pt[2];
+    for(let i=0;i<rows.length;i+=CH){
+      const b = FB.writeBatch(FB.db);
+      rows.slice(i,i+CH).forEach(r=>{ const o = Object.assign({}, r); delete o.id; b.set(FB.doc(FB.db,col,r.id), o, {merge:true}); });
+      await b.commit();
+      toast('Restaurant '+col+'… '+Math.min(i+CH,rows.length)+' de '+rows.length);
+    }
+  }
 }
 let importing = false;
 // S'envia de a poquet (8 peces per tanda) perquè amb fotos no es talli en mòbil, i s'avisa si falla.
-async function runImport(list, seed){
+async function runImport(list, seed, parsed){
   if(importing) return;
   importing = true;
   const stamp = Date.now(), CH = 8, total = list.length;
@@ -1737,6 +2327,7 @@ async function runImport(list, seed){
       done = Math.min(i+CH, total);
       toast('Important… '+done+' de '+total);
     }
+    if(parsed && parsed.full) await restoreExtras(parsed);
     toast('Importació acabada ('+total+' peces)');
   }catch(err){
     syncError(err);
@@ -1756,8 +2347,9 @@ $('restoreInput').addEventListener('change', e=>{
       if(!d || typeof d !== 'object') throw 0;
       parsed = parseImport(d);
     }catch(err){ alert('El fitxer no és una còpia vàlida.'); return; }
-    if(!confirm('Importar '+parsed.list.length+' peces' + (parsed.seed ? ' (dades inicials: omple el que falti, com les fotos, i no sobreescriu els canvis que ja hi hagi)' : '') + '?')) return;
-    runImport(parsed.list, parsed.seed);
+    const extra = parsed.full ? ('\n\nCòpia completa: també es restauraran '+parsed.privat.length+' valoracions/assegurances, '+parsed.fotos.length+' fotos de detall, '+parsed.historial.length+' registres de l\'historial, '+parsed.prestecs.length+' préstecs, '+parsed.restauracions.length+' restauracions, '+parsed.documents.length+' documents, '+parsed.histories.length+' històries i la revisió d\'inventari.') : '';
+    if(!confirm('Importar '+parsed.list.length+' peces' + (parsed.seed ? ' (dades inicials: omple el que falti, com les fotos, i no sobreescriu els canvis que ja hi hagi)' : '') + '?' + extra)) return;
+    runImport(parsed.list, parsed.seed, parsed);
   };
   rd.readAsText(f);
 });
@@ -1818,6 +2410,113 @@ $('serieChips').addEventListener('click', e=>{
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') setOpen(false); });
   paint();
 })();
+(function(){ // cerca avançada
+  const panel = $('adv'), btn = $('advBtn');
+  btn.addEventListener('click', ()=>{ panel.hidden = !panel.hidden; btn.setAttribute('aria-expanded', panel.hidden?'false':'true'); });
+  const yr = v=>{ const n = parseInt(v,10); return (n>=1000 && n<=2200) ? n : 0; };
+  function read(){
+    serieSel = $('a_serie').value; adv.estat = $('a_estat').value; adv.ubic = $('a_ubic').value; adv.sit = $('a_sit').value;
+    adv.y0 = yr($('a_y0').value); adv.y1 = yr($('a_y1').value);
+    animateGrid = true; render();
+  }
+  ['a_serie','a_estat','a_ubic','a_sit'].forEach(id=>$(id).addEventListener('change', read));
+  ['a_y0','a_y1'].forEach(id=>$(id).addEventListener('input', read));
+  $('advClear').addEventListener('click', ()=>{
+    serieSel = ''; adv.estat = adv.ubic = adv.sit = ''; adv.y0 = adv.y1 = 0;
+    $('a_y0').value = $('a_y1').value = ''; q.value = '';
+    filt.value = '';
+    Array.prototype.forEach.call(document.querySelectorAll('.chip[data-f]'), x=>x.classList.toggle('on', x.dataset.f===''));
+    animateGrid = true; render();
+  });
+})();
+
+/* ---------- escàner QR ---------- */
+(function(){
+  const box = $('scan'), video = $('scanVideo'), msg = $('scanMsg');
+  let stream = null, timer = null, detector = null, cv = null, busy = false;
+  const JSQR = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+  function loadJsQR(){
+    if(window.jsQR) return Promise.resolve();
+    return new Promise((res, rej)=>{ const s = document.createElement('script'); s.src = JSQR; s.async = true; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+  }
+  // Accepta els QR de les etiquetes (…/fitxa.html?p=12) i els enllaços interns (#p12)
+  function pieceFrom(text){
+    text = String(text||'').trim();
+    let m = /fitxa\.html\?(?:[^#]*&)?p=(\d+)/i.exec(text) || /#p(\d+)$/.exec(text);
+    return m ? parseInt(m[1],10) : null;
+  }
+  function stop(){
+    clearTimeout(timer); timer = null;
+    if(stream){ stream.getTracks().forEach(t=>t.stop()); stream = null; }
+    video.srcObject = null; box.hidden = true; document.body.classList.remove('lock');
+  }
+  function found(text){
+    const n = pieceFrom(text);
+    if(n == null){ msg.textContent = 'Aquest codi QR no és d\'una peça del catàleg'; return false; }
+    if(!find(n)){ msg.textContent = 'No s\'ha trobat la peça núm. '+n; return false; }
+    stop();
+    if(navigator.vibrate) try{ navigator.vibrate(60); }catch(e){}
+    open(n,'view');
+    return true;
+  }
+  async function tick(){
+    if(!stream || busy) return;
+    busy = true;
+    try{
+      if(video.readyState >= 2){
+        let text = null;
+        if(detector){
+          const r = await detector.detect(video);
+          if(r && r.length) text = r[0].rawValue;
+        }else if(window.jsQR){
+          const w = video.videoWidth, h = video.videoHeight, k = Math.min(1, 640/Math.max(w,h));
+          cv = cv || document.createElement('canvas');
+          cv.width = Math.round(w*k); cv.height = Math.round(h*k);
+          const g = cv.getContext('2d', {willReadFrequently:true});
+          g.drawImage(video, 0, 0, cv.width, cv.height);
+          const img = g.getImageData(0, 0, cv.width, cv.height);
+          const r = window.jsQR(img.data, img.width, img.height, {inversionAttempts:'dontInvert'});
+          if(r) text = r.data;
+        }
+        if(text && found(text)){ busy = false; return; }
+      }
+    }catch(e){}
+    busy = false;
+    if(stream) timer = setTimeout(tick, 180);
+  }
+  async function start(){
+    if(!role) return;
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      alert('Aquest navegador no permet fer servir la càmera (cal una connexió https).'); return;
+    }
+    box.hidden = false; document.body.classList.add('lock');
+    msg.textContent = 'Obrint la càmera…';
+    try{
+      detector = null;
+      if('BarcodeDetector' in window){
+        try{ const f = await window.BarcodeDetector.getSupportedFormats(); if(f.indexOf('qr_code') >= 0) detector = new window.BarcodeDetector({formats:['qr_code']}); }catch(e){}
+      }
+      if(!detector) await loadJsQR();
+      stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}}, audio:false});
+      if(box.hidden){ stop(); return; }   // s'ha tancat mentre es demanava permís
+      video.srcObject = stream;
+      await video.play().catch(()=>{});
+      msg.textContent = 'Apunta la càmera a l\'etiqueta QR de la peça';
+      tick();
+    }catch(err){
+      stop();
+      const nm = err && err.name;
+      if(nm === 'NotAllowedError') alert('Cal donar permís per fer servir la càmera.');
+      else if(nm === 'NotFoundError') alert('No s\'ha trobat cap càmera en aquest dispositiu.');
+      else alert('No s\'ha pogut iniciar l\'escàner. Comprova la connexió i torna-ho a provar.');
+    }
+  }
+  $('scanBtn').addEventListener('click', start);
+  $('scanClose').addEventListener('click', stop);
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !box.hidden) stop(); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden && stream) stop(); });
+})();
+
 $('selChip').addEventListener('click', ()=>{ if(selMode) exitSel(); else enterSel(); });
 $('selCancel').addEventListener('click', exitSel);
 $('selAll').addEventListener('click', ()=>{

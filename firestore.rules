@@ -1,0 +1,42 @@
+rules_version = '2';
+// Regles de Firestore per a «Les peces del ferrer».
+// Publica-les a Firebase Console → Firestore Database → Regles (copia i enganxa tot el fitxer).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isEditor() {
+      return request.auth != null && request.auth.token.email == 'editor@escultures.app';
+    }
+
+    // ---- Catàleg públic: el veuen els convidats i la fitxa del QR (fitxa.html) ----
+    match /inventari/{id}  { allow read: if true; allow write: if isEditor(); }
+    match /fotos/{id}      { allow read: if true; allow write: if isEditor(); }
+    match /histories/{id}  { allow read: if true; allow write: if isEditor(); }   // històries ja aprovades
+
+    // ---- Històries proposades pels convidats: només poden crear-ne, pendents d'aprovació ----
+    match /propostes/{id} {
+      allow read, update, delete: if isEditor();
+      allow create: if isEditor() || (
+        request.resource.data.keys().hasOnly(['n', 'tipus', 'text', 'autor', 'ts']) &&
+        request.resource.data.n is int &&
+        request.resource.data.tipus in ['anecdota', 'autoria', 'encarrec', 'comentari'] &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 2 && request.resource.data.text.size() <= 2000 &&
+        request.resource.data.autor is string && request.resource.data.autor.size() <= 60 &&
+        request.resource.data.ts is int
+      );
+    }
+
+    // ---- Dades privades i gestió: només l'editor ----
+    match /privat/{id}         { allow read, write: if isEditor(); }   // valoracions i assegurances
+    match /historial/{id}      { allow read, write: if isEditor(); }
+    match /revisio/{id}        { allow read, write: if isEditor(); }   // revisió d'inventari
+    match /prestecs/{id}       { allow read, write: if isEditor(); }
+    match /restauracions/{id}  { allow read, write: if isEditor(); }
+    match /documents/{id}      { allow read, write: if isEditor(); }   // certificats, factures, taxacions
+    match /docdata/{id}        { allow read, write: if isEditor(); }   // contingut dels documents
+
+    // Qualsevol altra col·lecció: tancada
+    match /{document=**} { allow read, write: if false; }
+  }
+}

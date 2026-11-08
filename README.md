@@ -23,6 +23,12 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 - **Funciona sense connexió** i es pot instal·lar al mòbil com una app (PWA).
 - **Exportació** a CSV i a còpia de seguretat JSON, i importació de la còpia.
 - Secció **Coneix l'autor**, amb biografia i vídeo.
+- **Còpia de seguretat completa** (editor): fitxes, fotos, valoracions, historial, préstecs, restauracions, documents i històries; es pot restaurar.
+- **Cerca avançada** per text, sèrie, any, estat, ubicació i situació, amb comptador de resultats.
+- **Escàner QR** amb la càmera per obrir directament la fitxa d'una peça.
+- **Revisió d'inventari**: peces verificades, absents o prestades, amb data i informe de pendents.
+- **Préstecs** i **restauracions** amb avisos de retorns i de revisions de conservació.
+- **Històries** de cada peça (els convidats en poden proposar; l'editor les aprova) i **documents privats** (certificats, factures, taxacions).
 
 ## Com es fa servir
 
@@ -50,6 +56,7 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 | `portada.jpg` | Fotografia de la portada |
 | `icons/` | Icones de l'aplicació |
 | `robots.txt` | Demana als cercadors que no la indexin |
+| `firestore.rules` | Regles de seguretat de Firestore (s'han de publicar a la consola de Firebase) |
 
 ## Actualitzar la web
 
