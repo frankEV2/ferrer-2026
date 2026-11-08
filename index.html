@@ -405,6 +405,40 @@ body.sel .selbar{display:flex;animation:rise .4s var(--ease) both}
 .au-src{font-size:.78rem!important;color:var(--ink-2)}
 .au-video{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000;box-shadow:var(--shadow)}
 .au-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* biografia ampliada */
+.au-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}
+.au-chips span{padding:5px 12px;border-radius:99px;background:var(--card);border:1px solid var(--rule);font-size:.78rem;color:var(--ink-2)}
+.au-hint{font-size:.8rem!important;color:var(--ink-2);margin:-4px 0 10px!important}
+.au-tl{list-style:none;margin:0 0 8px;padding:0 0 0 18px;border-left:2px solid var(--rule)}
+.au-tl li{position:relative;margin:0 0 6px}
+.au-tl li::before{content:"";position:absolute;left:-25px;top:15px;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--clay);transition:background .25s,box-shadow .25s}
+.au-tl li:has(details[open])::before{background:var(--clay);box-shadow:0 0 0 4px color-mix(in srgb,var(--clay) 22%,transparent)}
+.au-tl summary,.au-works summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:10px;padding:8px 10px;border-radius:10px;transition:background .2s}
+.au-tl summary::-webkit-details-marker,.au-works summary::-webkit-details-marker{display:none}
+.au-tl summary::after,.au-works summary::after{content:"+";margin-left:auto;color:var(--ink-2);font-weight:600;transition:transform .25s}
+.au-tl details[open] summary::after,.au-works details[open] summary::after{transform:rotate(45deg)}
+@media(hover:hover){.au-tl summary:hover,.au-works summary:hover{background:var(--card)}}
+.au-tl summary b{font-family:var(--display);color:var(--clay);font-size:1.05rem;min-width:3.4em;white-space:nowrap}
+.au-tl summary span{font-size:.95rem}
+.au-tl details p,.au-works details p{margin:2px 10px 10px!important;font-size:.92rem!important;color:var(--ink-2);animation:rise .35s var(--ease) both}
+.au-works{display:grid;gap:8px;margin-bottom:6px}
+.au-works details{background:var(--card);border:1px solid var(--rule);border-radius:14px}
+.au-works summary{flex-direction:column;align-items:flex-start;gap:2px;padding:12px 40px 12px 14px;position:relative}
+.au-works summary::after{position:absolute;right:14px;top:50%;margin-top:-.6em}
+.au-works summary b{font-size:1rem}
+.au-wy{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--clay)}
+.au-vtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.au-vtabs button{text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:2px;transition:border-color .2s,box-shadow .2s}
+.au-vtabs button b{font-size:.88rem;line-height:1.25}
+.au-vtabs button span{font-size:.72rem;color:var(--ink-2)}
+.au-vtabs button[aria-selected="true"]{border-color:var(--clay);box-shadow:0 0 0 3px color-mix(in srgb,var(--clay) 20%,transparent)}
+.au-links{display:grid;gap:8px;margin-bottom:28px}
+.au-links a{display:flex;flex-direction:column;gap:2px;padding:12px 40px 12px 14px;border-radius:14px;border:1px solid var(--rule);background:var(--card);text-decoration:none;color:var(--ink);position:relative;transition:border-color .2s,transform .15s}
+.au-links a::after{content:"↗";position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--clay)}
+.au-links a b{font-size:.93rem;font-weight:600}
+.au-links a span{font-size:.75rem;color:var(--ink-2)}
+@media(hover:hover){.au-links a:hover{border-color:var(--clay)}}
+.au-links a:active{transform:scale(.98)}
 
 .cv-author{margin-top:12px;padding:11px 26px;border-radius:99px;border:1px solid rgba(239,235,225,.45);background:rgba(20,22,15,.35);color:#EFEBE1;font-size:.9rem;font-weight:500;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);cursor:pointer;transition:transform .2s var(--ease),background .2s;animation:rise .9s var(--ease) both;animation-delay:.65s!important}
@@ -879,13 +913,52 @@ main{position:relative;z-index:1}
     <div class="au-photo"><img src="portada.jpg" alt="Antoni Mas Castelltort a la seva farga"></div>
     <p class="au-eyebrow">Coneix l'autor</p>
     <h2>Antoni Mas Castelltort</h2>
-    <p><b>Antoni Mas Castelltort</b> (<a href="https://ca.wikipedia.org/wiki/Vila-seca" target="_blank" rel="noopener">Vila-seca</a>, <a href="https://ca.wikipedia.org/wiki/1949" target="_blank" rel="noopener">1949</a>) és un escultor i ferrer per tradició familiar, assagista i locutor radiofònic. L'any 1976 inicia els estudis d'escultura a l'Escola d'Art de la Diputació de Tarragona. L'any 1985 és finalista del XXIII Premi Julio Antonio d'Escultura de Tarragona. Des dels anys 70 participa en diferents exposicions col·lectives i individuals i l'any 2003 culmina el seu treball creatiu amb l'exposició <i>Currículum</i> a La Chartreuse de Tarragona.</p>
-    <p>Ha treballat en diversos projectes d'escultures públiques, destaca <i>La Torre dels Vents</i> (2006), una estructura d'acer de 32 metres que és part del paisatge artístic urbà de la ciutat de Tarragona.</p>
-    <p>A finals dels 90 col·labora en el programa de Catalunya Ràdio <i>El món s'acaba</i> amb el periodista <a href="https://ca.wikipedia.org/wiki/Xavier_Graset" target="_blank" rel="noopener">Xavier Graset</a> i publica els llibres <i>Les paràboles d'Antoni Mas: el ferrer radiofònic d'El món s'acaba</i> (2000) i <i>A cops de paràbola: Antoni Mas, el ferrer d'El món s'acaba</i> (2003).</p>
-    <p class="au-src">Font: <a href="https://ca.wikipedia.org/wiki/Antoni_Mas_Castelltort" target="_blank" rel="noopener">Viquipèdia</a></p>
-    <h3>El ferrer del meu poble</h3>
+    <div class="au-chips"><span>Vila-seca, 1949</span><span>Escultor</span><span>Ferrer</span><span>Assagista</span><span>Locutor</span></div>
+    <p><b>Antoni Mas Castelltort</b> (<a href="https://ca.wikipedia.org/wiki/Vila-seca" target="_blank" rel="noopener">Vila-seca</a>, 1949) és escultor i ferrer per tradició familiar, assagista i locutor radiofònic. Va estudiar escultura a l'Escola d'Art de la Diputació de Tarragona, on va rebre el Premi de Final d'Estudis, i des dels anys 70 ha exposat en mostres col·lectives i individuals.</p>
+    <p>La seva obra va de l'escultura pública al ferro forjat de la cultura popular: <i>La Torre dels Vents</i> de Tarragona, el treball cisellat de l'<i>Àliga de Tarragona</i>, el <i>Cavall Alat</i> de Vila-seca, les escultures de l'església d'Ordino (Andorra) i el disseny de vitralls per a esglésies com Sant Esteve de Vila-seca o l'Esperit Sant de La Pineda.</p>
+    <p>A finals dels 90 es va fer conegut com «el ferrer» del programa <i>El món s'acaba</i> de Catalunya Ràdio, amb el periodista <a href="https://ca.wikipedia.org/wiki/Xavier_Graset" target="_blank" rel="noopener">Xavier Graset</a>, i en va publicar dos llibres de paràboles.</p>
+
+    <h3>Línia del temps</h3>
+    <p class="au-hint">Toca cada any per veure'n més.</p>
+    <ol class="au-tl">
+      <li><details><summary><b>1949</b><span>Neix a Vila-seca</span></summary><p>Creix en una família de ferrers: l'ofici de la forja li ve per tradició familiar.</p></details></li>
+      <li><details><summary><b>1976</b><span>Escola d'Art de Tarragona</span></summary><p>Inicia els estudis d'escultura a l'Escola d'Art de la Diputació de Tarragona, on rep el Premi de Final d'Estudis. Des dels anys 70 participa en exposicions col·lectives i individuals.</p></details></li>
+      <li><details><summary><b>1985</b><span>Premi Julio Antonio</span></summary><p>Finalista del XXIII Premi Julio Antonio d'Escultura de Tarragona.</p></details></li>
+      <li><details><summary><b>Finals dels 90</b><span>«El món s'acaba»</span></summary><p>Col·labora a Catalunya Ràdio amb Xavier Graset en el programa <i>El món s'acaba</i>, on es fa popular com «el ferrer» de les paràboles.</p></details></li>
+      <li><details><summary><b>2000</b><span>Primer llibre</span></summary><p><i>Les paràboles d'Antoni Mas: el ferrer radiofònic d'El món s'acaba</i>.</p></details></li>
+      <li><details><summary><b>2003</b><span>«Currículum»</span></summary><p>Publica <i>A cops de paràbola: Antoni Mas, el ferrer d'El món s'acaba</i> i culmina la seva trajectòria creativa amb l'exposició <i>Currículum</i> a Tarragona.</p></details></li>
+      <li><details><summary><b>2006</b><span>La Torre dels Vents</span></summary><p>El 12 de febrer s'inaugura a la plaça de les Corts Catalanes de Tarragona <i>La Torre dels Vents</i>, una escultura de 32 metres il·luminada per dins que marca el final de la Rambla Nova.</p></details></li>
+      <li><details><summary><b>2019</b><span>Neix el Cavall Alat</span></summary><p>Per encàrrec del Seguici Popular de Vila-seca crea el <i>Cavall Alat</i>, que s'estrena a la Festa Major de Sant Antoni apadrinat per l'Àliga de Tarragona i el Lleó de Reus.</p></details></li>
+      <li><details><summary><b>2026</b><span>«De la ferralla al vol»</span></summary><p>El Castell de Vila-seca exposa les fotografies de Nani Nolla sobre la creació del Cavall Alat, des dels primers esbossos fins a la figura acabada.</p></details></li>
+    </ol>
+
+    <h3>Obra destacada</h3>
+    <div class="au-works">
+      <details><summary><span class="au-wy">2006 · Tarragona</span><b>La Torre dels Vents</b></summary><p>Escultura pública de 32 metres a la plaça de les Corts Catalanes, il·luminada des de l'interior. Forma part del paisatge urbà de la Rambla Nova.</p></details>
+      <details><summary><span class="au-wy">Tarragona</span><b>L'Àliga de Tarragona</b></summary><p>És obra seva el treball cisellat de l'Àliga, una de les figures més estimades del Seguici Popular de Tarragona.</p></details>
+      <details><summary><span class="au-wy">2019 · Vila-seca</span><b>El Cavall Alat</b></summary><p>Figura del bestiari de Vila-seca inspirada en les antigues joguines articulades, el Cós de Sant Antoni i el mite de Pegàs. Va començar amb una planxa d'acer inoxidable. Música d'Antoni Alburquerque, coreografia de Marià Gil i vestuari de Mar Altadill.</p></details>
+      <details><summary><span class="au-wy">Andorra</span><b>Església d'Ordino</b></summary><p>Escultures per a l'església d'Ordino.</p></details>
+      <details><summary><span class="au-wy">Vila-seca · La Pineda</span><b>Vitralls</b></summary><p>Disseny de vitralls per a diverses esglésies, entre elles Sant Esteve de Vila-seca i l'Esperit Sant de La Pineda.</p></details>
+    </div>
+
+    <h3>Vídeos</h3>
+    <div class="au-vtabs" role="tablist" aria-label="Vídeos sobre l'autor">
+      <button type="button" role="tab" data-v="0" aria-selected="true"><b>El ferrer del meu poble</b><span>Documental · Pere Martell</span></button>
+      <button type="button" role="tab" data-v="1" aria-selected="false"><b>Vila-seca estrena el Cavall Alat</b><span>Reportatge · TAC12</span></button>
+    </div>
     <div class="au-video" id="auVideo"></div>
-    <p class="au-src"><a href="https://vimeo.com/542240274" target="_blank" rel="noopener">Obre el vídeo a Vimeo ↗</a></p>
+    <p class="au-src" id="auVideoLink"><a href="https://vimeo.com/542240274" target="_blank" rel="noopener">Obre el vídeo a Vimeo ↗</a></p>
+
+    <h3>Per saber-ne més</h3>
+    <div class="au-links">
+      <a href="https://ca.wikipedia.org/wiki/Antoni_Mas_Castelltort" target="_blank" rel="noopener"><b>Antoni Mas Castelltort</b><span>Viquipèdia</span></a>
+      <a href="https://vila-seca.cat/ca/destacats/la-creacio-del-cavall-alat-dantoni-mas-sexposa-en-fotografies-al-castell-de-vila-seca" target="_blank" rel="noopener"><b>«De la ferralla al vol»: la creació del Cavall Alat</b><span>Ajuntament de Vila-seca</span></a>
+      <a href="https://www.culturalvila-seca.cat/cavallalat/historia/" target="_blank" rel="noopener"><b>Història del Cavall Alat</b><span>Portants del Cavall Alat</span></a>
+      <a href="https://www.diaridetarragona.com/costa/250328/making-of-cavall-alat-vila-seca-foto-foto-exposicion-castell.html" target="_blank" rel="noopener"><b>El «making of» del Cavall Alat, foto a foto</b><span>Diari de Tarragona</span></a>
+      <a href="https://tarragona.cat/patrimoni/arxiu-municipal/fitxers/altres/altres-bhmt/llibret-de-la-ruta-les-estatues-ens-parlen-de-la-rambla-nova-de-tarragona" target="_blank" rel="noopener"><b>Les estàtues ens parlen: ruta de la Rambla Nova</b><span>Ajuntament de Tarragona · PDF</span></a>
+      <a href="https://www.youtube.com/watch?v=St61vkQTFVc" target="_blank" rel="noopener"><b>Vila-seca estrena el Cavall Alat</b><span>TAC12 · YouTube</span></a>
+      <a href="https://vimeo.com/542240274" target="_blank" rel="noopener"><b>El ferrer del meu poble</b><span>Pere Martell · Vimeo</span></a>
+    </div>
   </article>
 </div>
 
@@ -3071,15 +3144,28 @@ render();
 /* ---------- coneix l'autor ---------- */
 (function(){
   const box = document.getElementById('author'), vid = document.getElementById('auVideo');
+  const VIDEOS = [
+    {title:'El ferrer del meu poble', src:'https://player.vimeo.com/video/542240274?dnt=1', link:'https://vimeo.com/542240274', site:'Vimeo'},
+    {title:'Vila-seca estrena el Cavall Alat', src:'https://www.youtube-nocookie.com/embed/St61vkQTFVc?rel=0', link:'https://www.youtube.com/watch?v=St61vkQTFVc', site:'YouTube'}
+  ];
+  const tabs = [...box.querySelectorAll('.au-vtabs [data-v]')], vlink = document.getElementById('auVideoLink');
+  let cur = 0;
+  function loadVideo(i){
+    cur = i;
+    tabs.forEach((t,k)=>t.setAttribute('aria-selected', String(k===i)));
+    const v = VIDEOS[i];
+    vid.innerHTML = '';
+    const f = document.createElement('iframe');
+    f.src = v.src; f.title = v.title; f.loading = 'lazy';
+    f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media'; f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    vid.appendChild(f);
+    if(vlink) vlink.innerHTML = '<a href="'+v.link+'" target="_blank" rel="noopener">Obre el vídeo a '+v.site+' ↗</a>';
+  }
+  tabs.forEach((t,k)=>t.addEventListener('click', ()=>{ if(k!==cur || !vid.firstChild) loadVideo(k); }));
   function openAuthor(){
     box.hidden = false; box.scrollTop = 0;
-    if(!vid.firstChild){
-      const f = document.createElement('iframe');
-      f.src = 'https://player.vimeo.com/video/542240274?dnt=1';
-      f.allow = 'autoplay; fullscreen; picture-in-picture'; f.allowFullscreen = true;
-      f.title = 'El ferrer del meu poble'; f.loading = 'lazy';
-      vid.appendChild(f);
-    }
+    if(!vid.firstChild) loadVideo(cur);
   }
   function closeAuthor(){ box.hidden = true; vid.innerHTML = ''; }   // en tancar s'atura el vídeo
   document.querySelectorAll('[data-author]').forEach(b=>b.addEventListener('click', openAuthor));
