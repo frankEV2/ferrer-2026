@@ -29,6 +29,9 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 - **Revisió d'inventari**: peces verificades, absents o prestades, amb data i informe de pendents.
 - **Préstecs** i **restauracions** amb avisos de retorns i de revisions de conservació.
 - **Històries** de cada peça (els convidats en poden proposar; l'editor les aprova) i **documents privats** (certificats, factures, taxacions).
+- **Estadístiques** per sèrie, dècada, estat, tècnica i situació, i **mapa** de les obres (Leaflet + OpenStreetMap).
+- **Preferències**: català o castellà, aparença clara/fosca, mida de la lletra, efectes i so d'enclusa opcional.
+- Ambient de **forja**: espurnes, resplendor, targetes amb relleu 3D, visor de fotos amb zoom (en mòbils els efectes es redueixen).
 
 ## Com es fa servir
 
@@ -56,6 +59,8 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 | `portada.jpg` | Fotografia de la portada |
 | `icons/` | Icones de l'aplicació |
 | `robots.txt` | Demana als cercadors que no la indexin |
+| `forja.js` | Preferències i efectes visuals |
+| `i18n.js` | Traducció de la interfície al castellà |
 | `firestore.rules` | Regles de seguretat de Firestore (s'han de publicar a la consola de Firebase) |
 
 ## Actualitzar la web

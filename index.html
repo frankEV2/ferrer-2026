@@ -17,6 +17,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
+<script src="forja.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
@@ -612,6 +613,91 @@ body.sel .thumb.hq .num{left:8px}
   .rep th{background:#eee}
 }
 
+/* ================= FASE 3 ================= */
+/* ---- estadístiques ---- */
+.st{margin-top:20px}
+.st h4{margin:0 0 10px;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;color:var(--clay)}
+.stbar{display:grid;grid-template-columns:minmax(80px,38%) 1fr 34px;align-items:center;gap:8px;margin-bottom:7px;font-size:.8rem}
+.stk{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stt{height:12px;border-radius:6px;background:var(--paper-2);overflow:hidden}
+.stt i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#7a2f0c,#C4571B 60%,#F0A35C);animation:grow .9s var(--ease) both}
+@keyframes grow{from{width:0}}
+.stbar b{text-align:right;font-variant-numeric:tabular-nums}
+.stnote{font-size:.72rem;color:var(--ink-2);margin:6px 0 0}
+/* ---- mapa ---- */
+.mapbox{height:58vh;min-height:300px;border-radius:var(--r);overflow:hidden;border:1px solid var(--rule);background:var(--paper-2);z-index:0}
+.mpin span{display:block;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFD49A,#E8792A 45%,#8b3a10);border:2px solid #fff;box-shadow:0 0 0 4px rgba(232,121,42,.3),0 3px 8px rgba(0,0,0,.4)}
+.leaflet-popup-content a{color:#C4571B;font-weight:600}
+/* ---- preferències ---- */
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 auto;padding:10px 12px;border-radius:99px;border:1px solid var(--rule);background:var(--card);font-size:.85rem;cursor:pointer}
+.seg button.on{background:var(--clay);border-color:var(--clay);color:#fff;font-weight:600}
+
+/* ---- ambient de forja: fons, espurnes i resplendor ---- */
+.embers{position:fixed;inset:0;pointer-events:none;z-index:0}
+body.covered .embers{z-index:125}
+header{z-index:20}
+main{position:relative;z-index:1}
+.fx body{background-image:radial-gradient(600px circle at var(--mx,50%) var(--my,40%),color-mix(in srgb,#E8792A 9%,transparent),transparent 70%);background-attachment:fixed}
+:root[data-theme="dark"] body{background-image:radial-gradient(120% 60% at 50% 115%,rgba(196,87,27,.16),transparent 60%);background-attachment:fixed}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body{background-image:radial-gradient(120% 60% at 50% 115%,rgba(196,87,27,.16),transparent 60%);background-attachment:fixed}}
+:root.fx[data-theme="dark"] body{background-image:radial-gradient(600px circle at var(--mx,50%) var(--my,40%),rgba(232,121,42,.10),transparent 70%),radial-gradient(120% 60% at 50% 115%,rgba(196,87,27,.18),transparent 60%)}
+@media (prefers-color-scheme:dark){:root.fx:not([data-theme="light"]) body{background-image:radial-gradient(600px circle at var(--mx,50%) var(--my,40%),rgba(232,121,42,.10),transparent 70%),radial-gradient(120% 60% at 50% 115%,rgba(196,87,27,.18),transparent 60%)}}
+/* textures de ferro, reblons i vores metàl·liques */
+.footer,.adv,.rvstats div,.xitem,.dnotes{background-image:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.035)),repeating-linear-gradient(90deg,rgba(255,255,255,.012) 0 2px,rgba(0,0,0,.012) 2px 4px)}
+.footer{position:relative;border:1px solid var(--rule);border-radius:18px;padding:18px 14px 14px;margin-top:30px}
+.footer::before,.footer::after,.adv::before,.adv::after{content:"";position:absolute;top:8px;width:7px;height:7px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#d9d2c6,#6b645a 55%,#2a2622);box-shadow:0 1px 1px rgba(0,0,0,.45)}
+.footer::before,.adv::before{left:8px}.footer::after,.adv::after{right:8px}
+.adv{position:relative}
+.sheet{border-top:2px solid transparent;background-image:linear-gradient(var(--paper),var(--paper)),linear-gradient(90deg,#3a342d,#8a7f70 30%,#C4571B 50%,#8a7f70 70%,#3a342d);background-origin:border-box;background-clip:padding-box,border-box}
+/* galeria: vitrina de museu amb il·luminació individual */
+.card .thumb::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(70% 45% at 50% 0%,rgba(255,236,200,.16),transparent 70%),radial-gradient(120% 90% at 50% 40%,transparent 55%,rgba(0,0,0,.28));z-index:1}
+.grid.v-list .card .thumb::after,.grid.v-det .card .thumb::after{display:none}
+.card .num,.card .fav,.card .qrb{z-index:3}
+.card .cbody{z-index:2}
+.fx .card{transition:transform .25s var(--ease),box-shadow .35s var(--ease)}
+.fx .card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;opacity:0;transition:opacity .3s;
+  background:radial-gradient(circle at var(--gx,50%) var(--gy,30%),rgba(255,240,220,.28),transparent 45%),linear-gradient(115deg,transparent 35%,rgba(255,255,255,.10) 48%,transparent 60%)}
+.fx .card.tilt::before{opacity:1}
+.fx .card.tilt{box-shadow:0 0 0 1px rgba(232,121,42,.55),0 0 28px -4px rgba(232,121,42,.55),0 22px 40px -18px rgba(0,0,0,.6)!important}
+/* portada: entrada des de negre, títol de ferro roent que es refreda */
+.cover.intro::before{content:"";position:absolute;inset:0;background:#000;z-index:5;pointer-events:none;animation:fromblack 1.8s ease-out .1s both}
+@keyframes fromblack{from{opacity:1}to{opacity:0;visibility:hidden}}
+.cover.intro .cv-eyebrow{animation:namein 1.6s var(--ease) 1.1s both!important}
+@keyframes namein{from{opacity:0;letter-spacing:.9em;filter:blur(6px)}to{opacity:.75;letter-spacing:.32em;filter:none}}
+.cv-title{animation:rise .9s var(--ease) both,cool 4.5s ease-out .5s both!important}
+@keyframes cool{
+  0%{color:#fff6e0;text-shadow:0 0 6px #fff1c9,0 0 18px #ffb347,0 0 42px #ff6a00,0 0 70px #c43c00}
+  35%{color:#ffd28a;text-shadow:0 0 4px #ffcf7a,0 0 14px #ff8a1f,0 0 34px #d94a00}
+  70%{color:#f0a35c;text-shadow:0 0 10px rgba(217,74,0,.6),0 2px 18px rgba(0,0,0,.5)}
+  100%{color:#EFEBE1;text-shadow:0 2px 18px rgba(0,0,0,.5)}}
+.cv-photo{transition:translate .6s var(--ease)}
+/* línia del temps: anys incandescents en desplaçar-se */
+.tly{transition:color .4s}
+.tly.hot{animation:iron 2.4s ease-out both}
+@keyframes iron{0%{color:#fff3d6;text-shadow:0 0 6px #ffd27a,0 0 16px #ff8a1f,0 0 30px #d94a00}100%{color:var(--clay);text-shadow:none}}
+/* foto de la fitxa: s'obre en gran */
+#heroImg{cursor:zoom-in}
+/* cursor de forja (només ordinador amb efectes) */
+.fx body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cdefs%3E%3CradialGradient id='g'%3E%3Cstop offset='0' stop-color='%23fff2d0'/%3E%3Cstop offset='.45' stop-color='%23f08a2a'/%3E%3Cstop offset='1' stop-color='%23c43c00' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='5' fill='url(%23g)'/%3E%3Cpath d='M3 3l8 19 2.6-7.4L21 12z' fill='%231d1a17' stroke='%23f0a35c' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,auto}
+.fx button,.fx .card,.fx a,.fx summary,.fx label{cursor:pointer}
+/* visor de fotos */
+.viewer{position:fixed;inset:0;z-index:180;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;touch-action:none}
+.viewer.on{opacity:1}
+.viewer[hidden]{display:none}
+.vw-bg{position:absolute;inset:0;background:#0b0907 center/cover no-repeat;filter:blur(28px) brightness(.35) saturate(1.2);transform:scale(1.15)}
+.vw-img{position:relative;max-width:94vw;max-height:88vh;object-fit:contain;border-radius:8px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8);transition:transform .12s ease-out;user-select:none;-webkit-user-drag:none;touch-action:none}
+.vw-x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:1.1rem;cursor:pointer}
+.vw-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:64px;border:none;border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-size:2rem;cursor:pointer}
+.vw-nav[hidden]{display:none}
+.vw-p{left:10px}.vw-n{right:10px}
+.vw-hint{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:rgba(255,255,255,.6);font-size:.75rem;margin:0}
+/* sense efectes: res d'animacions decoratives */
+.fxoff .cv-title{animation:rise .9s var(--ease) both!important}
+.fxoff .tly.hot{animation:none}
+@media (prefers-reduced-motion:reduce){.embers{display:none}}
+
 /* ---- escàner QR ---- */
 .scan{position:fixed;inset:0;z-index:160;background:#000;display:flex;align-items:center;justify-content:center}
 .scan[hidden]{display:none}
@@ -718,6 +804,8 @@ body.sel .thumb.hq .num{left:8px}
   <div class="footer">
     <p class="fgroup">Consulta</p>
     <button id="tlBtn">Cronologia</button>
+    <button id="statsBtn">Estadístiques</button>
+    <button id="mapAllBtn">Mapa de les obres</button>
     <button id="authorBtn2" data-author>Biografia de l'autor</button>
     <button id="histBtn" class="editonly">Registre de canvis</button>
     <p class="fgroup editonly">Gestió</p>
@@ -732,6 +820,7 @@ body.sel .thumb.hq .num{left:8px}
     <button id="restoreBtn" class="editonly">Restaurar còpia</button>
     <input type="file" id="restoreInput" accept="application/json" style="display:none">
     <p class="fgroup">Sessió</p>
+    <button id="prefsBtn">Preferències</button>
     <button id="installBtn" style="display:none">Instal·lar l'aplicació</button>
     <button id="logoutBtn">Tancar sessió</button>
     <p class="fnote" id="sessionNote"></p>
@@ -789,6 +878,7 @@ body.sel .thumb.hq .num{left:8px}
 
 <div id="printArea" aria-hidden="true"></div>
 
+<script src="i18n.js"></script>
 <script src="firebase-bundle.js"></script>
 <script>(function(){
 "use strict";
@@ -865,6 +955,7 @@ let unsubX = [], alerted = false;
 /* ---------- utilitats ---------- */
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 const $ = id => document.getElementById(id);
+function LOC(){ return (window.Prefs && window.Prefs.get().lang === 'es') ? 'es-ES' : 'ca-ES'; }
 function listAll(){
   return Object.keys(pieces).map(k=>pieces[k]).filter(p=>p && typeof p.n==='number' && !p.deleted).sort((a,b)=>a.n-b.n);
 }
@@ -1181,6 +1272,12 @@ function sharePiece(p){
   else toast(url);
 }
 
+sbody.addEventListener('click', e=>{
+  if(e.target && e.target.id === 'heroImg' && window.Forja){
+    const imgs = Array.prototype.map.call(sbody.querySelectorAll('.gth img'), i=>i.src);
+    window.Forja.viewer(e.target.src, imgs.length ? imgs : [e.target.src]);
+  }
+});
 /* ---------- fitxa: formulari ---------- */
 function formHTML(p, isNew){
   const src = photo(p);
@@ -1402,6 +1499,7 @@ function open(n, m){
     if($('mapBtn')) $('mapBtn').addEventListener('click', ()=>window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.lloc),'_blank','noopener'));
     if($('audBtn')) $('audBtn').addEventListener('click', ()=>window.open(safeUrl(p.audio),'_blank','noopener'));
     loadExtras(p, ()=>renderStrip(p)); renderStrip(p);
+    if(window.Forja && prevCur !== n) window.Forja.clang();
     renderSec(p);
   }else{
     setHead('Editar fitxa', false);
@@ -1502,6 +1600,7 @@ function openTimeline(){
   if(none.length) html += '<div class="hday tly">Sense data</div>'+none.map(item).join('');
   sbody.innerHTML = html;
   Array.prototype.forEach.call(sbody.querySelectorAll('.tlitem'), b=>b.addEventListener('click', ()=>open(parseInt(b.dataset.n,10),'view')));
+  if(window.Forja) window.Forja.timeline(sbody);
   sbody.scrollTop = 0; stagger(null); show();
 }
 function catPage(p){
@@ -1594,9 +1693,9 @@ function renderHistory(items){
   let lastDay = '', html = role==='editor' ? '<button class="hclear" id="hClear">Esborra tot l\'historial</button>' : '';
   items.forEach(it=>{
     const dt = new Date(it.ts || 0);
-    const day = dt.toLocaleDateString('ca-ES',{weekday:'long',day:'numeric',month:'long'});
+    const day = dt.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'});
     if(day !== lastDay){ html += '<div class="hday">'+esc(day)+'</div>'; lastDay = day; }
-    const hora = dt.toLocaleTimeString('ca-ES',{hour:'2-digit',minute:'2-digit'});
+    const hora = dt.toLocaleTimeString(LOC(),{hour:'2-digit',minute:'2-digit'});
     let det = '';
     if(it.canvis){
       Object.keys(it.canvis).forEach(k=>{
@@ -1835,8 +1934,8 @@ const DTIPUS = ['Certificat','Factura','Taxació','Altres'];
 const DOC_MAX = 700*1024;
 function today(){ const d = new Date(), z = x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
 function addDays(iso, k){ const d = new Date(iso+'T12:00:00'); d.setDate(d.getDate()+k); const z = x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
-function fmtD(iso){ if(!iso) return '—'; const d = new Date(String(iso)+'T12:00:00'); return isNaN(d) ? esc(iso) : d.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'}); }
-function fmtTs(ts){ return ts ? new Date(ts).toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'}) : '—'; }
+function fmtD(iso){ if(!iso) return '—'; const d = new Date(String(iso)+'T12:00:00'); return isNaN(d) ? esc(iso) : d.toLocaleDateString(LOC(),{day:'numeric',month:'short',year:'numeric'}); }
+function fmtTs(ts){ return ts ? new Date(ts).toLocaleDateString(LOC(),{day:'numeric',month:'short',year:'numeric'}) : '—'; }
 function newId(n){ return 'p'+n+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function vals(col){ return Object.keys(X[col]).map(k=>X[col][k]); }
 function byPiece(col, n){ return vals(col).filter(x=>x.n === n); }
@@ -2657,6 +2756,132 @@ function refreshApp(){
   }, {passive:true});
   sbody.addEventListener('touchcancel', ()=>{ t0 = null; hideHint(); }, {passive:true});
 })();
+
+/* ================= FASE 3: estadístiques, mapa i preferències ================= */
+function countBy(list, fn){
+  const o = {};
+  list.forEach(p=>{ [].concat(fn(p)).forEach(k=>{ if(k) o[k] = (o[k]||0) + 1; }); });
+  return Object.keys(o).map(k=>[k, o[k]]).sort((a,b)=>b[1]-a[1] || String(a[0]).localeCompare(String(b[0]),'ca'));
+}
+function barsHtml(title, rows, total, sortKey){
+  if(sortKey) rows = rows.slice().sort((a,b)=>String(a[0]).localeCompare(String(b[0])));
+  const max = Math.max.apply(null, rows.map(r=>r[1]).concat([1]));
+  return '<section class="st"><h4>'+esc(title)+'</h4>'+(rows.length ? rows.map(r=>
+    '<div class="stbar"><span class="stk">'+esc(r[0])+'</span><span class="stt"><i style="width:'+(r[1]/max*100).toFixed(1)+'%"></i></span><b>'+r[1]+'</b></div>').join('') :
+    '<p class="xempty">Sense dades.</p>')+
+    (rows.length && total ? '<p class="stnote">'+rows.reduce((s,r)=>s+r[1],0)+' de '+total+' peces amb aquesta dada</p>' : '')+'</section>';
+}
+function techTokens(p){
+  return String(p.tecnica||'').split(/[,;\/+]|\s+i\s+|\s+y\s+/i).map(s=>s.trim()).filter(Boolean).map(s=>s.charAt(0).toUpperCase()+s.slice(1).toLowerCase());
+}
+function openStats(){
+  const list = listAll(), tot = list.length;
+  current = null; mode = 'stats'; setHead('Estadístiques', false);
+  const years = list.map(yearOf).filter(y=>y!=null);
+  const docs = list.filter(isDoc).length, ph = list.filter(p=>photo(p)).length;
+  sbody.innerHTML =
+    '<div class="rvstats"><div><b>'+tot+'</b>Peces</div><div><b>'+docs+'</b>Documentades</div><div><b>'+ph+'</b>Amb foto</div><div><b>'+(years.length?Math.min.apply(null,years)+'–'+Math.max.apply(null,years):'—')+'</b>Anys</div></div>'+
+    barsHtml('Per sèrie', countBy(list, p=>String(p.serie||'').trim()), tot)+
+    barsHtml('Per dècada', countBy(list, p=>{ const y = yearOf(p); return y==null ? '' : (Math.floor(y/10)*10)+'s'; }), tot, true)+
+    barsHtml('Per estat de conservació', countBy(list, p=>String(p.estat||'').trim()), tot)+
+    barsHtml('Per tècnica / material', countBy(list, techTokens).slice(0,15), tot)+
+    barsHtml('Per situació', countBy(list, p=>String(p.situacio||'').trim()), tot);
+  sbody.scrollTop = 0; stagger(null); show();
+}
+
+/* ---- mapa (Leaflet + OpenStreetMap, es carrega només quan s'obre) ---- */
+const LEAF = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
+let leafP = null, mapObj = null;
+function loadLeaflet(){
+  if(window.L) return Promise.resolve();
+  if(leafP) return leafP;
+  leafP = new Promise((res, rej)=>{
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = LEAF+'leaflet.min.css'; document.head.appendChild(css);
+    const s = document.createElement('script'); s.src = LEAF+'leaflet.min.js'; s.onload = res; s.onerror = ()=>{ leafP = null; rej(new Error('leaflet')); };
+    document.head.appendChild(s);
+  });
+  return leafP;
+}
+const GEO_KEY = 'inv-geo';
+let geoCache = {};
+try{ geoCache = JSON.parse(localStorage.getItem(GEO_KEY)||'{}') || {}; }catch(e){}
+function saveGeo(){ try{ localStorage.setItem(GEO_KEY, JSON.stringify(geoCache)); }catch(e){} }
+function coordsIn(s){ const m = /(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/.exec(s); return m ? [parseFloat(m[1]), parseFloat(m[2])] : null; }
+// Geocodificació amb Nominatim (OpenStreetMap): una adreça per segon, i es recorda en aquest dispositiu.
+async function geocode(addr){
+  const k = addr.toLowerCase();
+  if(k in geoCache) return geoCache[k];
+  const r = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ca&q='+encodeURIComponent(addr), {headers:{'Accept':'application/json'}});
+  if(!r.ok) throw new Error('geo '+r.status);
+  const d = await r.json();
+  const v = (d && d[0]) ? [parseFloat(d[0].lat), parseFloat(d[0].lon)] : null;
+  geoCache[k] = v; saveGeo();
+  return v;
+}
+const wait = ms=>new Promise(r=>setTimeout(r,ms));
+async function openMap(){
+  current = null; mode = 'map'; setHead('Mapa de les obres', false);
+  sbody.innerHTML = '<p class="bulknote" id="mapNote">Carregant el mapa…</p><div id="map" class="mapbox"></div><p class="stnote">Es mostren les peces que tenen omplert el camp «Lloc per veure-la». Mapa © col·laboradors d\'OpenStreetMap.</p><div id="mapList"></div>';
+  sbody.scrollTop = 0; stagger(null); show();
+  try{ await loadLeaflet(); }catch(e){ $('mapNote').textContent = 'No s\'ha pogut carregar el mapa: cal connexió a internet.'; return; }
+  if(mode !== 'map') return;
+  if(mapObj){ try{ mapObj.remove(); }catch(e){} mapObj = null; }
+  const L = window.L;
+  mapObj = L.map('map', {scrollWheelZoom:false}).setView([41.11, 1.15], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19, attribution:'© OpenStreetMap'}).addTo(mapObj);
+  setTimeout(()=>{ if(mapObj) mapObj.invalidateSize(); }, 450);
+  const groups = {};
+  listAll().forEach(p=>{ const a = String(p.lloc||'').trim(); if(a) (groups[a] = groups[a]||[]).push(p); });
+  const addrs = Object.keys(groups);
+  if(!addrs.length){ $('mapNote').textContent = 'Cap peça té el camp «Lloc per veure-la» omplert. Afegeix-hi una adreça o un poble des de la fitxa.'; return; }
+  const pts = [], fail = [];
+  const icon = L.divIcon({className:'mpin', html:'<span></span>', iconSize:[22,22], iconAnchor:[11,11]});
+  for(let i=0;i<addrs.length;i++){
+    if(mode !== 'map' || !mapObj) return;
+    const a = addrs[i];
+    $('mapNote').textContent = 'Situant les obres… '+(i+1)+' de '+addrs.length;
+    let c = coordsIn(a);
+    const cached = a.toLowerCase() in geoCache;
+    if(!c){ try{ c = await geocode(a); }catch(e){ c = null; } if(!cached && i < addrs.length-1) await wait(1100); }
+    if(!c){ fail.push(a); continue; }
+    pts.push(c);
+    const html = '<b>'+esc(a)+'</b><br>'+groups[a].map(p=>'<a href="#p'+p.n+'" class="mlink" data-n="'+p.n+'">'+esc(ptitle(p.n))+'</a>').join('<br>');
+    L.marker(c, {icon:icon, title:a}).addTo(mapObj).bindPopup(html);
+  }
+  if(pts.length) mapObj.fitBounds(pts, {padding:[30,30], maxZoom:15});
+  $('mapNote').textContent = pts.length+(pts.length===1?' ubicació':' ubicacions')+' al mapa'+(fail.length ? ' · '+fail.length+' sense localitzar' : '')+'.';
+  if(fail.length) $('mapList').innerHTML = '<div class="hday tly">Sense localitzar</div>'+fail.map(a=>'<p class="xempty">'+esc(a)+' — '+groups[a].map(p=>'núm. '+p.n).join(', ')+'</p>').join('');
+}
+document.addEventListener('click', e=>{
+  const a = e.target.closest && e.target.closest('.mlink'); if(!a) return;
+  e.preventDefault(); open(parseInt(a.dataset.n,10),'view');
+});
+
+/* ---- preferències (idioma, tema, mida de lletra, animacions, so) ---- */
+function openPrefs(){
+  current = null; mode = 'prefs'; setHead('Preferències', false);
+  const P = window.Prefs.get();
+  const seg = (k, opts)=>'<div class="seg" data-k="'+k+'">'+opts.map(o=>'<button type="button" data-v="'+o[0]+'" class="'+(String(P[k])===String(o[0])?'on':'')+'">'+o[1]+'</button>').join('')+'</div>';
+  sbody.innerHTML =
+    '<div class="fg"><label>Idioma / Idioma</label>'+seg('lang',[['ca','Català'],['es','Castellano']])+'</div>'+
+    '<div class="fg"><label>Aparença</label>'+seg('theme',[['auto','Automàtica'],['light','Clara'],['dark','Fosca']])+'</div>'+
+    '<div class="fg"><label>Mida de la lletra</label>'+seg('fs',[['90','A−'],['100','A'],['112','A+'],['125','A++']])+'</div>'+
+    '<div class="fg"><label>Animacions i efectes de forja</label>'+seg('fx',[['auto','Automàtiques'],['on','Sempre'],['off','Reduïdes']])+'</div>'+
+    '<div class="fg"><label>So d\'enclusa en obrir una fitxa</label>'+seg('sound',[['off','Desactivat'],['on','Activat']])+'</div>'+
+    '<p class="bulknote">Les preferències es desen en aquest dispositiu. «Automàtiques» redueix els efectes en mòbils i si el sistema demana menys moviment.</p>';
+  sbody.querySelectorAll('.seg').forEach(s=>s.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    const k = s.dataset.k, v = b.dataset.v;
+    s.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+    if(k === 'lang'){ window.Prefs.set('lang', v); location.reload(); return; }
+    window.Prefs.set(k, v);
+    if(k === 'sound' && v === 'on' && window.Forja) window.Forja.clang();
+  }));
+  sbody.scrollTop = 0; stagger(null); show();
+}
+$('statsBtn').addEventListener('click', openStats);
+$('mapAllBtn').addEventListener('click', openMap);
+$('prefsBtn').addEventListener('click', openPrefs);
 
 /* ---------- PWA ---------- */
 if('serviceWorker' in navigator){

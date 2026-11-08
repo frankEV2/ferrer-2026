@@ -1,13 +1,15 @@
 // Service worker — xarxa primer (així les actualitzacions arriben i "arrossegar per
 // refrescar" carrega la versió nova) i, si no hi ha connexió, l'app es serveix de la caché.
 // Puja la versió (CACHE_NAME) cada cop que publiquis canvis.
-const CACHE_NAME = 'inventari-escultures-v26';
+const CACHE_NAME = 'inventari-escultures-v27';
 const APP_SHELL = [
   './',
   './index.html',
   './fitxa.html',
   './portada.jpg',
   './firebase-bundle.js',
+  './forja.js',
+  './i18n.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
