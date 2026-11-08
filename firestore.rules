@@ -4,17 +4,48 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function signedIn() {
+      return request.auth != null;
+    }
     function isEditor() {
-      return request.auth != null && request.auth.token.email == 'editor@escultures.app';
+      return signedIn() && request.auth.token.email == 'editor@escultures.app';
     }
 
-    // ---- Catàleg públic: el veuen els convidats i la fitxa del QR (fitxa.html) ----
-    match /inventari/{id}  { allow read: if true; allow write: if isEditor(); }
-    match /fotos/{id}      { allow read: if true; allow write: if isEditor(); }
-    match /histories/{id}  { allow read: if true; allow write: if isEditor(); }   // històries ja aprovades
+    // Fitxes: una sola fitxa es pot llegir sense sessió (enllaç del QR); el llistat complet, no.
+    match /inventari/{doc} {
+      allow get: if true;
+      allow list: if signedIn();
+      allow write: if isEditor();
+    }
 
-    // ---- Històries proposades pels convidats: només poden crear-ne, pendents d'aprovació ----
-    match /propostes/{id} {
+    // Fotos de detall: igual que les fitxes.
+    match /fotos/{doc} {
+      allow get: if true;
+      allow list: if signedIn();
+      allow write: if isEditor();
+    }
+
+    // Dades privades (valor / assegurança): només l'editor.
+    match /privat/{doc} {
+      allow read, write: if isEditor();
+    }
+
+    // Historial: es llegeix amb sessió; només l'editor escriu i pot esborrar-lo.
+    match /historial/{doc} {
+      allow read: if signedIn();
+      allow create, update: if isEditor();
+      allow delete: if isEditor();
+    }
+
+    // Històries aprovades: igual que les fitxes; només l'editor les publica o esborra.
+    match /histories/{doc} {
+      allow get: if true;
+      allow list: if signedIn();
+      allow write: if isEditor();
+    }
+
+    // Històries proposades pels convidats: només en poden crear, pendents d'aprovació.
+    match /propostes/{doc} {
       allow read, update, delete: if isEditor();
       allow create: if isEditor() || (
         request.resource.data.keys().hasOnly(['n', 'tipus', 'text', 'autor', 'ts']) &&
@@ -27,16 +58,11 @@ service cloud.firestore {
       );
     }
 
-    // ---- Dades privades i gestió: només l'editor ----
-    match /privat/{id}         { allow read, write: if isEditor(); }   // valoracions i assegurances
-    match /historial/{id}      { allow read, write: if isEditor(); }
-    match /revisio/{id}        { allow read, write: if isEditor(); }   // revisió d'inventari
-    match /prestecs/{id}       { allow read, write: if isEditor(); }
-    match /restauracions/{id}  { allow read, write: if isEditor(); }
-    match /documents/{id}      { allow read, write: if isEditor(); }   // certificats, factures, taxacions
-    match /docdata/{id}        { allow read, write: if isEditor(); }   // contingut dels documents
-
-    // Qualsevol altra col·lecció: tancada
-    match /{document=**} { allow read, write: if false; }
+    // Gestió: només l'editor.
+    match /revisio/{doc}        { allow read, write: if isEditor(); }   // revisió d'inventari
+    match /prestecs/{doc}       { allow read, write: if isEditor(); }
+    match /restauracions/{doc}  { allow read, write: if isEditor(); }
+    match /documents/{doc}      { allow read, write: if isEditor(); }   // certificats, factures, taxacions
+    match /docdata/{doc}        { allow read, write: if isEditor(); }   // contingut dels documents
   }
 }
