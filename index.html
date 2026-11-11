@@ -957,8 +957,8 @@ header.scrolled .progress i{display:none}
 .favrow .fav svg,.favrow .qrb svg{width:12px;height:12px}
 /* amb ratolí: les icones inactives només apareixen en passar per sobre, i la foto queda neta */
 @media (hover:hover) and (pointer:fine){
-  .card .fav:not(.on),.card button.qrb:not(.on){opacity:0;transition:opacity .2s,transform .2s var(--ease)}
-  .card:hover .fav,.card:hover .qrb,.card:focus-within .fav,.card:focus-within .qrb{opacity:1}
+  .card .fav:not(.on){opacity:0;transition:opacity .2s,transform .2s var(--ease)}
+  .card:hover .fav,.card:focus-within .fav{opacity:1}
 }
 /* ---- navegació vertical: principi / final ---- */
 .scrollnav{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(20px + env(safe-area-inset-bottom));z-index:25;display:flex;flex-direction:column;gap:6px;
