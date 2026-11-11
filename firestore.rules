@@ -15,14 +15,16 @@ service cloud.firestore {
         request.auth.token.email in ['editor@escultures.app', 'lectura@escultures.app'];
     }
 
-    // Fitxes: una sola fitxa es pot llegir sense sessió (enllaç del QR); el llistat complet, amb sessió de lectura.
+    // Fitxes: catàleg públic (escaparate). Qualsevol pot veure-les sense contrasenya; per això la ubicació,
+    // la propietat, les observacions i la situació NO hi són: es desen a «intern».
+    // IMPORTANT: publicar aquesta regla només DESPRÉS d'haver fet «Administració → Dades internes» a l'app.
     match /inventari/{doc} {
       allow get: if true;
-      allow list: if isReader();
+      allow list: if true;
       allow write: if isEditor();
     }
 
-    // Dades internes de cada peça (ubicació actual i propietat): mai públiques, encara que es tingui l'enllaç del QR.
+    // Dades internes de cada peça (ubicació, propietat, observacions i situació): només amb contrasenya.
     match /intern/{doc} {
       allow read: if isReader();
       allow write: if isEditor();

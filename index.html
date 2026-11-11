@@ -295,6 +295,7 @@ body.noauth .login{display:flex}
 
 /* ---- mode només lectura ---- */
 body.ro .fab,body.ro #editBtn,body.ro .editonly{display:none!important}
+body.guest .readeronly{display:none!important}   /* visitant sense contrasenya */
 
 /* ---- historial ---- */
 .hnote{color:var(--ink-2);font-size:.86rem;text-align:center;padding:30px 10px}
@@ -1029,9 +1030,10 @@ header.scrolled .progress i{display:none}
     <h1>Les peces del ferrer</h1>
     <p class="lsub">Seleccioneu el tipus d'accés</p>
     <div class="lchoice" id="lchoice">
-      <button type="button" class="save" id="editorBtn">Accés d'editor</button>
-      <button type="button" class="save ghost" id="readerBtn">Accés de lectura</button>
-      <p class="lnote">L'accés de lectura permet consultar tot el catàleg, sense opció d'editar, crear ni eliminar. Cada accés té la seva contrasenya.</p>
+      <button type="button" class="save" id="guestBtn">Veure el catàleg</button>
+      <button type="button" class="save ghost" id="readerBtn">Accés de lectura (família)</button>
+      <button type="button" class="save ghost" id="editorBtn">Accés d'editor</button>
+      <p class="lnote">Sense contrasenya es poden veure les fotos, els títols, les dates, la tècnica i la història de cada peça. La família i l'editor hi entren amb la seva contrasenya i veuen també on és cada peça i de qui és.</p>
     </div>
     <form id="loginForm" autocomplete="on" style="display:none">
       <input id="luser" type="text" autocomplete="username" tabindex="-1" aria-hidden="true" readonly style="display:none">
@@ -1098,8 +1100,8 @@ header.scrolled .progress i{display:none}
       <div class="advgrid">
         <label>Sèrie<select id="a_serie"></select></label>
         <label>Conservació<select id="a_estat"></select></label>
-        <label>Ubicació<select id="a_ubic"></select></label>
-        <label>Situació<select id="a_sit"></select></label>
+        <label class="readeronly">Ubicació<select id="a_ubic"></select></label>
+        <label class="readeronly">Situació<select id="a_sit"></select></label>
         <label>Any des de<input type="number" id="a_y0" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 1980"></label>
         <label>Any fins a<input type="number" id="a_y1" inputmode="numeric" min="1500" max="2100" placeholder="p. ex. 2005"></label>
       </div>
@@ -1119,7 +1121,7 @@ header.scrolled .progress i{display:none}
   <p class="rescount" id="resCount" aria-live="polite" hidden></p>
   <div class="grid" id="grid"></div>
   <div class="footer">
-    <details class="fsec" id="sugSec" data-k="sug">
+    <details class="fsec readeronly" id="sugSec" data-k="sug">
       <summary>Suggeriments</summary>
       <form class="sugform" id="sugForm" novalidate>
         <p>Tens alguna proposta, correcció o informació que vulguis compartir? Envia'ns el teu suggeriment! L'editor revisarà les aportacions rebudes i valorarà incorporar-les pròximament al catàleg.</p>
@@ -1145,7 +1147,7 @@ header.scrolled .progress i{display:none}
         <button id="catBtn">Catàleg en PDF</button>
         <button id="catPrintBtn">Imprimir catàleg</button>
         <button id="qrAllBtn">Etiquetes QR</button>
-        <button id="backupBtn">Còpia de seguretat</button>
+        <button id="backupBtn" class="readeronly">Còpia de seguretat</button>
       </div>
       <div class="editonly">
         <p class="fsub">Inventari i còpies · administrador</p>
@@ -1303,6 +1305,7 @@ const EDITOR_EMAIL = 'editor@escultures.app';
 // Compte de només lectura (amb la seva contrasenya). S'ha de crear a Firebase Console → Authentication → Users.
 const READER_EMAIL = 'lectura@escultures.app';
 let loginEmail = EDITOR_EMAIL;   // compte amb què es prova d'entrar (segons el botó triat)
+let guest = false;               // visitant sense contrasenya: només veu la part pública del catàleg
 const NAME_KEY = 'inventari-nom';
 
 const FIELDS = [
@@ -1453,7 +1456,7 @@ function setSync(state, msg){
 }
 function syncError(err){
   const c = err && err.code;
-  if(c === 'permission-denied') setSync('err', 'Sense permís per fer aquesta acció (rol o regles de Firestore).');
+  if(c === 'permission-denied') setSync('err', guest ? 'El catàleg públic encara no està disponible. Torna-ho a provar més tard.' : 'Sense permís per fer aquesta acció (rol o regles de Firestore).');
   else if(c === 'not-found' || c === 'failed-precondition') setSync('err','Falta crear la base de dades Firestore al projecte de Firebase.');
   else setSync('off','Sense connexió: els canvis es sincronitzaran més tard.');
 }
@@ -1462,7 +1465,7 @@ function pieceRef(n){ return FB.doc(FB.db,'inventari','p'+n); }
    La fitxa del QR és pública (inventari/p<n> es pot llegir sense sessió). Aquests camps es desen a
    intern/p<n>, que només es llegeix amb sessió. A l'app es veuen junts: «pieces» és la vista fusionada.
    Si el document públic encara té un valor (no migrat, o escrit per una versió antiga), mana aquell. */
-const INTERN = ['ubic','prop'];
+const INTERN = ['ubic','prop','obs','situacio'];   // ubicació, propietat, observacions i situació
 function internRef(n){ return FB.doc(FB.db,'intern','p'+n); }
 function blank(v){ return String(v==null?'':v).trim() === ''; }
 function withIntern(pub, x){
@@ -1570,7 +1573,7 @@ function render(){
   if(!visibleList.length){
     let msg = 'Cap peça coincideix amb la cerca.';
     if(!list.length){
-      msg = !loaded ? (loadErr ? 'No s\'han pogut carregar les peces. Comprova la connexió o torna a entrar.' : 'Carregant…') :
+      msg = !loaded ? (loadErr ? (guest ? 'El catàleg públic encara no està disponible. Torna-ho a provar més tard.' : 'No s\'han pogut carregar les peces. Comprova la connexió o torna a entrar.') : 'Carregant…') :
         (role === 'editor' ? 'Encara no hi ha peces. Afegeix-ne una amb el botó + o carrega l\'inventari amb «Importar Excel» o «Restaurar còpia», a «Documentació i exportació».' : 'Encara no hi ha peces.');
     }
     grid.innerHTML = '<p class="noresults">' + msg + '</p>';
@@ -1745,7 +1748,7 @@ function applyBulk(){
 /* ---------- fitxa: vista ---------- */
 function viewHTML(p){
   const src = photo(p), t = (p.titol||'').trim();
-  let rows = FIELDS.filter(f=>HIDDEN_VIEW.indexOf(f[0])<0).map(f=>{
+  let rows = FIELDS.filter(f=>HIDDEN_VIEW.indexOf(f[0])<0 && !(guest && INTERN.indexOf(f[0])>=0)).map(f=>{
     const v = (p[f[0]]||'').trim();
     return '<div class="frow"><span class="k">'+f[1]+'</span><span class="v'+(v?'':' empty')+'">'+(v?esc(v):'—')+'</span></div>';
   }).join('');
@@ -1760,7 +1763,7 @@ function viewHTML(p){
     '<div class="dnum">Núm. '+p.n+'</div>'+
     '<h3 class="dtitle'+(t?'':' untitled')+'">'+(t?esc(t):'Sense títol')+'</h3>'+
     rows +
-    ((p.obs||'').trim()?'<div class="dnotes"><span>Observacions</span>'+esc(p.obs)+'</div>':'')+
+    (!guest && (p.obs||'').trim()?'<div class="dnotes"><span>Observacions</span>'+esc(p.obs)+'</div>':'')+
     '<div class="navrow qrbtnrow"><button id="fullBtn" class="fullbtn">Fitxa completa</button></div>'+
     (maps||aud?'<div class="navrow">'+(maps?'<button id="mapBtn">Com arribar-hi</button>':'')+(aud?'<button id="audBtn">Àudio de la peça</button>':'')+'</div>':'')+
     '<div class="navrow"><button id="shareBtn">Compartir</button><button id="qrBtn">Codi QR</button>'+
@@ -2663,7 +2666,7 @@ function startData(){
   }, err=>{ loadErr = true; syncError(err); render(); });
   // dades internes: si les regles noves encara no són publicades, la lectura falla i tot segueix com abans
   let firstI = true;
-  unsubIntern = FB.onSnapshot(FB.collection(FB.db,'intern'), {includeMetadataChanges:true}, snap=>{
+  if(!guest) unsubIntern = FB.onSnapshot(FB.collection(FB.db,'intern'), {includeMetadataChanges:true}, snap=>{
     if(!snap.metadata.fromCache) internOk = true;
     if(firstI || snap.docChanges().length){
       firstI = false;
@@ -2695,7 +2698,7 @@ async function tryLogin(pw){
   return false;
 }
 function updateSession(){
-  sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : (userName ? userName + ' · ' : '') + 'Només lectura') : '';
+  sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : guest ? 'Visitant · Només consulta' : (userName ? userName + ' · ' : '') + 'Només lectura') : '';
 }
 if(!FB){
   loginEl.classList.remove('loading');
@@ -2736,14 +2739,22 @@ if(!FB){
   $('editorBtn').addEventListener('click', ()=>showForm(EDITOR_EMAIL));
   $('readerBtn').addEventListener('click', ()=>showForm(READER_EMAIL));
   $('lback').addEventListener('click', showChoice);
+  // Visitant: sense compte ni contrasenya; les regles només li deixen llegir la part pública.
+  $('guestBtn').addEventListener('click', ()=>{
+    guest = true; role = 'guest'; userName = '';
+    document.body.classList.add('ro','guest'); document.body.classList.remove('noauth');
+    updateSession(); animateGrid = true; startData(); render();
+  });
   FB.onAuthStateChanged(FB.auth, user=>{
     if(user && user.email !== EDITOR_EMAIL && user.email !== READER_EMAIL){ FB.signOut(FB.auth); return; }   // cap altre compte hi té accés
+    if(!user && guest) return;
+    if(user && guest){ guest = false; document.body.classList.remove('guest'); stopData(); }
     if(!user){
       const hm = /^#p(\d+)$/.exec(location.hash);
       if(hm){ location.replace('fitxa.html?p='+hm[1]); return; }
       role = null; stopData(); close();
       selMode = false; selected.clear(); document.body.classList.remove('sel');
-      document.body.classList.add('noauth'); document.body.classList.remove('ro');
+      document.body.classList.add('noauth'); document.body.classList.remove('ro','guest');
       loginEl.classList.remove('loading');
       showChoice();
       render(); updateSession();
@@ -2767,6 +2778,12 @@ $('pwEye').addEventListener('mousedown', e=>e.preventDefault());   // no treu el
 $('pwEye').addEventListener('click', ()=>setPwVisible($('lpass').type === 'password'));
 $('logoutBtn').addEventListener('click', ()=>{
   if(!FB) return;
+  if(guest){
+    guest = false; role = null; stopData(); close();
+    document.body.classList.add('noauth'); document.body.classList.remove('ro','guest');
+    render(); updateSession();
+    return;
+  }
   FB.signOut(FB.auth);
 });
 window.addEventListener('hashchange', handleHash);
@@ -2803,7 +2820,7 @@ function subX(col){
 }
 function startX(){
   if(!FB || unsubX.length) return;
-  subX('histories');
+  if(!guest) subX('histories');
   if(role === 'editor') ['revisio','prestecs','restauracions','documents','propostes','suggeriments'].forEach(subX);
 }
 function stopX(){
@@ -2859,6 +2876,7 @@ function updateBadges(){
 
 /* ---- secció de la fitxa ---- */
 function secSkeleton(p){
+  if(guest) return '';
   const ed = role === 'editor';
   const opt = (arr, lab)=>arr.map(v=>'<option value="'+esc(v)+'">'+esc(lab ? lab[v] : v)+'</option>').join('');
   let h = '';
@@ -2898,6 +2916,7 @@ function secSkeleton(p){
 function renderSec(p){
   const box = $('xsec'); if(!box) return;
   if(box.dataset.n !== String(p.n)){ box.dataset.n = String(p.n); box.innerHTML = secSkeleton(p); }
+  if(guest) return;
   const ed = role === 'editor', n = p.n, t = today();
   // revisió
   if(ed && $('xs_rev')){
@@ -3204,12 +3223,12 @@ $('protBtn').addEventListener('click', openProt);
 function openProt(){ if(role !== 'editor') return; current = null; mode = 'prot'; setHead('Dades internes', false); renderProt(); sbody.scrollTop = 0; stagger(null); show(); }
 function renderProt(){
   const n = internLeft().length, done = Object.keys(internDocs).length;
-  let h = '<p class="bulknote">La fitxa que s\'obre amb el codi QR és pública. Perquè ningú hi pugui llegir on es guarda cada peça ni de qui és, la <b>ubicació actual</b> i la <b>propietat</b> es desen en un lloc a part, que només es veu amb sessió (editor o lectura). A l\'aplicació es continuen veient i editant igual.</p>'+
+  let h = '<p class="bulknote">El catàleg públic i la fitxa del codi QR es poden veure sense contrasenya. Perquè cap visitant pugui llegir on es guarda cada peça, de qui és, les observacions ni la situació, la <b>ubicació actual</b>, la <b>propietat</b>, les <b>observacions</b> i la <b>situació</b> es desen en un lloc a part, que només es veu amb contrasenya (editor o família). A l\'aplicació es continuen veient i editant igual.</p>'+
     '<div class="rvstats"><div><b>'+n+'</b>Per protegir</div><div><b>'+done+'</b>Protegides</div><div><b>'+(internOn?'Sí':'No')+'</b>Activada</div><div><b>'+(internOk?'Sí':'No')+'</b>Regles a punt</div></div>';
   if(!internOk) h += '<p class="bulknote"><b>Encara no es pot activar.</b> Primer cal publicar les regles noves de Firestore (fitxer firestore.rules) a Firebase Console. Després, torna a obrir aquesta pantalla amb connexió.</p>';
-  else if(n || !internOn) h += '<p class="bulknote">'+(n ? 'Hi ha <b>'+n+' '+(n===1?'fitxa':'fitxes')+'</b> amb la ubicació o la propietat al document públic.' : 'Cap fitxa té ara ubicació ni propietat al document públic.')+' Abans de canviar res es descarregarà una còpia de seguretat completa.</p>'+
+  else if(n || !internOn) h += '<p class="bulknote">'+(n ? 'Hi ha <b>'+n+' '+(n===1?'fitxa':'fitxes')+'</b> amb dades internes al document públic.' : 'Cap fitxa té ara dades internes al document públic.')+' Abans de canviar res es descarregarà una còpia de seguretat completa.</p>'+
     '<button class="save" data-act="prot">'+(n ? 'Fes una còpia i protegeix '+n+' '+(n===1?'fitxa':'fitxes') : 'Activa la protecció')+'</button>';
-  else h += '<p class="bulknote">Tot protegit: cap fitxa té la ubicació ni la propietat al document públic.</p>';
+  else h += '<p class="bulknote">Tot protegit: cap fitxa té dades internes al document públic.</p>';
   sbody.innerHTML = h;
 }
 let protBusy = false;
@@ -3228,7 +3247,7 @@ async function runProt(btn){
       const b = FB.writeBatch(FB.db);
       if(i === 0){
         b.set(FB.doc(FB.db,'intern','config'), {actiu:true, ts:t, qui:who()}, {merge:true});
-        hist(b,'proteccio',{n:0,titol:''},{info:'Ubicació i propietat desades a part: '+left.length+(left.length===1?' fitxa':' fitxes')});
+        hist(b,'proteccio',{n:0,titol:''},{info:'Dades internes desades a part (ubicació, propietat, observacions i situació): '+left.length+(left.length===1?' fitxa':' fitxes')});
       }
       left.slice(i,i+CH).forEach(v=>{
         const prv = {n:v.n, updatedAt:t}, pub = {n:v.n};

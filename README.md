@@ -18,7 +18,7 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 - **Com arribar-hi** (enllaç a Google Maps) i enllaç a àudio o vídeo, per a les peces que en tinguin.
 - **Edició múltiple**: canviar un camp (autor, sèrie, ubicació…) de moltes peces alhora.
 - **Historial de canvis** amb possibilitat de desfer.
-- **Dos nivells d'accés**, cadascun amb la seva contrasenya: editor (pot modificar) i només lectura.
+- **Tres nivells d'accés**: catàleg públic sense contrasenya (fotos, títols, dates, tècnica i història), lectura per a la família i editor, aquests dos amb la seva contrasenya.
 - **Funciona sense connexió** i es pot instal·lar al mòbil com una app (PWA).
 - **Exportació i importació** de l'inventari en Excel.
 - Secció **Coneix l'autor**, amb biografia i vídeo.
@@ -73,9 +73,9 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 ## Privacitat i seguretat
 
 - Les fitxes i les fotografies viuen a Firebase i només es poden veure entrant amb contrasenya, llevat de la fitxa individual que s'obre amb un QR.
-- Sense contrasenya només es pot obrir la fitxa individual d'un QR. Llistar el catàleg, proposar històries i enviar suggeriments demana sessió.
+- Sense contrasenya es pot veure el catàleg públic i la fitxa de cada QR. Proposar històries i enviar suggeriments demana sessió.
 - Les dades de valor o assegurança es guarden a part i només les veu l'editor.
-- La ubicació actual i la propietat de cada peça també es guarden a part: es veuen amb sessió (editor o lectura), mai a la fitxa pública del QR. S'activa una sola vegada des d'**Administració → Dades internes**.
+- La ubicació actual, la propietat, les observacions i la situació de cada peça es guarden a part: només es veuen amb contrasenya (editor o família), mai al catàleg públic. S'activa des d'**Administració → Dades internes**, i cal fer-ho **abans** de publicar les regles que obren el catàleg públic.
 - Els comptes d'accés (`editor@escultures.app` i `lectura@escultures.app`) es creen a Firebase Console → Authentication. El registre de comptes nous ha d'estar desactivat.
 - La web porta una marca perquè els cercadors no l'indexin.
 - No s'han de pujar mai a aquest repositori contrasenyes, còpies de seguretat ni fitxers amb dades de les peces.
