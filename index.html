@@ -985,6 +985,9 @@ header.scrolled .progress i{display:none}
     <button id="catBtn">Catàleg en PDF</button>
     <button id="qrAllBtn">Etiquetes QR</button>
     <button id="exportBtn">Exportar CSV</button>
+    <button id="xlsxExportBtn" class="editonly">Exportar Excel</button>
+    <button id="xlsxImportBtn" class="editonly">Importar Excel</button>
+    <input type="file" id="xlsxInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
     <button id="backupBtn">Còpia de seguretat</button>
     <button id="restoreBtn" class="editonly">Restaurar còpia</button>
     <input type="file" id="restoreInput" accept="application/json" style="display:none">
@@ -2669,6 +2672,177 @@ $('exportBtn').addEventListener('click', ()=>{
   const keys = ['n'].concat(FIELDS.map(f=>f[0]));
   const rows = listAll().map(p=>keys.map(k=>'"'+String(p[k]==null?'':p[k]).replace(/"/g,'""')+'"').join(';'));
   saveBlob('inventari-escultures.csv', new Blob(['﻿'+heads.map(h=>'"'+h+'"').join(';')+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8'}));
+});
+/* ---------- Excel (.xlsx): exportar / importar ----------
+   Plantilla: INVENTARI_3.xlsx (full «Inventari»). L'identificador és el «Nº» (document inventari/p<Nº>).
+   La importació és acumulativa: crea les peces noves i actualitza només les cel·les no buides que canvien.
+   Mai elimina, renumera ni toca fotos, historial o camps que no siguin al full. */
+// xlsx-js-style: SheetJS amb suport d'estils (per mantenir el format visual de la plantilla).
+const XLSX_URL = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
+let xlsxP = null;
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve();
+  if(xlsxP) return xlsxP;
+  xlsxP = new Promise((res, rej)=>{
+    const s = document.createElement('script'); s.src = XLSX_URL; s.onload = res; s.onerror = ()=>{ xlsxP = null; rej(new Error('xlsx')); };
+    document.head.appendChild(s);
+  });
+  return xlsxP;
+}
+// [capçalera de l'Excel, camp de Firestore, amplada]. Les 11 primeres són les de la plantilla original;
+// les següents són camps de l'aplicació perquè l'Excel exportat es pugui reimportar sense perdre res.
+const XL_COLS = [
+  ['Tipus','tipus',9.14], ['Nº','n',9.71], ['Foto',null,43.57], ["Títol de l'obra / Tema",'titol',25.43], ['Any','any',10],
+  ['Dimensions cm (alt/llarg/fondo)','dim',21.57], ['Ubicació actual','ubic',23.71], ['Propietat','prop',21.43],
+  ['Tècnica / Materials','tecnica',19.71], ['Observacions','obs',21.57], ['Estat de conservació','estat',20.57],
+  ['Autor/a','autor',18], ['Sèrie / col·lecció','serie',18], ['Situació','situacio',14],
+  ['Lloc per veure-la','lloc',22], ["Enllaç d'àudio o vídeo",'audio',22], ['Història / introducció','desc',40]
+];
+const xlNorm = s=>String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+function xlDimOut(v){ return String(v||'').replace(/\s*cm\s*$/i,''); }
+function xlDimIn(v){ return /^[\d.,\s]+(x[\d.,\s]+)*$/i.test(v) ? v.replace(/\s+/g,'')+' cm' : v; }
+async function exportExcel(btn){
+  if(role !== 'editor') return;
+  const t0 = btn.textContent; btn.disabled = true; btn.textContent = 'Preparant l\'Excel…';
+  try{
+    await loadXLSX();
+    const rows = [XL_COLS.map(c=>c[0])];
+    listAll().forEach(p=>rows.push(XL_COLS.map(c=>{
+      if(!c[1]) return p.photo ? 'sí' : '';
+      if(c[1] === 'n') return p.n;
+      let v = p[c[1]] == null ? '' : String(p[c[1]]);
+      if(c[1] === 'dim') v = xlDimOut(v);
+      if(c[1] === 'any' && /^\d{4}$/.test(v)) return parseInt(v,10);
+      return v;
+    })));
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    // Format de INVENTARI_3.xlsx: Calibri 18, vores fines, text ajustat, capçalera en negreta,
+    // columna Nº en verd clar, files altes (espai per a la foto) i filtre a la capçalera.
+    const thin = {style:'thin', color:{rgb:'000000'}}, border = {top:thin, bottom:thin, left:thin, right:thin};
+    for(let r=0;r<rows.length;r++) for(let c=0;c<XL_COLS.length;c++){
+      const ref = XLSX.utils.encode_cell({r:r, c:c});
+      if(!ws[ref]) ws[ref] = {t:'s', v:''};
+      const key = XL_COLS[c][1], center = key === 'n' || (r > 0 && key === 'any');
+      ws[ref].s = {
+        font:{name:'Calibri', sz:18, bold:r === 0},
+        alignment:{wrapText:true, vertical:(r === 0 && c < 2) || key === 'n' ? 'top' : 'center', horizontal:center ? 'center' : undefined},
+        border:border
+      };
+      if(r > 0 && key === 'n') ws[ref].s.fill = {patternType:'solid', fgColor:{rgb:'D7E4BC'}};
+    }
+    ws['!cols'] = XL_COLS.map(c=>({wch:c[2]}));
+    ws['!rows'] = rows.map((x,i)=>({hpt: i === 0 ? 69.75 : 173.45}));
+    ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:rows.length-1, c:XL_COLS.length-1}})};
+    const wbk = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wbk, ws, 'Inventari');
+    const out = XLSX.write(wbk, {bookType:'xlsx', type:'array'});
+    saveBlob('INVENTARI_'+stamp()+'.xlsx', new Blob([out], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    toast('Excel exportat ('+(rows.length-1)+' peces)');
+  }catch(err){ alert('No s\'ha pogut generar l\'Excel ('+(err.message||'error')+'). Cal connexió la primera vegada.'); }
+  btn.textContent = t0; btn.disabled = false;
+}
+// Analitza el full i calcula els canvis sense escriure res.
+function analyzeExcel(aoa){
+  const res = {nous:[], upd:[], same:0, errors:[], warns:[]};
+  const isN = x=>['n','no','num','numero'].indexOf(xlNorm(x)) >= 0;
+  let h = -1;
+  for(let i=0;i<Math.min(aoa.length,15);i++){ if((aoa[i]||[]).some(isN)){ h = i; break; } }
+  if(h < 0){ res.errors.push('No s\'ha trobat la fila de capçaleres amb la columna «Nº».'); return res; }
+  const idx = {};
+  (aoa[h]||[]).forEach((x,j)=>{
+    const k = xlNorm(x); if(!k) return;
+    const c = isN(x) ? XL_COLS[1] : (XL_COLS.find(c=>xlNorm(c[0]) === k)
+      || XL_COLS.find(c=>c[1] && LABEL[c[1]] && xlNorm(LABEL[c[1]]) === k));
+    if(c && c[1] && idx[c[1]] == null) idx[c[1]] = j;
+  });
+  const seen = {};
+  for(let i=h+1;i<aoa.length;i++){
+    const r = aoa[i] || [], fila = i+1;
+    const cell = k=>idx[k]==null ? '' : String(r[idx[k]]==null?'':r[idx[k]]).trim();
+    const raw = cell('n');
+    const data = {};
+    Object.keys(idx).forEach(k=>{ if(k !== 'n'){ const v = cell(k); if(v) data[k] = v; } });
+    if(!raw){ if(Object.keys(data).length) res.errors.push('Fila '+fila+': té dades però no té «Nº».'); continue; }
+    if(!/^\d+$/.test(raw) || parseInt(raw,10) < 1){ res.errors.push('Fila '+fila+': «Nº» no vàlid ('+raw+').'); continue; }
+    const n = parseInt(raw,10);
+    if(seen[n]){ res.errors.push('Fila '+fila+': el Nº '+n+' està repetit (també a la fila '+seen[n]+').'); continue; }
+    seen[n] = fila;
+    if(data.dim) data.dim = xlDimIn(data.dim);
+    Object.keys(SELECTS).forEach(k=>{
+      if(!data[k]) return;
+      const ok = SELECTS[k].find(o=>o && xlNorm(o) === xlNorm(data[k]));
+      if(ok) data[k] = ok; else res.errors.push('Fila '+fila+' (Nº '+n+'): «'+data[k]+'» no és vàlid per a '+LABEL[k]+' ('+SELECTS[k].filter(Boolean).join(', ')+').');
+    });
+    if(data.audio && !safeUrl(data.audio)) res.errors.push('Fila '+fila+' (Nº '+n+'): l\'enllaç d\'àudio ha de començar per https://');
+    const ex = pieces[n];
+    if(ex && ex.deleted){ res.warns.push('Nº '+n+': la fitxa està eliminada a l\'aplicació; no es modifica.'); continue; }
+    if(!ex){
+      if(!data.titol) res.warns.push('Nº '+n+': fitxa nova sense títol.');
+      res.nous.push({n:n, set:data, titol:data.titol||''});
+      continue;
+    }
+    const set = {}, canvis = {};
+    Object.keys(data).forEach(k=>{
+      const old = String(ex[k]==null?'':ex[k]).trim();
+      if(data[k] !== old){ set[k] = data[k]; canvis[k] = [old, data[k]]; }
+    });
+    if(Object.keys(set).length) res.upd.push({n:n, set:set, canvis:canvis, titol:ex.titol||''});
+    else res.same++;
+  }
+  return res;
+}
+let xlBusy = false;
+async function applyExcel(r, file){
+  xlBusy = true; setSync('wait','Important l\'Excel…');
+  const all = r.nous.map(x=>Object.assign({nou:true}, x)).concat(r.upd), t = Date.now(), CH = 120;
+  let done = 0;
+  try{
+    for(let i=0;i<all.length;i+=CH){
+      const b = FB.writeBatch(FB.db);
+      all.slice(i,i+CH).forEach(c=>{
+        b.set(pieceRef(c.n), Object.assign({}, c.set, {n:c.n, updatedAt:t}), {merge:true});
+        if(c.nou) hist(b,'crear',{n:c.n, titol:c.titol},{info:'Creada des de l\'Excel'});
+        else hist(b,'editar',{n:c.n, titol:c.titol},{canvis:c.canvis});
+      });
+      if(i === 0) hist(b,'importar',{n:0,titol:''},{info:'Excel «'+file+'»: '+r.nous.length+' noves, '+r.upd.length+' actualitzades, '+r.same+' sense canvis'});
+      await b.commit();
+      done = Math.min(i+CH, all.length);
+      toast('Important l\'Excel… '+done+' de '+all.length);
+    }
+    toast('Excel importat: '+r.nous.length+' noves, '+r.upd.length+' actualitzades');
+  }catch(err){
+    syncError(err);
+    alert('La importació s\'ha aturat ('+done+' de '+all.length+' peces desades; '+((err&&err.code)||'error')+'). Torna a importar el mateix Excel: no es duplica res.');
+  }
+  xlBusy = false;
+}
+$('xlsxExportBtn').addEventListener('click', e=>exportExcel(e.currentTarget));
+$('xlsxImportBtn').addEventListener('click', ()=>{ if(role === 'editor' && !xlBusy) $('xlsxInput').click(); });
+$('xlsxInput').addEventListener('change', async e=>{
+  const f = e.target.files[0]; e.target.value = '';
+  if(!f || role !== 'editor' || !FB || xlBusy) return;
+  if(!loaded){ alert('Espera que es carregui el catàleg abans d\'importar.'); return; }
+  let r;
+  try{
+    await loadXLSX();
+    const wbk = XLSX.read(await f.arrayBuffer(), {type:'array'});
+    const name = wbk.SheetNames.find(s=>xlNorm(s)==='inventari') || wbk.SheetNames[0];
+    r = analyzeExcel(XLSX.utils.sheet_to_json(wbk.Sheets[name], {header:1, raw:false, defval:''}));
+  }catch(err){ alert('No s\'ha pogut llegir el fitxer. Ha de ser un Excel (.xlsx) amb el format de l\'inventari.'); return; }
+  const lst = (a,max)=>a.slice(0,max).map(x=>'• '+x).join('\n') + (a.length>max ? '\n… i '+(a.length-max)+' més' : '');
+  const resum = 'Vista prèvia de la importació («'+f.name+'»):\n\n'+
+    '• Escultures noves: '+r.nous.length+(r.nous.length ? ' (Nº '+r.nous.slice(0,15).map(x=>x.n).join(', ')+(r.nous.length>15?'…':'')+')' : '')+'\n'+
+    '• S\'actualitzaran: '+r.upd.length+'\n'+
+    '• Sense canvis: '+r.same+'\n'+
+    '• Les peces de l\'aplicació que no són a l\'Excel es conserven intactes.';
+  const avisos = r.warns.length ? '\n\nAvisos:\n'+lst(r.warns,8) : '';
+  if(r.errors.length){
+    alert(resum+'\n\nS\'han trobat '+r.errors.length+' errors. No s\'ha modificat res; corregeix l\'Excel i torna-ho a provar:\n'+lst(r.errors,12));
+    return;
+  }
+  if(!r.nous.length && !r.upd.length){ alert(resum+avisos+'\n\nNo hi ha res a canviar.'); return; }
+  if(!confirm(resum+avisos+'\n\nVols aplicar aquests canvis? No s\'eliminarà cap escultura.')) return;
+  applyExcel(r, f.name);
 });
 /* Llegeix una col·lecció sencera, preferint la resposta del servidor (no la caché local). */
 function readCollection(name){
