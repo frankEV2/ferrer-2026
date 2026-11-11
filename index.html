@@ -859,6 +859,71 @@ header.scrolled .progress i{display:none}
 .fres{margin-left:auto;font-size:.74rem;color:var(--ink-2)}
 .fres b{color:var(--ink)}
 @media(max-width:440px){.beyebrow{font-size:.56rem;letter-spacing:.14em}header h1{font-size:1.2rem}.bmark{width:34px;height:34px}.progress{max-width:74px}}
+
+/* ---- targetes: QR i preferides com a icones compactes sobre la foto ---- */
+.fav,.qrb{width:28px;height:28px;top:6px;background:rgba(20,17,14,.36);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:none}
+.fav{right:6px}.qrb{left:auto;right:38px}
+.fav svg,.qrb svg{width:15px;height:15px;stroke:#fff}
+.fav.on svg{fill:#ff6b6b;stroke:#ff6b6b}
+.qrb.on{background:var(--moss)}.qrb.on svg{stroke:var(--paper)}
+.thumb.hq .num,.grid.v-s .thumb.hq .num{left:8px}
+.grid.v-s .fav,.grid.v-s .qrb{width:22px;height:22px;top:4px}.grid.v-s .fav{right:4px}.grid.v-s .qrb{left:auto;right:29px}
+.grid.v-s .fav svg,.grid.v-s .qrb svg{width:12px;height:12px}
+.grid.v-list .fav,.grid.v-det .fav,.grid.v-list .qrb,.grid.v-det .qrb{width:20px;height:20px;top:2px}
+.grid.v-list .fav,.grid.v-det .fav{right:2px}.grid.v-list .qrb,.grid.v-det .qrb{left:auto;right:24px}
+.grid.v-list .fav svg,.grid.v-det .fav svg,.grid.v-list .qrb svg,.grid.v-det .qrb svg{width:11px;height:11px}
+.favrow .fav,.favrow .qrb{width:22px;height:22px;top:4px}.favrow .fav{right:4px}.favrow .qrb{right:29px}
+.favrow .fav svg,.favrow .qrb svg{width:12px;height:12px}
+/* amb ratolí: les icones inactives només apareixen en passar per sobre, i la foto queda neta */
+@media (hover:hover) and (pointer:fine){
+  .card .fav:not(.on),.card button.qrb:not(.on){opacity:0;transition:opacity .2s,transform .2s var(--ease)}
+  .card:hover .fav,.card:hover .qrb,.card:focus-within .fav,.card:focus-within .qrb{opacity:1}
+}
+/* ---- navegació vertical: principi / final ---- */
+.scrollnav{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(20px + env(safe-area-inset-bottom));z-index:25;display:flex;flex-direction:column;gap:6px;
+  opacity:.55;transition:opacity .25s}
+.scrollnav:hover,.scrollnav:focus-within{opacity:1}
+.scrollnav[hidden],body.sel .scrollnav,body.noauth .scrollnav{display:none}
+.scrollnav button{width:36px;height:36px;border-radius:50%;border:1px solid var(--rule);padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);
+  background:var(--card);background:color-mix(in srgb,var(--card) 82%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,.16);transition:transform .15s var(--ease),opacity .2s}
+.scrollnav button:active{transform:scale(.9)}
+.scrollnav button:disabled{opacity:.35;cursor:default}
+.scrollnav svg{width:16px;height:16px}
+@media print{.scrollnav{display:none}}
+/* ---- zona inferior compacta ---- */
+.footer{display:block;padding:10px 14px 12px}
+.footer{margin-bottom:calc(76px + env(safe-area-inset-bottom))}  /* que el botó + i les fletxes no tapin el final */
+.fsec{border-bottom:1px solid var(--rule)}
+.fsec>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:13px 4px;font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);-webkit-user-select:none;user-select:none}
+.fsec>summary::-webkit-details-marker{display:none}
+.fsec>summary::after{content:"";margin-left:auto;width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s var(--ease)}
+.fsec[open]>summary::after{transform:rotate(-135deg)}
+.fsec.admin>summary{color:var(--clay)}
+.fbadge{font-style:normal;letter-spacing:0;background:var(--clay);color:#fff;border-radius:99px;padding:1px 7px;font-size:.66rem}
+.fbtns{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:0 0 14px}
+.footer .fbtns button{padding:10px 12px}
+.fsub{margin:2px 2px 8px;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.fsession{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:12px}
+.fsession #sessionNote{margin:0;flex:1 1 160px}
+.footer .fsession button{flex:0 0 auto;padding:7px 14px;font-size:.76rem}
+.footer .fsession #logoutBtn{color:var(--alert);border-color:transparent;background:none;text-decoration:underline;text-underline-offset:3px}
+.sugform{display:grid;gap:8px;padding:0 2px 14px}
+.sugform p{margin:0;font-size:.82rem;line-height:1.5;color:var(--ink-2)}
+.sugform textarea,.sugform input{width:100%;box-sizing:border-box;font:inherit;font-size:.9rem;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:10px 12px}
+.sugform textarea{min-height:96px;resize:vertical}
+.sugform .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.footer .sugform button{justify-self:start;padding:10px 18px;background:var(--clay);border-color:var(--clay);color:#fff;font-weight:600}
+.footer .sugform button:disabled{opacity:.6}
+.sugmsg{font-size:.82rem;color:var(--moss)}.sugmsg.err{color:var(--alert)}
+.sgitem{border:1px solid var(--rule);border-radius:14px;padding:12px;margin:0 0 10px;background:var(--card)}
+.sgitem .sgmeta{font-size:.74rem;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}
+.sgitem .sgtext{white-space:pre-wrap;line-height:1.5;margin:0 0 10px;overflow-wrap:anywhere}
+.sgitem .sgacts{display:flex;flex-wrap:wrap;gap:6px}
+.sgitem .sgacts button,.sgfilt button{padding:6px 12px;border-radius:99px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font-size:.76rem;cursor:pointer}
+.sgitem .sgacts button.on,.sgfilt button.on{background:var(--clay);border-color:var(--clay);color:#fff}
+.sgpill{padding:1px 8px;border-radius:99px;font-size:.68rem;font-weight:600;background:var(--paper-2)}
+.sgpill.pendent{background:var(--clay);color:#fff}
+.sgfilt{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
 </style></head><body class="noauth">
 
 <div class="cover" id="cover">
@@ -971,35 +1036,69 @@ header.scrolled .progress i{display:none}
   <p class="rescount" id="resCount" aria-live="polite" hidden></p>
   <div class="grid" id="grid"></div>
   <div class="footer">
-    <p class="fgroup">Consulta</p>
-    <button id="tlBtn">Cronologia</button>
-    <button id="statsBtn">Estadístiques</button>
-    <button id="mapAllBtn">Mapa de les obres</button>
-    <button id="authorBtn2" data-author>Biografia de l'autor</button>
-    <button id="histBtn" class="editonly">Registre de canvis</button>
-    <p class="fgroup editonly">Gestió</p>
-    <button id="reviewBtn" class="editonly">Revisió d'inventari</button>
-    <button id="loansBtn" class="editonly">Préstecs i conservació</button>
-    <button id="modBtn" class="editonly">Històries pendents</button>
-    <p class="fgroup">Documentació i exportació</p>
-    <button id="catBtn">Catàleg en PDF</button>
-    <button id="qrAllBtn">Etiquetes QR</button>
-    <button id="exportBtn">Exportar CSV</button>
-    <button id="xlsxExportBtn" class="editonly">Exportar Excel</button>
-    <button id="xlsxImportBtn" class="editonly">Importar Excel</button>
-    <input type="file" id="xlsxInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
-    <button id="backupBtn">Còpia de seguretat</button>
-    <button id="restoreBtn" class="editonly">Restaurar còpia</button>
-    <input type="file" id="restoreInput" accept="application/json" style="display:none">
-    <p class="fgroup">Sessió</p>
-    <button id="prefsBtn">Preferències</button>
-    <button id="installBtn" style="display:none">Instal·lar l'aplicació</button>
-    <button id="logoutBtn">Tancar sessió</button>
-    <p class="fnote" id="sessionNote"></p>
+    <details class="fsec" id="sugSec" data-k="sug">
+      <summary>Suggeriments</summary>
+      <form class="sugform" id="sugForm" novalidate>
+        <p>Tens alguna proposta, correcció o informació que vulguis compartir? Envia'ns el teu suggeriment! L'editor revisarà les aportacions rebudes i valorarà incorporar-les pròximament al catàleg.</p>
+        <textarea id="sugText" maxlength="1500" required placeholder="Escriu aquí el teu suggeriment: una millora, una correcció, una escultura nova…" aria-label="Suggeriment"></textarea>
+        <input id="sugName" maxlength="60" autocomplete="name" placeholder="Nom (opcional)" aria-label="Nom (opcional)">
+        <input id="sugWeb" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit" id="sugSend">Enviar suggeriment</button>
+        <span class="sugmsg" id="sugMsg" role="status" aria-live="polite"></span>
+      </form>
+    </details>
+    <details class="fsec" data-k="cons">
+      <summary>Consulta</summary>
+      <div class="fbtns">
+        <button id="tlBtn">Cronologia</button>
+        <button id="statsBtn">Estadístiques</button>
+        <button id="mapAllBtn">Mapa de les obres</button>
+        <button id="authorBtn2" data-author>Biografia de l'autor</button>
+      </div>
+    </details>
+    <details class="fsec" data-k="doc">
+      <summary>Documentació i exportació</summary>
+      <div class="fbtns">
+        <button id="catBtn">Catàleg en PDF</button>
+        <button id="qrAllBtn">Etiquetes QR</button>
+        <button id="exportBtn">Exportar CSV</button>
+        <button id="backupBtn">Còpia de seguretat</button>
+      </div>
+    </details>
+    <details class="fsec admin editonly" data-k="adm">
+      <summary>Administració <i class="fbadge" id="adminBadge" hidden></i></summary>
+      <p class="fsub">Gestió</p>
+      <div class="fbtns">
+        <button id="sugBtn">Suggeriments rebuts</button>
+        <button id="modBtn">Històries pendents</button>
+        <button id="reviewBtn">Revisió d'inventari</button>
+        <button id="loansBtn">Préstecs i conservació</button>
+        <button id="histBtn">Registre de canvis</button>
+      </div>
+      <p class="fsub">Dades</p>
+      <div class="fbtns">
+        <button id="xlsxExportBtn">Exportar Excel</button>
+        <button id="xlsxImportBtn">Importar Excel</button>
+        <button id="restoreBtn">Restaurar còpia</button>
+      </div>
+      <input type="file" id="xlsxInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
+      <input type="file" id="restoreInput" accept="application/json" style="display:none">
+    </details>
+    <div class="fsession">
+      <p class="fnote" id="sessionNote"></p>
+      <button id="prefsBtn">Preferències</button>
+      <button id="installBtn" hidden>Instal·lar l'aplicació</button>
+      <button id="logoutBtn">Tancar sessió</button>
+    </div>
     <p class="fnote" id="syncNote"></p>
-    <p class="fnote">Els canvis es guarden al dispositiu i es sincronitzen amb el núvol quan hi ha connexió. Cada canvi queda registrat a l'historial.</p>
+    <p class="fnote editonly">Els canvis es guarden al dispositiu i es sincronitzen amb el núvol quan hi ha connexió. Cada canvi queda registrat a l'historial.</p>
   </div>
 </main>
+
+<div class="scrollnav" id="scrollNav" hidden>
+  <button type="button" id="toTopBtn" aria-label="Anar al principi de la pàgina" title="Principi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"/></svg></button>
+  <button type="button" id="toEndBtn" aria-label="Anar al final de la pàgina" title="Final"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+</div>
 
 <button class="fab" id="addBtn" aria-label="Afegir peça">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1222,8 +1321,8 @@ let unsubPriv = null, unsubExtras = [];
 const extraCache = {};      // id de foto de detall -> dataURL
 const selected = new Set();
 // fase 2 (revisió, préstecs, restauracions, documents, històries)
-const XCOLS = ['revisio','prestecs','restauracions','documents','docdata','histories','propostes'];
-const X = {revisio:{}, prestecs:{}, restauracions:{}, documents:{}, histories:{}, propostes:{}};
+const XCOLS = ['revisio','prestecs','restauracions','documents','docdata','histories','propostes','suggeriments'];
+const X = {revisio:{}, prestecs:{}, restauracions:{}, documents:{}, histories:{}, propostes:{}, suggeriments:{}};
 const Xready = {};
 let unsubX = [], alerted = false;
 
@@ -2305,7 +2404,7 @@ function subX(col){
 function startX(){
   if(!FB || unsubX.length) return;
   subX('histories');
-  if(role === 'editor') ['revisio','prestecs','restauracions','documents','propostes'].forEach(subX);
+  if(role === 'editor') ['revisio','prestecs','restauracions','documents','propostes','suggeriments'].forEach(subX);
 }
 function stopX(){
   unsubX.forEach(u=>{ try{u();}catch(e){} }); unsubX = [];
@@ -2317,6 +2416,7 @@ function refreshX(){
   else if(mode === 'review') renderReview();
   else if(mode === 'loans') renderLoans();
   else if(mode === 'mod') renderMod();
+  else if(mode === 'sug') renderSug();
 }
 
 /* ---- avisos: préstecs vençuts o a punt de vèncer, revisions de conservació ---- */
@@ -2341,6 +2441,10 @@ function updateBadges(){
   const a = alerts();
   setBadge('loansBtn', a.late.length + a.due.length + a.rev.length);
   setBadge('modBtn', Object.keys(X.propostes).length);
+  const sp = vals('suggeriments').filter(x=>(x.estat||'pendent') === 'pendent').length;
+  setBadge('sugBtn', sp);
+  const tot = a.late.length + a.due.length + a.rev.length + Object.keys(X.propostes).length + sp, ab = $('adminBadge');
+  if(ab){ ab.hidden = !tot; ab.textContent = tot; }
   if(!alerted && Xready.prestecs && Xready.restauracions && loaded){
     alerted = true;
     const m = [];
@@ -2511,6 +2615,26 @@ function renderMod(){
     : '<p class="hnote">No hi ha cap història pendent d\'aprovar.</p>';
 }
 
+
+/* ---- suggeriments rebuts (només editor) ---- */
+const SGEST = {pendent:'Pendent', revisat:'Revisat', resolt:'Resolt'};
+let sugFilt = 'pendent';
+function openSug(){ current = null; mode = 'sug'; setHead('Suggeriments', false); renderSug(); sbody.scrollTop = 0; stagger(null); show(); }
+function renderSug(){
+  const all = vals('suggeriments').sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const cnt = k=>all.filter(x=>(x.estat||'pendent') === k).length;
+  const list = sugFilt === 'tots' ? all : all.filter(x=>(x.estat||'pendent') === sugFilt);
+  const fb = (k,l,c)=>'<button data-act="sgf" data-v="'+k+'" class="'+(sugFilt===k?'on':'')+'">'+l+(c!=null?' ('+c+')':'')+'</button>';
+  sbody.innerHTML = '<div class="sgfilt">'+fb('pendent','Pendents',cnt('pendent'))+fb('revisat','Revisats',cnt('revisat'))+fb('resolt','Resolts',cnt('resolt'))+fb('tots','Tots',all.length)+'</div>'+
+    (list.length ? list.map(x=>{
+      const e = x.estat || 'pendent';
+      return '<div class="sgitem"><div class="sgmeta"><span class="sgpill '+esc(e)+'">'+esc(SGEST[e]||e)+'</span><span>'+esc(fmtTs(x.ts))+'</span><span>· '+esc(x.nom||'Anònim')+'</span></div>'+
+        '<p class="sgtext">'+esc(x.text||'')+'</p><div class="sgacts">'+
+        Object.keys(SGEST).map(k=>'<button data-act="sgst" data-id="'+esc(x.id)+'" data-v="'+k+'" class="'+(e===k?'on':'')+'">'+SGEST[k]+'</button>').join('')+
+        '<button data-act="sgdel" data-id="'+esc(x.id)+'">Elimina</button></div></div>';
+    }).join('') : '<p class="hnote">'+(all.length ? 'No hi ha cap suggeriment en aquest estat.' : 'Encara no s\'ha rebut cap suggeriment.')+'</p>');
+}
+
 /* ---- documents ---- */
 function readOnce(col, id){
   return new Promise((res, rej)=>{
@@ -2603,6 +2727,9 @@ sbody.addEventListener('click', e=>{
   if(!ed) return;
   const pr = id ? X.propostes[id] : null;
   switch(act){
+    case 'sgf': sugFilt = b.dataset.v; renderSug(); break;
+    case 'sgst': if(X.suggeriments[id]) wb(bb=>bb.update(xdoc('suggeriments',id), {estat:b.dataset.v, revisatPer:who(), revisatTs:Date.now()}), 'Suggeriment: '+(SGEST[b.dataset.v]||'').toLowerCase()); break;
+    case 'sgdel': if(!confirmTap(b, 'Confirma')) return; wb(bb=>bb.delete(xdoc('suggeriments',id)), 'Suggeriment eliminat'); break;
     case 'rev': setRev(n, b.dataset.v); break;
     case 'rvq': setRev(n, b.dataset.v); break;
     case 'rvprint': reviewReport(); break;
@@ -2665,6 +2792,7 @@ sbody.addEventListener('click', e=>{
 $('reviewBtn').addEventListener('click', openReview);
 $('loansBtn').addEventListener('click', openLoans);
 $('modBtn').addEventListener('click', openMod);
+$('sugBtn').addEventListener('click', openSug);
 
 /* ---------- exportar / importar ---------- */
 $('exportBtn').addEventListener('click', ()=>{
@@ -3578,12 +3706,10 @@ function openInstallHelp(){
     '<p class="bulknote">Obre la pàgina a <b>Safari</b>, toca la icona de <b>Compartir</b> (quadrat amb fletxa amunt) i tria <b>«Afegeix a la pantalla d\'inici»</b>.</p>';
   sbody.scrollTop = 0; stagger(null); show();
 }
-if(isStandalone){ installBtn.style.display = 'none'; }
-else{
-  installBtn.style.display = '';
-  installBtn.textContent = 'Instal·lar l\'aplicació';
-}
-window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall = e; });
+// Només es mostra si el navegador permet instal·lar-la (Chrome/Edge/Android) o en iPhone/iPad (instruccions de Safari).
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+installBtn.hidden = isStandalone || !isIOS;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredInstall = e; if(!isStandalone) installBtn.hidden = false; });
 installBtn.addEventListener('click', async ()=>{
   if(deferredInstall){
     const d = deferredInstall; deferredInstall = null;
@@ -3593,7 +3719,63 @@ installBtn.addEventListener('click', async ()=>{
   }
   openInstallHelp();
 });
-window.addEventListener('appinstalled', ()=>{ installBtn.style.display = 'none'; });
+window.addEventListener('appinstalled', ()=>{ installBtn.hidden = true; });
+
+/* ---- navegació vertical: principi / final ---- */
+(function(){
+  const nav = $('scrollNav'), up = $('toTopBtn'), dn = $('toEndBtn');
+  const smooth = ()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  const maxY = ()=>Math.max(document.documentElement.scrollHeight, document.body.scrollHeight) - window.innerHeight;
+  let raf = 0;
+  function upd(){
+    raf = 0;
+    const m = maxY(), y = window.scrollY;
+    nav.hidden = m < 300;
+    up.disabled = y < 40; dn.disabled = y > m - 40;
+  }
+  const q = ()=>{ if(!raf) raf = requestAnimationFrame(upd); };
+  window.addEventListener('scroll', q, {passive:true});
+  window.addEventListener('resize', q);
+  new MutationObserver(q).observe(document.querySelector('main'), {childList:true, subtree:true});
+  up.addEventListener('click', ()=>window.scrollTo({top:0, behavior:smooth()}));
+  dn.addEventListener('click', ()=>window.scrollTo({top:maxY(), behavior:smooth()}));
+  q();
+})();
+/* ---- seccions plegables de la zona inferior (es recorda quines són obertes) ---- */
+Array.prototype.forEach.call(document.querySelectorAll('.footer details[data-k]'), d=>{
+  const k = 'inv-foot-'+d.dataset.k;
+  try{ if(localStorage.getItem(k) === '1') d.open = true; }catch(e){}
+  d.addEventListener('toggle', ()=>{ try{ localStorage.setItem(k, d.open ? '1' : '0'); }catch(e){} });
+});
+/* ---- suggeriments dels visitants ----
+   Validació i límits: 10–1500 caràcters, màx. 3 enllaços, camp parany per a robots,
+   1 minut entre enviaments i 5 per dia en aquest dispositiu. Les regles de Firestore també ho validen. */
+$('sugForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const msg = $('sugMsg'), btn = $('sugSend');
+  const say = (t, err)=>{ msg.textContent = t; msg.classList.toggle('err', !!err); };
+  const text = $('sugText').value.replace(/\s+\n/g,'\n').trim(), nom = $('sugName').value.trim().slice(0,60);
+  if($('sugWeb').value){ say('Gràcies! Hem rebut el teu suggeriment.'); $('sugForm').reset(); return; }
+  if(text.length < 10){ say('Escriu una mica més (mínim 10 caràcters).', true); $('sugText').focus(); return; }
+  if(!/[a-zà-ÿ]{3}/i.test(text) || (text.match(/https?:\/\//gi)||[]).length > 3){ say('El text no sembla un suggeriment vàlid.', true); return; }
+  let log = [];
+  try{ log = JSON.parse(localStorage.getItem('inv-sug')||'[]').filter(t=>Date.now()-t < 864e5); }catch(err){}
+  if(log.length && Date.now() - log[log.length-1] < 60000){ say('Espera un minut abans d\'enviar-ne un altre.', true); return; }
+  if(log.length >= 5){ say('Has arribat al límit de suggeriments per avui. Moltes gràcies!', true); return; }
+  if(!FB){ say('No hi ha connexió amb el servidor. Torna-ho a provar més tard.', true); return; }
+  btn.disabled = true; say('Enviant…');
+  try{
+    const b = FB.writeBatch(FB.db);
+    b.set(FB.doc(FB.collection(FB.db,'suggeriments')), {text:text.slice(0,1500), nom:nom, estat:'pendent', ts:Date.now()});
+    await Promise.race([b.commit(), new Promise((_, rej)=>setTimeout(()=>rej(new Error('timeout')), 15000))]);
+    log.push(Date.now()); try{ localStorage.setItem('inv-sug', JSON.stringify(log)); }catch(err){}
+    $('sugForm').reset();
+    say('Gràcies! El teu suggeriment s\'ha enviat correctament.');
+  }catch(err){
+    say(err && err.message === 'timeout' ? 'No s\'ha pogut confirmar l\'enviament. Comprova la connexió i torna-ho a provar.' : 'No s\'ha pogut enviar el suggeriment. Torna-ho a provar més tard.', true);
+  }
+  btn.disabled = false;
+});
 
 render();
 })();

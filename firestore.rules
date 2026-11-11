@@ -58,6 +58,21 @@ service cloud.firestore {
       );
     }
 
+    // Suggeriments dels visitants: qualsevol en pot enviar (sense sessió), només l'editor els llegeix i gestiona.
+    match /suggeriments/{doc} {
+      allow read, update, delete: if isEditor();
+      allow create: if isEditor() || (
+        request.resource.data.keys().hasOnly(['text', 'nom', 'estat', 'ts']) &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() >= 10 && request.resource.data.text.size() <= 1500 &&
+        request.resource.data.nom is string && request.resource.data.nom.size() <= 60 &&
+        request.resource.data.estat == 'pendent' &&
+        request.resource.data.ts is int &&
+        request.resource.data.ts > request.time.toMillis() - 600000 &&
+        request.resource.data.ts < request.time.toMillis() + 600000
+      );
+    }
+
     // Gestió: només l'editor.
     match /revisio/{doc}        { allow read, write: if isEditor(); }   // revisió d'inventari
     match /prestecs/{doc}       { allow read, write: if isEditor(); }
