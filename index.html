@@ -1005,6 +1005,7 @@ header.scrolled .progress i{display:none}
 .sgpill{padding:1px 8px;border-radius:99px;font-size:.68rem;font-weight:600;background:var(--paper-2)}
 .sgpill.pendent{background:var(--clay);color:#fff}
 .sgfilt{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.fdata{margin:0 2px 14px;font-size:.72rem}
 </style></head><body class="noauth">
 
 <div class="cover" id="cover">
@@ -1142,9 +1143,19 @@ header.scrolled .progress i{display:none}
       <div class="fbtns">
         <button id="catBtn">Catàleg en PDF</button>
         <button id="qrAllBtn">Etiquetes QR</button>
-        <button id="exportBtn">Exportar CSV</button>
         <button id="backupBtn">Còpia de seguretat</button>
       </div>
+      <div class="editonly">
+        <p class="fsub">Inventari i còpies · administrador</p>
+        <div class="fbtns">
+          <button id="xlsxExportBtn">Exportar Excel</button>
+          <button id="xlsxImportBtn">Importar Excel</button>
+          <button id="restoreBtn">Restaurar còpia</button>
+        </div>
+        <p class="fnote fdata">La <b>còpia de seguretat</b> (JSON) inclou totes les fitxes amb els seus identificadors, les fotos (desades dins de la base de dades, no com a enllaços), les fotos de detall, valoracions i assegurances, l'historial, préstecs, restauracions, documents, històries, suggeriments i la revisió d'inventari. Queden fora els comptes d'accés i les preferides de cada dispositiu. Importar un Excel o restaurar una còpia mai no elimina escultures.</p>
+      </div>
+      <input type="file" id="xlsxInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
+      <input type="file" id="restoreInput" accept="application/json,.json" style="display:none">
     </details>
     <details class="fsec admin editonly" data-k="adm">
       <summary>Administració <i class="fbadge" id="adminBadge" hidden></i></summary>
@@ -1156,14 +1167,6 @@ header.scrolled .progress i{display:none}
         <button id="loansBtn">Préstecs i conservació</button>
         <button id="histBtn">Registre de canvis</button>
       </div>
-      <p class="fsub">Dades</p>
-      <div class="fbtns">
-        <button id="xlsxExportBtn">Exportar Excel</button>
-        <button id="xlsxImportBtn">Importar Excel</button>
-        <button id="restoreBtn">Restaurar còpia</button>
-      </div>
-      <input type="file" id="xlsxInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
-      <input type="file" id="restoreInput" accept="application/json" style="display:none">
     </details>
     <div class="fsession">
       <p class="fnote" id="sessionNote"></p>
@@ -2944,12 +2947,6 @@ $('modBtn').addEventListener('click', openMod);
 $('sugBtn').addEventListener('click', openSug);
 
 /* ---------- exportar / importar ---------- */
-$('exportBtn').addEventListener('click', ()=>{
-  const heads = ['Núm.'].concat(FIELDS.map(f=>f[1]));
-  const keys = ['n'].concat(FIELDS.map(f=>f[0]));
-  const rows = listAll().map(p=>keys.map(k=>'"'+String(p[k]==null?'':p[k]).replace(/"/g,'""')+'"').join(';'));
-  saveBlob('inventari-escultures.csv', new Blob(['﻿'+heads.map(h=>'"'+h+'"').join(';')+'\n'+rows.join('\n')], {type:'text/csv;charset=utf-8'}));
-});
 /* ---------- Excel (.xlsx): exportar / importar ----------
    Plantilla: INVENTARI_3.xlsx (full «Inventari»). L'identificador és el «Nº» (document inventari/p<Nº>).
    La importació és acumulativa: crea les peces noves i actualitza només les cel·les no buides que canvien.
@@ -3137,7 +3134,8 @@ function readCollection(name){
 function stamp(){ const d = new Date(), z = x=>String(x).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'_'+z(d.getHours())+z(d.getMinutes()); }
 let backingUp = false;
 async function fullBackup(btn){
-  if(backingUp || !FB) return;
+  if(backingUp || !FB) return false;
+  let ok = false;
   backingUp = true; const t0 = btn.textContent; btn.textContent = 'Preparant la còpia…'; btn.disabled = true;
   setSync('wait','Preparant la còpia de seguretat…');
   try{
@@ -3153,15 +3151,27 @@ async function fullBackup(btn){
       pieces:strip(out.inventari)
     };
     cols.slice(1).forEach(c=>{ data[c] = withId(out[c]); data.counts[c] = out[c].length; });
+    // Les fotos es desen com a dades dins de Firestore (no a Firebase Storage), així que la còpia les conté senceres.
+    const ph = out.inventari.map(x=>String(x.photo||'')).filter(Boolean);
+    const ext = ph.filter(u=>!/^data:/.test(u)).length + out.fotos.filter(x=>x.data && !/^data:/.test(x.data)).length;
+    data.contingut = {
+      inclou:'Fitxes completes amb identificadors (inventari/p<Nº>), fotos principals i de detall incrustades, dades privades (valoració/assegurança), historial, préstecs, restauracions, documents, històries, propostes, suggeriments i revisió d\'inventari.',
+      fora:'Comptes d\'accés (Firebase Authentication), preferides i preferències de cada dispositiu, i el codi de la web (és a GitHub).',
+      fotosIncrustades: ph.length - ph.filter(u=>!/^data:/.test(u)).length + out.fotos.filter(x=>x.data && /^data:/.test(x.data)).length,
+      fotosNomesEnllac: ext
+    };
     saveBlob('les-peces-del-ferrer_copia-completa_'+stamp()+'.json', new Blob([JSON.stringify(data)], {type:'application/json'}));
     setSync('ok','Sincronitzat amb el núvol');
     toast('Còpia completa: '+data.counts.pieces+' peces, '+data.counts.fotos+' fotos de detall, '+data.counts.historial+' registres');
+    ok = true;
+    if(ext) alert('Atenció: '+ext+' fotos són enllaços externs i la còpia només en conserva l\'adreça, no la imatge.');
     if(anyCache) alert('Atenció: sense connexió amb el servidor, la còpia s\'ha fet amb les dades desades en aquest dispositiu i pot ser incompleta. Repeteix-la amb connexió.');
   }catch(err){
     syncError(err);
     alert('No s\'ha pogut fer la còpia completa ('+((err&&err.code)||err.message||'error')+').');
   }
   btn.textContent = t0; btn.disabled = false; backingUp = false;
+  return ok;
 }
 $('backupBtn').addEventListener('click', e=>{
   if(role === 'editor'){ fullBackup(e.currentTarget); return; }
@@ -3235,20 +3245,54 @@ async function runImport(list, seed, parsed){
   importing = false;
 }
 $('restoreBtn').addEventListener('click', ()=>$('restoreInput').click());
+// Compara la còpia amb el catàleg actual sense escriure res.
+function restorePreview(list){
+  const same = (x,y)=>JSON.stringify(x==null?'':x) === JSON.stringify(y==null?'':y);
+  const r = {nous:[], upd:[], same:0, skip:0};
+  list.forEach(p=>{
+    const ex = pieces[p.n];
+    if(p.deleted){ r.skip++; return; }                       // mai es recupera ni s'amaga res per la còpia
+    if(!ex){ r.nous.push(p); return; }
+    const diff = Object.keys(p).some(k=>k !== 'updatedAt' && k !== 'deleted' && !same(p[k], ex[k]));
+    if(diff) r.upd.push(p); else r.same++;
+  });
+  return r;
+}
 $('restoreInput').addEventListener('change', e=>{
   const f = e.target.files[0]; e.target.value = '';
   if(!f || role !== 'editor' || !FB) return;
+  if(!loaded){ alert('Espera que es carregui el catàleg abans de restaurar.'); return; }
   const rd = new FileReader();
-  rd.onload = ev=>{
-    let parsed;
+  rd.onload = async ev=>{
+    let parsed, d;
     try{
-      const d = JSON.parse(ev.target.result);
+      d = JSON.parse(ev.target.result);
       if(!d || typeof d !== 'object') throw 0;
       parsed = parseImport(d);
-    }catch(err){ alert('El fitxer no és una còpia vàlida.'); return; }
-    const extra = parsed.full ? ('\n\nCòpia completa: també es restauraran '+parsed.privat.length+' valoracions/assegurances, '+parsed.fotos.length+' fotos de detall, '+parsed.historial.length+' registres de l\'historial, '+parsed.prestecs.length+' préstecs, '+parsed.restauracions.length+' restauracions, '+parsed.documents.length+' documents, '+parsed.histories.length+' històries i la revisió d\'inventari.') : '';
-    if(!confirm('Importar '+parsed.list.length+' peces' + (parsed.seed ? ' (dades inicials: omple el que falti, com les fotos, i no sobreescriu els canvis que ja hi hagi)' : '') + '?' + extra)) return;
-    runImport(parsed.list, parsed.seed, parsed);
+    }catch(err){ alert('El fitxer no és una còpia vàlida de «Les peces del ferrer».'); return; }
+    const bad = parsed.list.filter(p=>!Number.isInteger(p.n) || p.n < 1);
+    const seen = {}, dup = [];
+    parsed.list.forEach(p=>{ if(seen[p.n]) dup.push(p.n); seen[p.n] = 1; });
+    if(bad.length || dup.length){
+      alert('La còpia té errors i no s\'ha restaurat res:\n'+(bad.length?'• '+bad.length+' fitxes amb un número no vàlid\n':'')+(dup.length?'• Números repetits: '+dup.slice(0,15).join(', ')+'\n':''));
+      return;
+    }
+    // Mai s'elimina ni s'amaga cap fitxa: el camp «deleted» de la còpia no s'aplica.
+    const list = parsed.list.filter(p=>!p.deleted).map(p=>{ const o = Object.assign({}, p); delete o.deleted; return o; });
+    const pv = restorePreview(parsed.list);
+    const extra = parsed.full ? ('\n\nTambé es restauraran (sense esborrar res del que ja hi ha): '+parsed.privat.length+' valoracions/assegurances, '+parsed.fotos.length+' fotos de detall, '+parsed.historial.length+' registres de l\'historial, '+parsed.prestecs.length+' préstecs, '+parsed.restauracions.length+' restauracions, '+parsed.documents.length+' documents, '+parsed.histories.length+' històries'+(parsed.suggeriments?', '+parsed.suggeriments.length+' suggeriments':'')+' i la revisió d\'inventari.') : '';
+    const when = d.exported ? ' (feta el '+new Date(d.exported).toLocaleString(LOC())+')' : '';
+    const msg = 'Vista prèvia de la restauració «'+f.name+'»'+when+':\n\n'+
+      '• Fitxes noves: '+pv.nous.length+'\n'+
+      '• Fitxes que recuperaran les dades de la còpia: '+pv.upd.length+'\n'+
+      '• Sense canvis: '+pv.same+'\n'+
+      (pv.skip ? '• Fitxes eliminades a la còpia (no es toquen): '+pv.skip+'\n' : '')+
+      '• Les escultures actuals que no són a la còpia es conserven intactes.'+
+      (parsed.seed ? '\n\nDades inicials: només s\'omple el que falti; no se sobreescriu res.' : '')+extra+
+      '\n\nAbans de restaurar es descarregarà una còpia completa de l\'estat actual. Vols continuar?';
+    if(!confirm(msg)) return;
+    if(!(await fullBackup($('restoreBtn')))){ alert('No s\'ha pogut fer la còpia prèvia. Per seguretat, no s\'ha restaurat res.'); return; }
+    runImport(parsed.seed ? list : pv.nous.concat(pv.upd).map(p=>{ const o = Object.assign({}, p); delete o.deleted; return o; }), parsed.seed, parsed);
   };
   rd.readAsText(f);
 });
