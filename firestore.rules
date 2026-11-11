@@ -4,24 +4,34 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function signedIn() {
-      return request.auth != null;
-    }
+    // Tenir sessió no vol dir tenir permís: a Firebase qualsevol es pot crear un compte.
+    // Per això cap regla es refia de «request.auth != null»; només compten aquests dos comptes.
     function isEditor() {
-      return signedIn() && request.auth.token.email == 'editor@escultures.app';
+      return request.auth != null && request.auth.token.email == 'editor@escultures.app';
+    }
+    // Lectura: l'editor i el compte de només lectura (lectura@escultures.app).
+    function isReader() {
+      return request.auth != null &&
+        request.auth.token.email in ['editor@escultures.app', 'lectura@escultures.app'];
     }
 
-    // Fitxes: una sola fitxa es pot llegir sense sessió (enllaç del QR); el llistat complet, no.
+    // Fitxes: una sola fitxa es pot llegir sense sessió (enllaç del QR); el llistat complet, amb sessió de lectura.
     match /inventari/{doc} {
       allow get: if true;
-      allow list: if signedIn();
+      allow list: if isReader();
+      allow write: if isEditor();
+    }
+
+    // Dades internes de cada peça (ubicació actual i propietat): mai públiques, encara que es tingui l'enllaç del QR.
+    match /intern/{doc} {
+      allow read: if isReader();
       allow write: if isEditor();
     }
 
     // Fotos de detall: igual que les fitxes.
     match /fotos/{doc} {
       allow get: if true;
-      allow list: if signedIn();
+      allow list: if isReader();
       allow write: if isEditor();
     }
 
@@ -30,38 +40,40 @@ service cloud.firestore {
       allow read, write: if isEditor();
     }
 
-    // Historial: es llegeix amb sessió; només l'editor escriu i pot esborrar-lo.
+    // Historial: només l'editor el llegeix, hi escriu i pot esborrar-lo.
     match /historial/{doc} {
-      allow read: if signedIn();
-      allow create, update: if isEditor();
-      allow delete: if isEditor();
+      allow read, write: if isEditor();
     }
 
     // Històries aprovades: igual que les fitxes; només l'editor les publica o esborra.
     match /histories/{doc} {
       allow get: if true;
-      allow list: if signedIn();
+      allow list: if isReader();
       allow write: if isEditor();
     }
 
-    // Històries proposades pels convidats: només en poden crear, pendents d'aprovació.
+    // Històries proposades des de l'accés de lectura: només en poden crear, pendents d'aprovació.
+    // Cal sessió (editor o lectura): sense contrasenya no es pot enviar res.
+    // La data ha de ser l'actual (±10 min): no es poden enviar tandes amb dates inventades.
     match /propostes/{doc} {
       allow read, update, delete: if isEditor();
-      allow create: if isEditor() || (
+      allow create: if isEditor() || (isReader() &&
         request.resource.data.keys().hasOnly(['n', 'tipus', 'text', 'autor', 'ts']) &&
-        request.resource.data.n is int &&
+        request.resource.data.n is int && request.resource.data.n > 0 &&
         request.resource.data.tipus in ['anecdota', 'autoria', 'encarrec', 'comentari'] &&
         request.resource.data.text is string &&
         request.resource.data.text.size() > 2 && request.resource.data.text.size() <= 2000 &&
         request.resource.data.autor is string && request.resource.data.autor.size() <= 60 &&
-        request.resource.data.ts is int
+        request.resource.data.ts is int &&
+        request.resource.data.ts > request.time.toMillis() - 600000 &&
+        request.resource.data.ts < request.time.toMillis() + 600000
       );
     }
 
-    // Suggeriments dels visitants: qualsevol en pot enviar (sense sessió), només l'editor els llegeix i gestiona.
+    // Suggeriments: es poden enviar amb sessió (editor o lectura); només l'editor els llegeix i gestiona.
     match /suggeriments/{doc} {
       allow read, update, delete: if isEditor();
-      allow create: if isEditor() || (
+      allow create: if isEditor() || (isReader() &&
         request.resource.data.keys().hasOnly(['text', 'nom', 'estat', 'ts']) &&
         request.resource.data.text is string &&
         request.resource.data.text.size() >= 10 && request.resource.data.text.size() <= 1500 &&

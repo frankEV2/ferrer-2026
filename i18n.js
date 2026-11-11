@@ -11,8 +11,9 @@ var D = {
 "Accedir al catàleg":"Acceder al catálogo","Biografia de l'autor":"Biografía del autor","Accés privat":"Acceso privado",
 "Catàleg de l'obra escultòrica en ferro i acer. Vila-seca, 1949.":"Catálogo de la obra escultórica en hierro y acero. Vila-seca, 1949.",
 "Les peces":"Las piezas","del ferrer":"del herrero","Les peces del ferrer":"Las piezas del herrero",
-"Seleccioneu el tipus d'accés":"Seleccione el tipo de acceso","Accés d'editor":"Acceso de editor","Accés de convidat":"Acceso de invitado",
-"L'accés de convidat permet consultar tot el catàleg, sense opció d'editar, crear ni eliminar.":"El acceso de invitado permite consultar todo el catálogo, sin opción de editar, crear ni eliminar.",
+"Seleccioneu el tipus d'accés":"Seleccione el tipo de acceso","Accés d'editor":"Acceso de editor","Accés de lectura":"Acceso de lectura",
+"L'accés de lectura permet consultar tot el catàleg, sense opció d'editar, crear ni eliminar. Cada accés té la seva contrasenya.":"El acceso de lectura permite consultar todo el catálogo, sin opción de editar, crear ni eliminar. Cada acceso tiene su contraseña.",
+"Nom (opcional)":"Nombre (opcional)","Dades internes":"Datos internos",
 "Nom (consta a l'historial)":"Nombre (consta en el historial)","Contrasenya":"Contraseña","Entrar":"Entrar","← Enrere":"← Atrás",
 "Mostra la contrasenya":"Mostrar la contraseña","Amaga la contrasenya":"Ocultar la contraseña","Contrasenya incorrecta.":"Contraseña incorrecta.",
 "Coneix l'autor":"Conoce al autor","← Tornar":"← Volver","Obre el vídeo a Vimeo ↗":"Abrir el vídeo en Vimeo ↗","Font:":"Fuente:",
@@ -32,7 +33,7 @@ var D = {
 "Gestió":"Gestión","Revisió d'inventari":"Revisión de inventario","Préstecs i conservació":"Préstamos y conservación","Històries pendents":"Historias pendientes",
 "Documentació i exportació":"Documentación y exportación","Catàleg en PDF":"Catálogo en PDF","Etiquetes QR":"Etiquetas QR","Exportar CSV":"Exportar CSV",
 "Còpia de seguretat":"Copia de seguridad","Restaurar còpia":"Restaurar copia","Sessió":"Sesión","Preferències":"Preferencias",
-"Instal·lar l'aplicació":"Instalar la aplicación","Tancar sessió":"Cerrar sesión","Convidat · Només lectura":"Invitado · Solo lectura",
+"Instal·lar l'aplicació":"Instalar la aplicación","Tancar sessió":"Cerrar sesión","Només lectura":"Solo lectura",
 "Els canvis es guarden al dispositiu i es sincronitzen amb el núvol quan hi ha connexió. Cada canvi queda registrat a l'historial.":"Los cambios se guardan en el dispositivo y se sincronizan con la nube cuando hay conexión. Cada cambio queda registrado en el historial.",
 "Sincronitzat amb el núvol":"Sincronizado con la nube","Sincronitzant…":"Sincronizando…","Connectant amb el núvol…":"Conectando con la nube…","Connectant…":"Conectando…",
 "Sense connexió: es mostren les dades desades.":"Sin conexión: se muestran los datos guardados.","Sense connexió: els canvis es sincronitzaran més tard.":"Sin conexión: los cambios se sincronizarán más tarde.",
@@ -106,18 +107,23 @@ var R = [
   [/Es mostren les peces que tenen omplert el camp «Lloc per veure-la»\. Mapa © col·laboradors d'OpenStreetMap\./g,'Se muestran las piezas que tienen rellenado el campo «Lugar para verla». Mapa © colaboradores de OpenStreetMap.'],
   [/Avís:/g,'Aviso:'],[/préstecs? vençuts?/g,'préstamos vencidos'],[/a retornar aviat/g,'a devolver pronto'],[/revisions? de conservació endarrerides?/g,'revisiones de conservación atrasadas'],
   [/Important…/g,'Importando…'],[/Importació acabada/g,'Importación terminada'],[/Restaurant /g,'Restaurando '],[/Còpia completa:/g,'Copia completa:'],
-  [/fotos de detall/g,'fotos de detalle'],[/registres/g,'registros'],[/No s'ha trobat la peça/g,'No se ha encontrado la pieza'],
+  [/fotos de detall\b/g,'fotos de detalle'],[/registres/g,'registros'],[/No s'ha trobat la peça/g,'No se ha encontrado la pieza'],
   [/Canvis aplicats a/g,'Cambios aplicados a'],[/Toca un altre cop/g,'Toca otra vez'],[/Peça eliminada \(recuperable des de l'historial\)/g,'Pieza eliminada (recuperable desde el historial)'],
-  [/ · Editor$/g,' · Editor'],[/Vista: /g,'Vista: '],[/Núm\. /g,'Núm. ']
+  [/ · Editor$/g,' · Editor'],[/ · Només lectura$/g,' · Solo lectura'],[/Vista: /g,'Vista: '],[/Núm\. /g,'Núm. ']
 ];
 function tr(s){
   if(!s) return s;
   var t = s.trim();
   if(!t) return s;
   if(D.hasOwnProperty(t)) return s.replace(t, D[t]);
-  var o = s;
-  for(var i=0;i<R.length;i++) o = o.replace(R[i][0], R[i][1]);
-  return o;
+  var o = applyR(s);
+  // Una traducció ha de ser estable: si traduir el resultat el tornés a canviar, l'observador de
+  // canvis entraria en un bucle infinit (la pàgina es penjaria). En aquest cas es deixa el text com estava.
+  return applyR(o) === o ? o : s;
+}
+function applyR(s){
+  for(var i=0;i<R.length;i++) s = s.replace(R[i][0], R[i][1]);
+  return s;
 }
 window.tr = tr;
 // Contingut de l'usuari: no es tradueix mai

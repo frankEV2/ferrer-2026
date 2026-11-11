@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/34128185/README.md)
 # Les peces del ferrer
 
 Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer i escultor de Vila-seca.
@@ -19,16 +18,16 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 - **Com arribar-hi** (enllaç a Google Maps) i enllaç a àudio o vídeo, per a les peces que en tinguin.
 - **Edició múltiple**: canviar un camp (autor, sèrie, ubicació…) de moltes peces alhora.
 - **Historial de canvis** amb possibilitat de desfer.
-- **Dos nivells d'accés**: editor (pot modificar) i només lectura.
+- **Dos nivells d'accés**, cadascun amb la seva contrasenya: editor (pot modificar) i només lectura.
 - **Funciona sense connexió** i es pot instal·lar al mòbil com una app (PWA).
-- **Exportació** a CSV i a còpia de seguretat JSON, i importació de la còpia.
+- **Exportació i importació** de l'inventari en Excel.
 - Secció **Coneix l'autor**, amb biografia i vídeo.
 - **Còpia de seguretat completa** (editor): fitxes, fotos, valoracions, historial, préstecs, restauracions, documents i històries; es pot restaurar.
 - **Cerca avançada** per text, sèrie, any, estat, ubicació i situació, amb comptador de resultats.
 - **Escàner QR** amb la càmera per obrir directament la fitxa d'una peça.
 - **Revisió d'inventari**: peces verificades, absents o prestades, amb data i informe de pendents.
 - **Préstecs** i **restauracions** amb avisos de retorns i de revisions de conservació.
-- **Històries** de cada peça (els convidats en poden proposar; l'editor les aprova) i **documents privats** (certificats, factures, taxacions).
+- **Històries** de cada peça (des de l'accés de lectura se'n poden proposar; l'editor les aprova) i **documents privats** (certificats, factures, taxacions).
 - **Estadístiques** per sèrie, dècada, estat, tècnica i situació, i **mapa** de les obres (Leaflet + OpenStreetMap).
 - **Preferències**: català o castellà, aparença clara/fosca, mida de la lletra, efectes i so d'enclusa opcional.
 - Ambient de **forja**: espurnes, resplendor, targetes amb relleu 3D, visor de fotos amb zoom (en mòbils els efectes es redueixen).
@@ -36,7 +35,7 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 ## Com es fa servir
 
 1. Obre l'adreça de la web i toca **Entrar**.
-2. Escriu el teu nom (queda registrat a l'historial) i la contrasenya que t'hagin donat.
+2. Tria **Accés d'editor** o **Accés de lectura**, escriu el teu nom (queda registrat a l'historial) i la contrasenya que t'hagin donat.
 3. Toca una peça per veure'n la fitxa. Els editors poden tocar **Edita** o el botó **+** per afegir-ne de noves.
 4. Per instal·lar-la al mòbil, usa el botó **Instal·la l'app al mòbil** del final de la pàgina.
 
@@ -69,13 +68,26 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 2. Arrossega els fitxers que han canviat (si un fitxer té el mateix nom que un altre, el substitueix).
 3. **Commit changes** i espera un parell de minuts.
 4. Si es canvia alguna cosa de l'aplicació, cal pujar també `service-worker.js` perquè els mòbils detectin la versió nova.
+5. Si canvia `firestore.rules`, pujar-lo a GitHub no n'hi ha prou: cal copiar-ne el contingut a Firebase Console → Firestore Database → Regles i publicar-lo.
 
 ## Privacitat i seguretat
 
 - Les fitxes i les fotografies viuen a Firebase i només es poden veure entrant amb contrasenya, llevat de la fitxa individual que s'obre amb un QR.
+- Sense contrasenya només es pot obrir la fitxa individual d'un QR. Llistar el catàleg, proposar històries i enviar suggeriments demana sessió.
 - Les dades de valor o assegurança es guarden a part i només les veu l'editor.
+- La ubicació actual i la propietat de cada peça també es guarden a part: es veuen amb sessió (editor o lectura), mai a la fitxa pública del QR. S'activa una sola vegada des d'**Administració → Dades internes**.
+- Els comptes d'accés (`editor@escultures.app` i `lectura@escultures.app`) es creen a Firebase Console → Authentication. El registre de comptes nous ha d'estar desactivat.
 - La web porta una marca perquè els cercadors no l'indexin.
 - No s'han de pujar mai a aquest repositori contrasenyes, còpies de seguretat ni fitxers amb dades de les peces.
+
+### Ordre per publicar canvis d'accés o de regles
+
+1. Fer una **còpia de seguretat** des de l'app.
+2. Crear el compte `lectura@escultures.app` (si encara no existeix) **abans** de publicar les regles.
+3. Desactivar el registre de comptes nous (Authentication → Settings → User actions).
+4. Pujar els fitxers a GitHub.
+5. Publicar `firestore.rules` a Firebase Console.
+6. A l'app, com a editor: **Administració → Dades internes** per protegir la ubicació i la propietat.
 
 ## Crèdits
 

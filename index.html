@@ -1030,10 +1030,11 @@ header.scrolled .progress i{display:none}
     <p class="lsub">Seleccioneu el tipus d'accés</p>
     <div class="lchoice" id="lchoice">
       <button type="button" class="save" id="editorBtn">Accés d'editor</button>
-      <button type="button" class="save ghost" id="guestBtn">Accés de convidat</button>
-      <p class="lnote">L'accés de convidat permet consultar tot el catàleg, sense opció d'editar, crear ni eliminar.</p>
+      <button type="button" class="save ghost" id="readerBtn">Accés de lectura</button>
+      <p class="lnote">L'accés de lectura permet consultar tot el catàleg, sense opció d'editar, crear ni eliminar. Cada accés té la seva contrasenya.</p>
     </div>
     <form id="loginForm" autocomplete="on" style="display:none">
+      <input id="luser" type="text" autocomplete="username" tabindex="-1" aria-hidden="true" readonly style="display:none">
       <input id="lname" type="text" placeholder="Nom (consta a l'historial)" autocomplete="name" maxlength="40">
       <div class="pw" id="pw">
         <input id="lpass" type="password" placeholder="Contrasenya" autocomplete="current-password" required>
@@ -1165,6 +1166,7 @@ header.scrolled .progress i{display:none}
         <button id="modBtn">Històries pendents</button>
         <button id="reviewBtn">Revisió d'inventari</button>
         <button id="loansBtn">Préstecs i conservació</button>
+        <button id="protBtn">Dades internes</button>
         <button id="histBtn">Registre de canvis</button>
       </div>
     </details>
@@ -1297,10 +1299,10 @@ header.scrolled .progress i{display:none}
 
 const FB = window.FB || null;
 const EDITOR_EMAIL = 'editor@escultures.app';
-let guest = false;   // convidat: sense compte, només lectura
+// Compte de només lectura (amb la seva contrasenya). S'ha de crear a Firebase Console → Authentication → Users.
+const READER_EMAIL = 'lectura@escultures.app';
+let loginEmail = EDITOR_EMAIL;   // compte amb què es prova d'entrar (segons el botó triat)
 const NAME_KEY = 'inventari-nom';
-// Contrasenya d'administrador necessària per esborrar tot l'historial. Canvia-la aquí.
-const ADMIN_PASSWORD = 'admin-escultures';
 
 const FIELDS = [
   ['titol',   "Títol de l'obra / tema", 'text'],
@@ -1323,7 +1325,7 @@ const LABEL = {qr:'Etiqueta QR', destacada:'Obra destacada'}; FIELDS.forEach(f=>
 // Ordre de visualització: aquestes peces surten primer (la numeració i els QR no canvien)
 const TOP = [];   // buit: ordre numèric ascendent
 // Categories (segons el camp «Tipus»)
-const CATS = [['', 'Totes'], ['esc', 'Escultures'], ['fest', 'Figures festives'], ['cep', 'Cèptres']];
+const CATS = [['', 'Totes'], ['esc', 'Escultures'], ['fest', 'Figures festives'], ['cep', 'Ceptres']];
 function catOf(p){
   const t = norm(p.tipus) + ' ' + norm(p.serie);
   if(/ceptr/.test(t)) return 'cep';
@@ -1339,11 +1341,17 @@ const DL = {autor:1, serie:1, tipus:1, tecnica:1, ubic:1, prop:1};            //
 const BULK = ['autor','serie','tipus','any','tecnica','estat','situacio','ubic','prop'];  // camps de l'edició múltiple
 
 /* ---------- estat ---------- */
-let pieces = {};            // n -> document de Firestore
+let pieces = {};            // n -> fitxa tal com es veu a l'app (document públic + dades internes)
+let pubDocs = {};           // n -> document públic (inventari/p<n>), el que es llegeix amb el QR
+let internDocs = {};        // n -> dades internes (intern/p<n>): ubicació i propietat
+let internOn = false;       // l'editor ha activat desar les dades internes a part (intern/config)
+let internOk = false;       // el servidor deixa llegir «intern» (regles noves publicades)
+let pubFresh = false;       // l'últim llistat ve del servidor i no hi ha canvis pendents
+let loadErr = false;
 let role = null;            // 'editor' | 'viewer' | null
 let userName = '';
 let loaded = false;
-let unsubPieces = null, unsubHist = null;
+let unsubPieces = null, unsubHist = null, unsubIntern = null;
 let visibleList = [];
 let current = null, mode = 'view', swipeDir = null;
 let animateGrid = true;
@@ -1444,11 +1452,40 @@ function setSync(state, msg){
 }
 function syncError(err){
   const c = err && err.code;
-  if(c === 'permission-denied') setSync('err', guest ? 'El mode convidat necessita que les regles de Firestore permetin la lectura pública.' : 'Sense permís per fer aquesta acció (rol o regles de Firestore).');
+  if(c === 'permission-denied') setSync('err', 'Sense permís per fer aquesta acció (rol o regles de Firestore).');
   else if(c === 'not-found' || c === 'failed-precondition') setSync('err','Falta crear la base de dades Firestore al projecte de Firebase.');
   else setSync('off','Sense connexió: els canvis es sincronitzaran més tard.');
 }
 function pieceRef(n){ return FB.doc(FB.db,'inventari','p'+n); }
+/* ---------- dades internes (ubicació actual i propietat) ----------
+   La fitxa del QR és pública (inventari/p<n> es pot llegir sense sessió). Aquests camps es desen a
+   intern/p<n>, que només es llegeix amb sessió. A l'app es veuen junts: «pieces» és la vista fusionada.
+   Si el document públic encara té un valor (no migrat, o escrit per una versió antiga), mana aquell. */
+const INTERN = ['ubic','prop'];
+function internRef(n){ return FB.doc(FB.db,'intern','p'+n); }
+function blank(v){ return String(v==null?'':v).trim() === ''; }
+function withIntern(pub, x){
+  if(!x) return pub;
+  const o = Object.assign({}, pub);
+  INTERN.forEach(k=>{ if(blank(o[k]) && x[k] != null) o[k] = x[k]; });
+  return o;
+}
+function mergeView(){
+  const m = {};
+  Object.keys(pubDocs).forEach(n=>{ m[n] = withIntern(pubDocs[n], internDocs[n]); });
+  pieces = m;
+}
+// Totes les escriptures d'una fitxa passen per aquí: amb la protecció activada, els camps interns
+// van a intern/p<n> i al document públic hi queden buits.
+function setPiece(b, n, data, merge){
+  const pub = Object.assign({}, data), prv = {};
+  if(internOn) INTERN.forEach(k=>{ if(k in pub){ prv[k] = pub[k]; pub[k] = ''; } });
+  if(merge === false) b.set(pieceRef(n), pub); else b.set(pieceRef(n), pub, {merge:true});
+  if(Object.keys(prv).length) b.set(internRef(n), Object.assign({n:n, updatedAt:Date.now()}, prv), {merge:true});
+}
+function internLeft(){   // fitxes que encara tenen ubicació o propietat al document públic
+  return Object.keys(pubDocs).map(k=>pubDocs[k]).filter(v=>INTERN.some(k=>!blank(v[k])));
+}
 function privRef(n){ return FB.doc(FB.db,'privat','p'+n); }
 function histRef(){ return FB.doc(FB.collection(FB.db,'historial')); }
 function hist(batch, accio, p, extra){
@@ -1532,8 +1569,8 @@ function render(){
   if(!visibleList.length){
     let msg = 'Cap peça coincideix amb la cerca.';
     if(!list.length){
-      msg = !loaded ? 'Carregant…' :
-        (role === 'editor' ? 'Encara no hi ha peces. Importa les dades inicials amb «Importar còpia (JSON)», al final de la pàgina.' : 'Encara no hi ha peces.');
+      msg = !loaded ? (loadErr ? 'No s\'han pogut carregar les peces. Comprova la connexió o torna a entrar.' : 'Carregant…') :
+        (role === 'editor' ? 'Encara no hi ha peces. Afegeix-ne una amb el botó + o carrega l\'inventari amb «Importar Excel» o «Restaurar còpia», a «Documentació i exportació».' : 'Encara no hi ha peces.');
     }
     grid.innerHTML = '<p class="noresults">' + msg + '</p>';
     return;
@@ -1580,7 +1617,7 @@ function toggleQR(n){
   const p = find(n);
   if(!p || role !== 'editor' || !FB) return;
   const v = !hasQR(p), b = FB.writeBatch(FB.db), upd = {n:n, qr:v, updatedAt:Date.now()};
-  b.set(pieceRef(n), upd, {merge:true});
+  setPiece(b, n, upd);
   hist(b,'editar',p,{canvis:{qr:[hasQR(p)?'S\u00ed':'No', v?'S\u00ed':'No']}, info:'Etiqueta QR'});
   pieces[n] = Object.assign({}, p, upd); commit(b);
   toast(v ? 'Etiqueta QR assignada' : 'Etiqueta QR desmarcada'); render();
@@ -1590,7 +1627,7 @@ function toggleFeat(n){
   const p = find(n);
   if(!p || role !== 'editor' || !FB) return;
   const was = isFeat(p), v = was ? '' : 'Sí', b = FB.writeBatch(FB.db), upd = {n:n, destacada:v, updatedAt:Date.now()};
-  b.set(pieceRef(n), upd, {merge:true});
+  setPiece(b, n, upd);
   hist(b,'editar',p,{canvis:{destacada:[was?'Sí':'No', v?'Sí':'No']}, info:'Obra destacada'});
   pieces[n] = Object.assign({}, p, upd); commit(b);
   toast(v ? 'Afegida a Obres destacades' : 'Treta de Obres destacades'); render();
@@ -1613,7 +1650,7 @@ function cardHtml(p,i){
     const src = photo(p), t = (p.titol||'').trim(), fv = favs.has(p.n);
     const meta = [p.serie, p.any].filter(Boolean).join(' · ');
     return '<div class="card'+(selected.has(p.n)?' picked':'')+'" role="button" tabindex="0" style="--i:'+Math.min(i,14)+'" data-n="'+p.n+'">'+
-      '<div class="thumb'+(qrBtn(p)?' hq':'')+'">'+(src?'<img loading="lazy" src="'+src+'" alt="">':'<span class="none">Sense foto</span>')+
+      '<div class="thumb'+(qrBtn(p)?' hq':'')+'">'+(src?'<img loading="lazy" src="'+esc(src)+'" alt="">':'<span class="none">Sense foto</span>')+
       '<span class="num">'+p.n+'</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7"/></svg></span>'+
       qrBtn(p)+
       '<button type="button" class="fav'+(fv?' on':'')+'" data-n="'+p.n+'" aria-pressed="'+fv+'" aria-label="'+(fv?'Treu de preferides':'Afegeix a preferides')+'">'+HEART+'</button></div>'+
@@ -1693,7 +1730,7 @@ function applyBulk(){
       if(a !== vals[k]){ changes[k] = [a, vals[k]]; upd[k] = vals[k]; }
     });
     if(!Object.keys(changes).length) return;
-    b.set(pieceRef(n), upd, {merge:true});
+    setPiece(b, n, upd);
     hist(b,'editar',before,{canvis:changes, info:info});
     pieces[n] = Object.assign({}, before, upd);
     changed++; cnt += 2;
@@ -1717,7 +1754,7 @@ function viewHTML(p){
   }
   const idx = visibleList.findIndex(x=>x.n===p.n);
   const maps = (p.lloc||'').trim(), aud = safeUrl(p.audio);
-  return '<div class="hero">'+(src?'<img id="heroImg" src="'+src+'" alt="">':'<span class="none">Sense fotografia</span>')+'</div>'+
+  return '<div class="hero">'+(src?'<img id="heroImg" src="'+esc(src)+'" alt="">':'<span class="none">Sense fotografia</span>')+'</div>'+
     '<div class="gstrip" id="gstrip"></div>'+
     '<div class="dnum">Núm. '+p.n+'</div>'+
     '<h3 class="dtitle'+(t?'':' untitled')+'">'+(t?esc(t):'Sense títol')+'</h3>'+
@@ -1749,10 +1786,10 @@ function renderStrip(p){
   if(!el || current !== p.n || mode !== 'view') return;
   const imgs = [photo(p)].concat(extraIds(p).map(id=>extraCache[id])).filter(Boolean);
   if(imgs.length < 2){ el.innerHTML = ''; return; }
-  el.innerHTML = imgs.map((s,i)=>'<button type="button" class="gth'+(i===0?' on':'')+'" data-i="'+i+'"><img src="'+s+'" alt=""></button>').join('');
+  el.innerHTML = imgs.map((s,i)=>'<button type="button" class="gth'+(i===0?' on':'')+'" data-i="'+i+'"><img src="'+esc(s)+'" alt=""></button>').join('');
   Array.prototype.forEach.call(el.querySelectorAll('.gth'), b=>b.addEventListener('click', ()=>{
     const h = document.querySelector('.hero');
-    if(h) h.innerHTML = '<img id="heroImg" src="'+imgs[parseInt(b.dataset.i,10)]+'" alt="">';
+    if(h) h.innerHTML = '<img id="heroImg" src="'+esc(imgs[parseInt(b.dataset.i,10)])+'" alt="">';
     Array.prototype.forEach.call(el.querySelectorAll('.gth'), x=>x.classList.toggle('on', x===b));
   }));
 }
@@ -1773,7 +1810,7 @@ sbody.addEventListener('click', e=>{
 function formHTML(p, isNew){
   const src = photo(p);
   return '<div class="photozone">'+
-    '<div class="pv" id="pv">'+(src?'<img src="'+src+'">':'<span class="ph">Afegeix una fotografia de la peça</span>')+'</div>'+
+    '<div class="pv" id="pv">'+(src?'<img src="'+esc(src)+'">':'<span class="ph">Afegeix una fotografia de la peça</span>')+'</div>'+
     '<div class="pbtns">'+
       '<label>Fer foto<input type="file" accept="image/*" capture="environment" id="pcam"></label>'+
       '<label>Triar de la galeria<input type="file" accept="image/*" id="pgal"></label>'+
@@ -1816,7 +1853,7 @@ function wireForm(p, isNew){
         let qy = 0.8; photoData = cv.toDataURL('image/jpeg',qy);
         while(photoData.length > 700000 && qy > 0.4){ qy -= 0.1; photoData = cv.toDataURL('image/jpeg',qy); }
         cleared = false;
-        $('pv').innerHTML = '<img src="'+photoData+'">';
+        $('pv').innerHTML = '<img src="'+esc(photoData)+'">';
       };
       img.src = e.target.result;
     };
@@ -1836,7 +1873,7 @@ function wireForm(p, isNew){
   let keep = origIds.slice(), added = [];
   function renderX(){
     const th = keep.map((id,i)=>({k:'k',i:i,src:extraCache[id]})).concat(added.map((d,i)=>({k:'a',i:i,src:d})));
-    $('xphotos').innerHTML = th.map(x=>'<div class="xth">'+(x.src?'<img src="'+x.src+'" alt="">':'<span>…</span>')+'<button type="button" class="xdel" data-k="'+x.k+'" data-i="'+x.i+'" aria-label="Treu">✕</button></div>').join('');
+    $('xphotos').innerHTML = th.map(x=>'<div class="xth">'+(x.src?'<img src="'+esc(x.src)+'" alt="">':'<span>…</span>')+'<button type="button" class="xdel" data-k="'+x.k+'" data-i="'+x.i+'" aria-label="Treu">✕</button></div>').join('');
     Array.prototype.forEach.call($('xphotos').querySelectorAll('.xdel'), b=>b.addEventListener('click', ()=>{
       const i = parseInt(b.dataset.i,10);
       if(b.dataset.k==='k') keep.splice(i,1); else added.splice(i,1);
@@ -1876,7 +1913,7 @@ function wireForm(p, isNew){
     out.any = $('f_any').value.trim();
     const num = parseInt($('f_n').value,10);
     out.n = isNew ? num : p.n;
-    if(isNaN(out.n)){ alert('Cal un número de peça.'); return; }
+    if(!Number.isInteger(out.n) || out.n < 1){ alert('Cal un número de peça vàlid (1 o més).'); return; }
     delete out.valor;
     const b = FB.writeBatch(FB.db);
 
@@ -1891,7 +1928,7 @@ function wireForm(p, isNew){
       }
       const vNew = ($('f_valor')||{value:''}).value.trim();
       if(vNew){ b.set(privRef(out.n), {n:out.n, valor:vNew, updatedAt:Date.now()}, {merge:true}); priv[out.n] = {n:out.n, valor:vNew}; }
-      b.set(pieceRef(out.n), Object.assign({updatedAt:Date.now()}, out));
+      setPiece(b, out.n, Object.assign({updatedAt:Date.now()}, out), false);
       hist(b,'crear',out);
       pieces[out.n] = Object.assign({}, out);
     }else{
@@ -1916,7 +1953,7 @@ function wireForm(p, isNew){
         upd.extra = ids;
       }
       if(privChanged){ b.set(privRef(p.n), {n:p.n, valor:vNew, updatedAt:Date.now()}, {merge:true}); priv[p.n] = {n:p.n, valor:vNew}; }
-      b.set(pieceRef(p.n), upd, {merge:true});
+      setPiece(b, p.n, upd);
       const extra = {canvis:changes}; if(photoChanged || extraChanged) extra.foto = true;
       hist(b,'editar',Object.assign({}, before, out),extra);
       pieces[p.n] = Object.assign({}, before, upd);
@@ -1932,7 +1969,7 @@ function wireForm(p, isNew){
     $('delYes').addEventListener('click', ()=>{
       if(role !== 'editor' || !FB) return;
       const b = FB.writeBatch(FB.db);
-      b.set(pieceRef(p.n), {n:p.n, deleted:true, updatedAt:Date.now()}, {merge:true});
+      setPiece(b, p.n, {n:p.n, deleted:true, updatedAt:Date.now()});
       hist(b,'eliminar',p);
       pieces[p.n] = Object.assign({}, pieces[p.n], {deleted:true});
       commit(b); render(); close(); toast('Peça eliminada (recuperable des de l\'historial)');
@@ -2084,7 +2121,7 @@ function openTimeline(){
   list.forEach(p=>{ const y = yearOf(p); if(y==null) none.push(p); else (by[y] = by[y]||[]).push(p); });
   const item = p=>{
     const src = photo(p), t = (p.titol||'').trim();
-    return '<button class="tlitem" data-n="'+p.n+'"><span class="tlth">'+(src?'<img src="'+src+'" alt="" loading="lazy">':'')+'</span>'+
+    return '<button class="tlitem" data-n="'+p.n+'"><span class="tlth">'+(src?'<img src="'+esc(src)+'" alt="" loading="lazy">':'')+'</span>'+
       '<span class="tltx"><b>'+(t?esc(t):'Sense títol')+'</b><i>'+esc([p.serie, p.tecnica].filter(Boolean).join(' · '))+'</i></span></button>';
   };
   let html = '';
@@ -2109,7 +2146,7 @@ function catPage(p, pg){
   const src = photo(p), t = (p.titol||'').trim(), d = String(p.desc||'').trim();
   const h = d.length > 1400 ? 96 : d.length > 900 ? 118 : d.length > 450 ? 140 : 162;   // la foto cedeix lloc a textos llargs
   return '<section class="kp kpiece">'+catHead('Catàleg d\'obra')+
-    '<div class="kph" style="height:'+h+'mm">'+(src?'<img src="'+src+'" alt="">':'<span class="knone">Sense fotografia</span>')+'</div>'+
+    '<div class="kph" style="height:'+h+'mm">'+(src?'<img src="'+esc(src)+'" alt="">':'<span class="knone">Sense fotografia</span>')+'</div>'+
     '<div class="kpt"><span class="knum">Nº '+p.n+'</span><h2>'+(t?esc(t):'Sense títol')+'</h2>'+(isFeat(p)?'<span class="kfeat">Obra destacada</span>':'')+'</div>'+
     CAT_ORN+'<dl class="kdl">'+catRows(p)+'</dl>'+
     (d?'<p class="kdesc'+(d.length>900?' sm':'')+'">'+esc(d)+'</p>':'')+catFoot(pg)+'</section>';
@@ -2145,7 +2182,7 @@ async function printCatalog(){
   const dt = new Date().toLocaleDateString('ca',{day:'numeric',month:'long',year:'numeric'});
   let pg = 1, h = '';
   // 1. portada
-  h += '<section class="kp kdark kcover">'+(cover?'<div class="kcph"><img src="'+cover+'" alt=""></div>':'')+
+  h += '<section class="kp kdark kcover">'+(cover?'<div class="kcph"><img src="'+esc(cover)+'" alt=""></div>':'')+
     '<div class="kct"><p class="kever">Antoni Mas Castelltort</p><h1>Les peces<br>del ferrer</h1>'+CAT_ORN+
     '<p class="ksub">Catàleg d\'obra escultòrica en ferro i acer</p><p class="kmeta">Vila-seca'+(y0?' · '+(y0===y1?y0:y0+'–'+y1):'')+' · '+list.length+(list.length===1?' obra':' obres')+'</p></div></section>';
   pg++;
@@ -2167,7 +2204,7 @@ async function printCatalog(){
   for(let k=0;k<featPages;k++){
     const part = feat.slice(k*FEAT, (k+1)*FEAT);
     h += '<section class="kp kfeatp">'+catHead('Obres destacades')+(k===0?'<h2 class="kht">Obres destacades</h2>'+CAT_ORN:'')+
-      '<div class="kfg n'+part.length+'">'+part.map(p=>'<figure>'+(photo(p)?'<div class="kfi"><img src="'+photo(p)+'" alt=""></div>':'<div class="kfi"><span class="knone">Sense fotografia</span></div>')+
+      '<div class="kfg n'+part.length+'">'+part.map(p=>'<figure>'+(photo(p)?'<div class="kfi"><img src="'+esc(photo(p))+'" alt=""></div>':'<div class="kfi"><span class="knone">Sense fotografia</span></div>')+
       '<figcaption><b>Nº '+p.n+'</b>'+esc((p.titol||'').trim()||'Sense títol')+(p.any?'<span>'+esc(p.any)+'</span>':'')+'<em>pàg. '+pageOf[p.n]+'</em></figcaption></figure>').join('')+'</div>'+catFoot(pg)+'</section>';
     pg++;
   }
@@ -2184,7 +2221,7 @@ async function printCatalog(){
 }
 
 /* ---------- historial ---------- */
-const ACCIO = {crear:'Nova', editar:'Edició', eliminar:'Eliminada', desfer:'Desfet', importar:'Importació',
+const ACCIO = {crear:'Nova', editar:'Edició', eliminar:'Eliminada', desfer:'Desfet', importar:'Importació', proteccio:'Protecció',
   revisio:'Revisió', prestec:'Préstec', restauracio:'Restauració', document:'Document', historia:'Història'};
 function short(v){ v = String(v==null?'':v); if(!v) return '—'; return v.length>46 ? v.slice(0,44)+'…' : v; }
 function openHistory(){
@@ -2242,9 +2279,11 @@ async function clearHistory(){
   }
 }
 function askClearHistory(btn){
-  const pass = prompt('Contrasenya d\'administrador per esborrar tot l\'historial:');
-  if(pass === null) return;
-  if(pass !== ADMIN_PASSWORD){ alert('Contrasenya incorrecta. No s\'ha esborrat res.'); return; }
+  // Una contrasenya escrita al codi no protegeix res (el codi és públic): qui pot esborrar
+  // l'historial ho decideixen les regles de Firestore. Aquí només s'evita fer-ho per error.
+  const word = prompt('Per esborrar tot l\'historial, escriu ESBORRA:');
+  if(word === null) return;
+  if(word.trim().toUpperCase() !== 'ESBORRA'){ alert('No s\'ha escrit ESBORRA. No s\'ha esborrat res.'); return; }
   if(!confirm('ATENCIÓ: s\'esborraran TOTS els registres de l\'historial de manera definitiva.\nAquesta acció és irreversible i no es podrà desfer.\n\nVols continuar?')) return;
   btn.disabled = true; btn.textContent = 'Esborrant…'; clearHistory();
 }
@@ -2294,17 +2333,17 @@ function undo(it, btn){
     setTimeout(()=>{ if(btn.isConnected){ delete btn.dataset.sure; btn.textContent = t0; } }, 4000);
     return;
   }
-  const b = FB.writeBatch(FB.db), ref = pieceRef(it.n), base = {n:it.n, titol:it.titol};
+  const b = FB.writeBatch(FB.db), base = {n:it.n, titol:it.titol};
   if(it.accio === 'editar'){
     const upd = {n:it.n, updatedAt:Date.now()}, rev = {};
     Object.keys(it.canvis||{}).forEach(k=>{ upd[k] = it.canvis[k][0]; rev[k] = [it.canvis[k][1], it.canvis[k][0]]; });
-    b.set(ref, upd, {merge:true});
+    setPiece(b, it.n, upd);
     hist(b,'desfer',base,{canvis:rev, desfa:'editar'});
   }else if(it.accio === 'eliminar'){
-    b.set(ref, {n:it.n, deleted:false, updatedAt:Date.now()}, {merge:true});
+    setPiece(b, it.n, {n:it.n, deleted:false, updatedAt:Date.now()});
     hist(b,'desfer',base,{info:'Fitxa recuperada', desfa:'eliminar'});
   }else if(it.accio === 'crear'){
-    b.set(ref, {n:it.n, deleted:true, updatedAt:Date.now()}, {merge:true});
+    setPiece(b, it.n, {n:it.n, deleted:true, updatedAt:Date.now()});
     hist(b,'desfer',base,{info:'Fitxa amagada', desfa:'crear'});
   }else return;
   b.update(FB.doc(FB.db,'historial',it.id), {desfet:true});
@@ -2328,106 +2367,36 @@ function startData(){
       first = false;
       const m = {};
       snap.forEach(d=>{ const v = d.data(); if(typeof v.n === 'number') m[v.n] = v; });
-      pieces = m;
-      const firstLoad = !loaded; loaded = true;
-      render();
+      pubDocs = m; mergeView();
+      const firstLoad = !loaded; loaded = true; loadErr = false;
+      render(); updateBadges();
       if(firstLoad) handleHash();
     }
     const md = snap.metadata;
-    if(role === 'editor' && !md.fromCache && !md.hasPendingWrites) syncExcel();
+    pubFresh = !md.fromCache && !md.hasPendingWrites;
     if(md.hasPendingWrites) setSync('wait','Sincronitzant…');
     else if(md.fromCache) setSync(navigator.onLine?'wait':'off', navigator.onLine ? 'Connectant…' : 'Sense connexió: es mostren les dades desades.');
     else setSync('ok','Sincronitzat amb el núvol');
-  }, syncError);
-}
-/* ---------- dades de l'Excel (inventari-excel.json) ----------
-   Un cop per sessió d'editor: omple només els camps buits de cada peça i crea les que falten.
-   Mai sobreescriu un valor existent, ni toca fotos, ni recupera peces eliminades. */
-let excelDone = false;
-// Fotos de detall que va afegir la mateixa importació (mai les que ha pujat la família)
-const IMPORTED_X = /^p\d+_x/;
-function onlyImported(ex){ const ids = extraIds(ex); return ids.length > 0 && ids.every(id=>IMPORTED_X.test(id)); }
-function excelChanges(list, cur, importedUrls){
-  const out = [];
-  list.forEach(p=>{
-    if(!p || typeof p.n !== 'number') return;
-    const ex = cur[p.n];
-    if(ex && ex.deleted) return;
-    const add = {}, prev = (p.prev && typeof p.prev === 'object') ? p.prev : {};
-    Object.keys(p).forEach(k=>{
-      if(k === 'n' || k === 'photo' || k === 'extra' || !LABEL[k]) return;
-      const v = String(p[k]==null?'':p[k]).trim(), now = ex ? String(ex[k]==null?'':ex[k]).trim() : '';
-      if(!v || v === now) return;
-      // camp buit, o un text que encara és exactament el que va posar una importació anterior
-      if(!now || (prev[k] != null && now === String(prev[k]).trim())) add[k] = v;
-    });
-    // fotos per enllaç (https): només si la peça encara no en té
-    const ph = safeUrl(p.photo);
-    if(ph && !(ex && ex.photo)) add.photo = ph;
-    const xs = (Array.isArray(p.extra) ? p.extra : []).map(safeUrl).filter(Boolean);
-    let extra = [], replace = [];
-    if(xs.length && !extraIds(ex).length) extra = xs;
-    else if(xs.length && onlyImported(ex)){
-      // només es substitueixen si eren de la importació i la llista ha canviat
-      const old = (importedUrls && importedUrls[p.n]) || null;
-      if(old && old.join('\n') !== xs.join('\n')){ extra = xs; replace = extraIds(ex); }
+  }, err=>{ loadErr = true; syncError(err); render(); });
+  // dades internes: si les regles noves encara no són publicades, la lectura falla i tot segueix com abans
+  let firstI = true;
+  unsubIntern = FB.onSnapshot(FB.collection(FB.db,'intern'), {includeMetadataChanges:true}, snap=>{
+    if(!snap.metadata.fromCache) internOk = true;
+    if(firstI || snap.docChanges().length){
+      firstI = false;
+      const m = {}; let on = false;
+      snap.forEach(d=>{ const v = d.data(); if(d.id === 'config') on = v.actiu === true; else if(typeof v.n === 'number') m[v.n] = v; });
+      internDocs = m; internOn = on;
+      if(loaded){ mergeView(); render(); }
     }
-    if(Object.keys(add).length || extra.length) out.push({n:p.n, isNew:!ex, add:add, extra:extra, replace:replace, titol:(ex && ex.titol) || add.titol || ''});
-  });
-  return out;
-}
-function docOnce(ref){
-  return new Promise(res=>{
-    let un = null, done = false;
-    un = FB.onSnapshot(ref, s=>{ if(done) return; done = true; res(s.exists() ? s.data() : null); if(un) setTimeout(un,0); }, ()=>{ if(!done){ done = true; res(null); } });
-  });
-}
-async function importedExtraUrls(list){
-  const out = {};
-  for(const p of list){
-    const ex = p && pieces[p.n];
-    if(!ex || !Array.isArray(p.extra) || !onlyImported(ex)) continue;
-    const urls = [];
-    for(const id of extraIds(ex)){ const d = await docOnce(FB.doc(FB.db,'fotos',id)); urls.push(d && d.data || ''); }
-    out[p.n] = urls;
-  }
-  return out;
-}
-async function syncExcel(){
-  if(excelDone || !FB) return;
-  excelDone = true;
-  let d;
-  try{ d = await fetch('inventari-excel.json', {cache:'no-store'}).then(r=>r.ok ? r.json() : null); }catch(e){ d = null; }
-  if(!d || !Array.isArray(d.pieces) || role !== 'editor') return;
-  let iu = {};
-  try{ iu = await importedExtraUrls(d.pieces); }catch(e){ iu = {}; }
-  const ch = excelChanges(d.pieces, pieces, iu);
-  if(!ch.length) return;
-  const stamp = Date.now();
-  try{
-    for(let i=0;i<ch.length;i+=150){
-      const b = FB.writeBatch(FB.db);
-      ch.slice(i,i+150).forEach(c=>{
-        const upd = Object.assign({}, c.add, {n:c.n, updatedAt:stamp});
-        if(c.extra.length){
-          const ids = c.extra.map((u,j)=>{ const id = 'p'+c.n+'_x'+stamp.toString(36)+j; b.set(FB.doc(FB.db,'fotos',id), {n:c.n, data:u, ts:stamp}); return id; });
-          upd.extra = ids;
-          c.replace.forEach(id=>{ b.delete(FB.doc(FB.db,'fotos',id)); delete extraCache[id]; });
-        }
-        b.set(pieceRef(c.n), upd, {merge:true});
-      });
-      if(i === 0){
-        const nous = ch.filter(c=>c.isNew).length;
-        hist(b,'importar',{n:0,titol:''},{info:'Dades de l\'Excel: '+ch.length+' peces completades ('+nous+' noves)'});
-      }
-      await b.commit();
-    }
-    toast('Inventari completat amb l\'Excel ('+ch.length+' peces)');
-  }catch(err){ excelDone = false; syncError(err); }
+    updateBadges();
+    if(mode === 'prot' && sheet.classList.contains('on')) renderProt();
+  }, ()=>{ internOk = false; if(mode === 'prot' && sheet.classList.contains('on')) renderProt(); });
 }
 function stopData(){
-  excelDone = false;
   stopX();
+  if(unsubIntern){ unsubIntern(); unsubIntern = null; }
+  pubDocs = {}; internDocs = {}; internOn = false; internOk = false; pubFresh = false; loadErr = false;
   if(unsubPriv){ unsubPriv(); unsubPriv = null; }
   priv = {};
   if(unsubPieces){ unsubPieces(); unsubPieces = null; }
@@ -2438,12 +2407,12 @@ function stopData(){
 /* ---------- accés (contrasenya) ---------- */
 const CRED_ERR = ['auth/invalid-credential','auth/wrong-password','auth/user-not-found','auth/invalid-login-credentials','auth/invalid-email'];
 async function tryLogin(pw){
-  try{ await FB.signInWithEmailAndPassword(FB.auth, EDITOR_EMAIL, pw); return true; }
+  try{ await FB.signInWithEmailAndPassword(FB.auth, loginEmail, pw); return true; }
   catch(e){ if(CRED_ERR.indexOf(e && e.code) === -1) throw e; }
   return false;
 }
 function updateSession(){
-  sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : 'Convidat · Només lectura') : '';
+  sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : (userName ? userName + ' · ' : '') + 'Només lectura') : '';
 }
 if(!FB){
   loginEl.classList.remove('loading');
@@ -2473,20 +2442,19 @@ if(!FB){
     $('loginForm').style.display = 'none'; $('lchoice').style.display = '';
     lerr.textContent = ''; $('lpass').value = ''; setPwVisible(false);
   }
-  $('editorBtn').addEventListener('click', ()=>{
+  // Els dos accessos demanen contrasenya; només canvia el compte amb què s'entra.
+  function showForm(email){
+    loginEmail = email;
+    $('luser').value = email;   // perquè el gestor de contrasenyes desi cada contrasenya amb el seu compte
+    $('lname').placeholder = email === EDITOR_EMAIL ? 'Nom (consta a l\'historial)' : 'Nom (opcional)';
     $('lchoice').style.display = 'none'; $('loginForm').style.display = '';
     lerr.textContent = ''; setTimeout(()=>$('lpass').focus(), 50);
-  });
+  }
+  $('editorBtn').addEventListener('click', ()=>showForm(EDITOR_EMAIL));
+  $('readerBtn').addEventListener('click', ()=>showForm(READER_EMAIL));
   $('lback').addEventListener('click', showChoice);
-  $('guestBtn').addEventListener('click', ()=>{
-    guest = true; role = 'viewer'; userName = '';
-    document.body.classList.add('ro'); document.body.classList.remove('noauth');
-    updateSession(); animateGrid = true; startData(); render();
-  });
   FB.onAuthStateChanged(FB.auth, user=>{
-    if(user && user.email !== EDITOR_EMAIL){ FB.signOut(FB.auth); return; }   // sessions antigues de lectura
-    if(!user && guest) return;
-    if(user && guest){ guest = false; stopData(); }
+    if(user && user.email !== EDITOR_EMAIL && user.email !== READER_EMAIL){ FB.signOut(FB.auth); return; }   // cap altre compte hi té accés
     if(!user){
       const hm = /^#p(\d+)$/.exec(location.hash);
       if(hm){ location.replace('fitxa.html?p='+hm[1]); return; }
@@ -2516,12 +2484,6 @@ $('pwEye').addEventListener('mousedown', e=>e.preventDefault());   // no treu el
 $('pwEye').addEventListener('click', ()=>setPwVisible($('lpass').type === 'password'));
 $('logoutBtn').addEventListener('click', ()=>{
   if(!FB) return;
-  if(guest){
-    guest = false; role = null; stopData(); close();
-    document.body.classList.add('noauth'); document.body.classList.remove('ro');
-    render(); updateSession();
-    return;
-  }
   FB.signOut(FB.auth);
 });
 window.addEventListener('hashchange', handleHash);
@@ -2546,8 +2508,11 @@ function ptitle(n){ const p = find(n); return 'Núm. '+n+(p && (p.titol||'').tri
 function wb(fn, msg){ const b = FB.writeBatch(FB.db); fn(b); commit(b); if(msg) toast(msg); }
 function xdoc(col, id){ return FB.doc(FB.db, col, id); }
 
+// Col·leccions on pot escriure qualsevol visitant: l'editor només en carrega les més recents.
+const XLIMIT = {propostes:300, suggeriments:300};
 function subX(col){
-  unsubX.push(FB.onSnapshot(FB.collection(FB.db,col), snap=>{
+  const src = XLIMIT[col] ? FB.query(FB.collection(FB.db,col), FB.orderBy('ts','desc'), FB.limit(XLIMIT[col])) : FB.collection(FB.db,col);
+  unsubX.push(FB.onSnapshot(src, snap=>{
     const m = {}; snap.forEach(d=>{ m[d.id] = Object.assign({}, d.data(), {id:d.id}); });
     X[col] = m; Xready[col] = true;
     refreshX(); updateBadges();
@@ -2595,7 +2560,9 @@ function updateBadges(){
   setBadge('modBtn', Object.keys(X.propostes).length);
   const sp = vals('suggeriments').filter(x=>(x.estat||'pendent') === 'pendent').length;
   setBadge('sugBtn', sp);
-  const tot = a.late.length + a.due.length + a.rev.length + Object.keys(X.propostes).length + sp, ab = $('adminBadge');
+  const il = internLeft().length;
+  setBadge('protBtn', il);
+  const tot = a.late.length + a.due.length + a.rev.length + Object.keys(X.propostes).length + sp + il, ab = $('adminBadge');
   if(ab){ ab.hidden = !tot; ab.textContent = tot; }
   if(!alerted && Xready.prestecs && Xready.restauracions && loaded){
     alerted = true;
@@ -2713,7 +2680,7 @@ function renderReview(){
   const R = revGroups(), g = R.g, tot = R.list.length, done = tot - g.pend.length, c = X.revisio.campanya;
   const row = (p, quick)=>{
     const r = revState(p), src = photo(p);
-    return '<div class="rvrow"><button class="tlitem" data-act="openp" data-n="'+p.n+'"><span class="tlth">'+(src?'<img src="'+src+'" alt="" loading="lazy">':'')+'</span>'+
+    return '<div class="rvrow"><button class="tlitem" data-act="openp" data-n="'+p.n+'"><span class="tlth">'+(src?'<img src="'+esc(src)+'" alt="" loading="lazy">':'')+'</span>'+
       '<span class="tltx"><b>'+esc(ptitle(p.n))+'</b><i>'+esc([p.ubic, r ? fmtD(r.data)+' · '+(r.qui||'') : ''].filter(Boolean).join(' · '))+'</i></span></button>'+
       (quick?'<button class="rvq ok" data-act="rvq" data-n="'+p.n+'" data-v="verificada" aria-label="Verificada">✓</button><button class="rvq" data-act="rvq" data-n="'+p.n+'" data-v="absent" aria-label="Absent">✗</button>':'')+'</div>';
   };
@@ -2761,7 +2728,7 @@ function renderLoans(){
 function openMod(){ current = null; mode = 'mod'; setHead('Històries pendents', false); renderMod(); sbody.scrollTop = 0; stagger(null); show(); }
 function renderMod(){
   const pr = vals('propostes').sort((a,b)=>(a.ts||0)-(b.ts||0));
-  sbody.innerHTML = pr.length ? '<p class="bulknote">Històries enviades per convidats. Només es publiquen si les aproves.</p>' + pr.map(x=>
+  sbody.innerHTML = pr.length ? '<p class="bulknote">Històries enviades des de l\'accés de lectura. Només es publiquen si les aproves.</p>' + pr.map(x=>
     '<p class="xsub"><button class="hpiece" data-act="openp" data-n="'+x.n+'">'+esc(ptitle(x.n))+'</button></p>'+
     storyHtml(x, '<button data-act="happ" data-id="'+esc(x.id)+'" class="ok">Aprova</button><button data-act="hrej" data-id="'+esc(x.id)+'">Rebutja</button>', true)).join('')
     : '<p class="hnote">No hi ha cap història pendent d\'aprovar.</p>';
@@ -2879,6 +2846,7 @@ sbody.addEventListener('click', e=>{
   if(!ed) return;
   const pr = id ? X.propostes[id] : null;
   switch(act){
+    case 'prot': runProt(b); break;
     case 'sgf': sugFilt = b.dataset.v; renderSug(); break;
     case 'sgst': if(X.suggeriments[id]) wb(bb=>bb.update(xdoc('suggeriments',id), {estat:b.dataset.v, revisatPer:who(), revisatTs:Date.now()}), 'Suggeriment: '+(SGEST[b.dataset.v]||'').toLowerCase()); break;
     case 'sgdel': if(!confirmTap(b, 'Confirma')) return; wb(bb=>bb.delete(xdoc('suggeriments',id)), 'Suggeriment eliminat'); break;
@@ -2945,6 +2913,59 @@ $('reviewBtn').addEventListener('click', openReview);
 $('loansBtn').addEventListener('click', openLoans);
 $('modBtn').addEventListener('click', openMod);
 $('sugBtn').addEventListener('click', openSug);
+$('protBtn').addEventListener('click', openProt);
+
+/* ---- dades internes: activar la protecció i moure-hi la ubicació i la propietat ----
+   Només es fa quan l'editor ho demana, amb una còpia completa prèvia. No s'esborra cap dada:
+   a cada fitxa el valor es copia a intern/p<n> i es buida del document públic en la mateixa operació. */
+function openProt(){ if(role !== 'editor') return; current = null; mode = 'prot'; setHead('Dades internes', false); renderProt(); sbody.scrollTop = 0; stagger(null); show(); }
+function renderProt(){
+  const n = internLeft().length, done = Object.keys(internDocs).length;
+  let h = '<p class="bulknote">La fitxa que s\'obre amb el codi QR és pública. Perquè ningú hi pugui llegir on es guarda cada peça ni de qui és, la <b>ubicació actual</b> i la <b>propietat</b> es desen en un lloc a part, que només es veu amb sessió (editor o lectura). A l\'aplicació es continuen veient i editant igual.</p>'+
+    '<div class="rvstats"><div><b>'+n+'</b>Per protegir</div><div><b>'+done+'</b>Protegides</div><div><b>'+(internOn?'Sí':'No')+'</b>Activada</div><div><b>'+(internOk?'Sí':'No')+'</b>Regles a punt</div></div>';
+  if(!internOk) h += '<p class="bulknote"><b>Encara no es pot activar.</b> Primer cal publicar les regles noves de Firestore (fitxer firestore.rules) a Firebase Console. Després, torna a obrir aquesta pantalla amb connexió.</p>';
+  else if(n || !internOn) h += '<p class="bulknote">'+(n ? 'Hi ha <b>'+n+' '+(n===1?'fitxa':'fitxes')+'</b> amb la ubicació o la propietat al document públic.' : 'Cap fitxa té ara ubicació ni propietat al document públic.')+' Abans de canviar res es descarregarà una còpia de seguretat completa.</p>'+
+    '<button class="save" data-act="prot">'+(n ? 'Fes una còpia i protegeix '+n+' '+(n===1?'fitxa':'fitxes') : 'Activa la protecció')+'</button>';
+  else h += '<p class="bulknote">Tot protegit: cap fitxa té la ubicació ni la propietat al document públic.</p>';
+  sbody.innerHTML = h;
+}
+let protBusy = false;
+async function runProt(btn){
+  if(role !== 'editor' || !FB || protBusy) return;
+  if(!internOk){ alert('Primer cal publicar les regles noves de Firestore.'); return; }
+  if(!pubFresh){ alert('Cal connexió i que no hi hagi canvis pendents de sincronitzar. Espera que l\'indicador sigui verd i torna-ho a provar.'); return; }
+  if(!confirmTap(btn, 'Toca un altre cop per confirmar')) return;
+  protBusy = true;
+  if(!(await fullBackup(btn))){ protBusy = false; alert('No s\'ha pogut fer la còpia prèvia. Per seguretat, no s\'ha canviat res.'); return; }
+  const left = internLeft(), CH = 100, t = Date.now();
+  let done = 0;
+  setSync('wait','Protegint les dades internes…');
+  try{
+    for(let i=0;i<Math.max(left.length,1);i+=CH){
+      const b = FB.writeBatch(FB.db);
+      if(i === 0){
+        b.set(FB.doc(FB.db,'intern','config'), {actiu:true, ts:t, qui:who()}, {merge:true});
+        hist(b,'proteccio',{n:0,titol:''},{info:'Ubicació i propietat desades a part: '+left.length+(left.length===1?' fitxa':' fitxes')});
+      }
+      left.slice(i,i+CH).forEach(v=>{
+        const prv = {n:v.n, updatedAt:t}, pub = {n:v.n};
+        INTERN.forEach(k=>{ if(!blank(v[k])){ prv[k] = v[k]; pub[k] = ''; } });
+        b.set(internRef(v.n), prv, {merge:true});
+        b.set(pieceRef(v.n), pub, {merge:true});
+      });
+      await b.commit();
+      done = Math.min(i+CH, left.length);
+      if(left.length > CH) toast('Protegint… '+done+' de '+left.length);
+    }
+    setSync('ok','Sincronitzat amb el núvol');
+    toast(left.length ? 'Dades internes protegides ('+left.length+(left.length===1?' fitxa)':' fitxes)') : 'Protecció activada');
+  }catch(err){
+    syncError(err);
+    alert('La protecció s\'ha aturat ('+done+' de '+left.length+' fitxes; '+((err&&err.code)||'error')+'). No s\'ha perdut res: cada tanda es desa sencera o no es desa. Torna-ho a provar.');
+  }
+  protBusy = false;
+  if(mode === 'prot' && sheet.classList.contains('on')) renderProt();
+}
 
 /* ---------- exportar / importar ---------- */
 /* ---------- Excel (.xlsx): exportar / importar ----------
@@ -2952,13 +2973,16 @@ $('sugBtn').addEventListener('click', openSug);
    La importació és acumulativa: crea les peces noves i actualitza només les cel·les no buides que canvien.
    Mai elimina, renumera ni toca fotos, historial o camps que no siguin al full. */
 // xlsx-js-style: SheetJS amb suport d'estils (per mantenir el format visual de la plantilla).
+// «integrity»: el navegador només executa el fitxer si és exactament el que es va revisar.
+// Si es canvia la versió, cal tornar a calcular l'empremta (sha384).
 const XLSX_URL = 'https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js';
+const XLSX_SRI = 'sha384-OUW9euuUyxyHcAhTqbhI+Iyb8LMssXt/cpz0yXhs9UWG2/R/uaWdakx/4cfww7Vb';
 let xlsxP = null;
 function loadXLSX(){
   if(window.XLSX) return Promise.resolve();
   if(xlsxP) return xlsxP;
   xlsxP = new Promise((res, rej)=>{
-    const s = document.createElement('script'); s.src = XLSX_URL; s.onload = res; s.onerror = ()=>{ xlsxP = null; rej(new Error('xlsx')); };
+    const s = document.createElement('script'); s.src = XLSX_URL; s.integrity = XLSX_SRI; s.crossOrigin = 'anonymous'; s.onload = res; s.onerror = ()=>{ xlsxP = null; rej(new Error('xlsx')); };
     document.head.appendChild(s);
   });
   return xlsxP;
@@ -3074,7 +3098,7 @@ async function applyExcel(r, file){
     for(let i=0;i<all.length;i+=CH){
       const b = FB.writeBatch(FB.db);
       all.slice(i,i+CH).forEach(c=>{
-        b.set(pieceRef(c.n), Object.assign({}, c.set, {n:c.n, updatedAt:t}), {merge:true});
+        setPiece(b, c.n, Object.assign({}, c.set, {n:c.n, updatedAt:t}));
         if(c.nou) hist(b,'crear',{n:c.n, titol:c.titol},{info:'Creada des de l\'Excel'});
         else hist(b,'editar',{n:c.n, titol:c.titol},{canvis:c.canvis});
       });
@@ -3139,9 +3163,19 @@ async function fullBackup(btn){
   backingUp = true; const t0 = btn.textContent; btn.textContent = 'Preparant la còpia…'; btn.disabled = true;
   setSync('wait','Preparant la còpia de seguretat…');
   try{
-    const cols = ['inventari','privat','fotos','historial'].concat(XCOLS), out = {};
+    const cols = ['inventari','privat','fotos','historial','intern'].concat(XCOLS), out = {};
     let anyCache = false;
-    for(const c of cols){ const r = await readCollection(c); out[c] = r.rows; anyCache = anyCache || r.fromCache; }
+    for(const c of cols){
+      let r;
+      try{ r = await readCollection(c); }
+      catch(e){
+        // «intern» només pot faltar si encara no existeix (regles antigues i protecció no activada).
+        // Qualsevol altre error atura la còpia: una còpia sense ubicació ni propietat no seria completa.
+        if(c !== 'intern' || internOn || internOk || !e || e.code !== 'permission-denied') throw e;
+        r = {rows:[], fromCache:false};
+      }
+      out[c] = r.rows; anyCache = anyCache || r.fromCache;
+    }
     const strip = a=>a.map(x=>{ const o = Object.assign({}, x); delete o._id; return o; });
     const withId = a=>a.map(x=>{ const o = Object.assign({}, x); o.id = o._id; delete o._id; return o; });
     const data = {
@@ -3155,7 +3189,7 @@ async function fullBackup(btn){
     const ph = out.inventari.map(x=>String(x.photo||'')).filter(Boolean);
     const ext = ph.filter(u=>!/^data:/.test(u)).length + out.fotos.filter(x=>x.data && !/^data:/.test(x.data)).length;
     data.contingut = {
-      inclou:'Fitxes completes amb identificadors (inventari/p<Nº>), fotos principals i de detall incrustades, dades privades (valoració/assegurança), historial, préstecs, restauracions, documents, històries, propostes, suggeriments i revisió d\'inventari.',
+      inclou:'Fitxes completes amb identificadors (inventari/p<Nº>), fotos principals i de detall incrustades, dades internes (ubicació i propietat), dades privades (valoració/assegurança), historial, préstecs, restauracions, documents, històries, propostes, suggeriments i revisió d\'inventari.',
       fora:'Comptes d\'accés (Firebase Authentication), preferides i preferències de cada dispositiu, i el codi de la web (és a GitHub).',
       fotosIncrustades: ph.length - ph.filter(u=>!/^data:/.test(u)).length + out.fotos.filter(x=>x.data && /^data:/.test(x.data)).length,
       fotosNomesEnllac: ext
@@ -3175,7 +3209,7 @@ async function fullBackup(btn){
 }
 $('backupBtn').addEventListener('click', e=>{
   if(role === 'editor'){ fullBackup(e.currentTarget); return; }
-  // convidat: només la informació pública del catàleg
+  // accés de lectura: només el que aquest compte pot veure del catàleg
   const data = {version:2, exported:new Date().toISOString(), pieces:Object.keys(pieces).map(k=>pieces[k])};
   saveBlob('inventari-copia.json', new Blob([JSON.stringify(data)], {type:'application/json'}));
 });
@@ -3191,6 +3225,10 @@ function parseImport(d){
   if(!list.length) throw new Error('buit');
   const okId = x=>x && typeof x.id === 'string' && /^[A-Za-z0-9_-]{1,120}$/.test(x.id);
   const arr = k=>Array.isArray(d[k]) ? d[k].filter(okId) : [];
+  // còpies fetes amb la protecció activada: la ubicació i la propietat venen a part i es tornen a ajuntar a cada fitxa
+  const im = {};
+  (Array.isArray(d.intern) ? d.intern : []).forEach(x=>{ if(x && typeof x.n === 'number') im[x.n] = x; });
+  list = list.map(p=>withIntern(p, im[p.n]));
   const r = {list:list, seed:seed, full:!!d.full};
   ['privat','fotos','historial'].concat(XCOLS).forEach(k=>{ r[k] = arr(k); });
   return r;
@@ -3226,9 +3264,9 @@ async function runImport(list, seed, parsed){
           const ex = pieces[p.n] || {};
           const doc = Object.assign({}, p, ex, {n:p.n, updatedAt:stamp});
           if(p.photo && !ex.photo) doc.photo = p.photo;   // omple les fotos que falten, sense tocar la resta
-          b.set(pieceRef(p.n), doc);
+          setPiece(b, p.n, doc, false);
         }else{
-          b.set(pieceRef(p.n), Object.assign({}, p, {n:p.n, updatedAt:stamp}), {merge:true});
+          setPiece(b, p.n, Object.assign({}, p, {n:p.n, updatedAt:stamp}));
         }
       });
       if(i === 0) hist(b,'importar',{n:0,titol:''},{info: total+' peces importades'});
@@ -3405,9 +3443,10 @@ $('serieChips').addEventListener('click', e=>{
   const box = $('scan'), video = $('scanVideo'), msg = $('scanMsg');
   let stream = null, timer = null, detector = null, cv = null, busy = false;
   const JSQR = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
+  const JSQR_SRI = 'sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx';
   function loadJsQR(){
     if(window.jsQR) return Promise.resolve();
-    return new Promise((res, rej)=>{ const s = document.createElement('script'); s.src = JSQR; s.async = true; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+    return new Promise((res, rej)=>{ const s = document.createElement('script'); s.src = JSQR; s.integrity = JSQR_SRI; s.crossOrigin = 'anonymous'; s.async = true; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   }
   // Accepta els QR de les etiquetes (…/fitxa.html?p=12) i els enllaços interns (#p12)
   function pieceFrom(text){
@@ -3794,8 +3833,10 @@ function loadLeaflet(){
   if(window.L) return Promise.resolve();
   if(leafP) return leafP;
   leafP = new Promise((res, rej)=>{
-    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = LEAF+'leaflet.min.css'; document.head.appendChild(css);
-    const s = document.createElement('script'); s.src = LEAF+'leaflet.min.js'; s.onload = res; s.onerror = ()=>{ leafP = null; rej(new Error('leaflet')); };
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = LEAF+'leaflet.min.css';
+    css.integrity = 'sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb'; css.crossOrigin = 'anonymous'; document.head.appendChild(css);
+    const s = document.createElement('script'); s.src = LEAF+'leaflet.min.js';
+    s.integrity = 'sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO'; s.crossOrigin = 'anonymous'; s.onload = res; s.onerror = ()=>{ leafP = null; rej(new Error('leaflet')); };
     document.head.appendChild(s);
   });
   return leafP;

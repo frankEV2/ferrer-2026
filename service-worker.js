@@ -1,7 +1,7 @@
 // Service worker — xarxa primer (així les actualitzacions arriben i "arrossegar per
 // refrescar" carrega la versió nova) i, si no hi ha connexió, l'app es serveix de la caché.
 // Puja la versió (CACHE_NAME) cada cop que publiquis canvis.
-const CACHE_NAME = 'inventari-escultures-v35';
+const CACHE_NAME = 'inventari-escultures-v37';
 const APP_SHELL = [
   './',
   './index.html',
@@ -23,8 +23,10 @@ const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
+    // Fitxer a fitxer: si un falla (p. ex. no s'ha pujat), la instal·lació continua
+    // i aquell fitxer es desarà la primera vegada que es demani per xarxa.
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then((cache) => Promise.all(APP_SHELL.map((u) => cache.add(u).catch(() => {}))))
       .then(() => self.skipWaiting())
   );
 });
