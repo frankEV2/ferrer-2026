@@ -610,6 +610,87 @@ body.sel .thumb.hq .num{left:8px}
   .catpage .cd{margin-top:6mm;font-size:11pt;line-height:1.55;white-space:pre-wrap}
 }
 
+/* ---- catàleg PDF artístic (A4, una secció = una pàgina) ---- */
+@page kat{size:A4;margin:0}
+@media print{
+  body.printing-art #printArea{font-family:Inter,sans-serif;color:#2a2622;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.printing-art #printArea .kp{page:kat;position:relative;box-sizing:border-box;width:210mm;height:296.6mm;overflow:hidden;break-after:page;break-inside:avoid;
+    padding:22mm 18mm 20mm;background:#f3eee5;
+    background-image:radial-gradient(120% 70% at 50% 0%,rgba(255,255,255,.55),transparent 60%),linear-gradient(180deg,transparent 96%,rgba(120,80,40,.06))}
+  body.printing-art #printArea .kp:last-child{break-after:auto}
+  body.printing-art .kp::before{content:"";position:absolute;inset:8mm;border:.4pt solid rgba(140,96,52,.35);pointer-events:none}
+  body.printing-art .kh{position:absolute;top:12mm;left:18mm;right:18mm;display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:8pt;letter-spacing:.28em;text-transform:uppercase;color:#8a6a48}
+  body.printing-art .kf{position:absolute;bottom:11mm;left:18mm;right:18mm;display:flex;justify-content:space-between;align-items:center;font-size:7.5pt;letter-spacing:.12em;text-transform:uppercase;color:#8d8478}
+  body.printing-art .kf b{font-family:'Barlow Condensed',sans-serif;font-size:10pt;color:#a5582a;letter-spacing:.1em}
+  body.printing-art .ko{display:block;width:62mm;height:4mm;margin:4mm 0 6mm;fill:#b06a33;stroke:#b06a33;stroke-width:1}
+  body.printing-art .kever{margin:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:10pt;letter-spacing:.42em;text-transform:uppercase;color:#d79a5c}
+  body.printing-art .kever.cu{color:#a5582a}
+  body.printing-art .kht{margin:2mm 0 0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:34pt;line-height:.95;text-transform:uppercase;color:#24201c}
+  body.printing-art .knone{font-size:9pt;letter-spacing:.2em;text-transform:uppercase;color:#8d8478}
+  /* fosc: portada i contraportada */
+  body.printing-art #printArea .kdark{padding:0;color:#efe6d8;background:#16130f;
+    background-image:radial-gradient(90% 60% at 50% 100%,rgba(196,87,27,.22),transparent 70%),repeating-linear-gradient(90deg,rgba(255,255,255,.015) 0 1px,transparent 1px 3px),linear-gradient(160deg,#2a2621,#121010 70%)}
+  body.printing-art .kdark::before{border-color:rgba(214,150,90,.38)}
+  body.printing-art .kcph{position:absolute;inset:0 0 38%;overflow:hidden;background:#0d0b09}
+  body.printing-art .kcph img{width:100%;height:100%;object-fit:cover;display:block;opacity:.92}
+  body.printing-art .kcph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,15,12,.15) 40%,#16130f 99%)}
+  body.printing-art .kct{position:absolute;left:20mm;right:20mm;bottom:26mm}
+  body.printing-art .kcover h1{margin:3mm 0 0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:64pt;line-height:.88;text-transform:uppercase;letter-spacing:.01em;
+    color:#f2e7d6;text-shadow:0 0 18px rgba(232,121,42,.25)}
+  body.printing-art .kcover .ko{width:80mm}
+  body.printing-art .ksub{margin:0;font-family:Fraunces,Georgia,serif;font-style:italic;font-size:14pt;color:#e0d2bd}
+  body.printing-art .kmeta{margin:3mm 0 0;font-size:8.5pt;letter-spacing:.3em;text-transform:uppercase;color:#a99a85}
+  body.printing-art .kback{display:flex;align-items:center;justify-content:center;text-align:center}
+  body.printing-art .kback .kmark{width:22mm;height:22mm;fill:#c77b3b;stroke:#c77b3b;stroke-width:2;stroke-linejoin:round;display:block;margin:0 auto 6mm}
+  body.printing-art .kback h2{margin:0;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30pt;letter-spacing:.06em;text-transform:uppercase}
+  body.printing-art .kback .ko{margin:5mm auto 6mm}
+  body.printing-art .kback p{margin:0;font-family:Fraunces,Georgia,serif;font-size:12pt;line-height:1.6;color:#e0d2bd}
+  body.printing-art .kback small{display:block;margin-top:8mm;font-size:7.5pt;letter-spacing:.3em;text-transform:uppercase;color:#8f826f}
+  /* introducció */
+  body.printing-art .kbio{columns:2;column-gap:9mm;font-family:Fraunces,Georgia,serif;font-size:10.5pt;line-height:1.6;color:#3a332c}
+  body.printing-art .kbio p{margin:0 0 3.5mm;break-inside:avoid-column}
+  body.printing-art .kbio p:first-child::first-letter{float:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:38pt;line-height:.8;margin:1.5mm 2mm 0 0;color:#a5582a}
+  body.printing-art .kabout{margin-top:9mm;padding:7mm 8mm;border-left:1.2mm solid #a5582a;background:rgba(165,88,42,.06);font-size:9.5pt;line-height:1.6}
+  body.printing-art .kabout p{margin:2mm 0 0}
+  body.printing-art .kdate{color:#8d8478;font-size:8pt;letter-spacing:.14em;text-transform:uppercase}
+  /* índex */
+  body.printing-art .kixc{display:grid;grid-template-columns:1fr 1fr;gap:0 9mm}
+  body.printing-art .kix{list-style:none;margin:0;padding:0}
+  body.printing-art .kix li{display:flex;align-items:baseline;gap:2.5mm;padding:1.55mm 0;border-bottom:.3pt dotted #b9ab97;font-size:9pt}
+  body.printing-art .kix b{flex:0 0 9mm;font-family:'Barlow Condensed',sans-serif;font-size:10pt;color:#a5582a}
+  body.printing-art .kix span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  body.printing-art .kix i{font-style:normal;color:#c77b3b;font-size:7pt}
+  body.printing-art .kix em{font-style:normal;color:#8d8478;font-variant-numeric:tabular-nums}
+  /* obres destacades */
+  body.printing-art .kfg{display:grid;grid-template-columns:1fr 1fr;gap:7mm}
+  body.printing-art .kfg.n1{grid-template-columns:1fr}
+  body.printing-art .kfg figure{margin:0}
+  body.printing-art .kfi{height:92mm;background:#1b1815;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 .5mm rgba(199,123,59,.5)}
+  body.printing-art .kfg.n1 .kfi,body.printing-art .kfg.n2 .kfi{height:150mm}
+  body.printing-art .kfg.n2{grid-template-columns:1fr}
+  body.printing-art .kfg.n2 .kfi{height:88mm}
+  body.printing-art .kfi img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+  body.printing-art .kfg figcaption{margin-top:2.5mm;font-family:Fraunces,Georgia,serif;font-size:11pt;display:flex;flex-wrap:wrap;gap:0 2.5mm;align-items:baseline}
+  body.printing-art .kfg figcaption b{font-family:'Barlow Condensed',sans-serif;color:#a5582a;letter-spacing:.06em}
+  body.printing-art .kfg figcaption span,body.printing-art .kfg figcaption em{font-family:Inter,sans-serif;font-style:normal;font-size:8pt;color:#8d8478}
+  body.printing-art .kfg figcaption em{margin-left:auto}
+  /* fitxa de cada obra */
+  body.printing-art .kph{display:flex;align-items:center;justify-content:center;background:#1b1815;
+    background-image:radial-gradient(80% 70% at 50% 35%,#3a332b,#161310 75%);box-shadow:inset 0 0 0 .6mm rgba(199,123,59,.45),0 1mm 0 #c9bba5}
+  body.printing-art .kph img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+  body.printing-art .kpt{margin-top:7mm;display:flex;align-items:baseline;flex-wrap:wrap;gap:1mm 5mm}
+  body.printing-art .knum{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15pt;letter-spacing:.08em;color:#a5582a}
+  body.printing-art .kpt h2{margin:0;flex:1 1 60%;font-family:Fraunces,Georgia,serif;font-weight:500;font-size:22pt;line-height:1.1;color:#24201c}
+  body.printing-art .kfeat{font-size:7pt;letter-spacing:.24em;text-transform:uppercase;color:#a5582a;border:.4pt solid #a5582a;padding:.8mm 2.4mm;border-radius:9mm}
+  body.printing-art .kpiece .ko{margin:3mm 0 4mm}
+  body.printing-art .kdl{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:0 9mm}
+  body.printing-art .kdl div{display:flex;gap:3mm;padding:1.6mm 0;border-top:.3pt solid #d4c7b3;break-inside:avoid}
+  body.printing-art .kdl dt{flex:0 0 30mm;font-size:7pt;letter-spacing:.16em;text-transform:uppercase;color:#8d8478;padding-top:.6mm}
+  body.printing-art .kdl dd{margin:0;font-size:9.5pt;line-height:1.35;color:#2a2622}
+  body.printing-art .kdesc{margin:5mm 0 0;font-family:Fraunces,Georgia,serif;font-size:10pt;line-height:1.55;color:#3a332c;white-space:pre-wrap;columns:2;column-gap:9mm}
+  body.printing-art .kdesc.sm{font-size:8.8pt;line-height:1.45}
+}
+
 .hclear{display:block;width:100%;margin:0 0 14px;padding:11px 16px;border-radius:99px;border:1px solid color-mix(in srgb,var(--alert) 45%,transparent);background:transparent;color:var(--alert);font-size:.82rem;cursor:pointer}
 .hclear:disabled{opacity:.5}
 
@@ -2011,24 +2092,92 @@ function openTimeline(){
   if(window.Forja) window.Forja.timeline(sbody);
   sbody.scrollTop = 0; stagger(null); show();
 }
-function catPage(p){
-  const src = photo(p), t = (p.titol||'').trim();
-  const rows = ['autor','serie','tipus','any','tecnica','dim','lloc'].map(k=>{
-    const v = String(p[k]||'').trim();
-    return v ? '<div class="cr"><span>'+esc(LABEL[k]||k)+'</span><b>'+esc(v)+'</b></div>' : '';
-  }).join('');
-  return '<section class="catpage">'+(src?'<img src="'+src+'" alt="">':'')+
-    '<div class="cn">Núm. '+p.n+'</div><h2>'+(t?esc(t):'Sense títol')+'</h2>'+rows+
-    ((p.desc||'').trim()?'<p class="cd">'+esc(p.desc)+'</p>':'')+'</section>';
+/* ---------- catàleg en PDF: edició artística (A4) ----------
+   Cada <section> és exactament una pàgina A4. Només es fan servir dades i fotos reals de les fitxes. */
+const CAT_ORN = '<svg class="ko" viewBox="0 0 240 14" aria-hidden="true"><line x1="0" y1="7" x2="98" y2="7"/><line x1="142" y1="7" x2="240" y2="7"/><circle cx="106" cy="7" r="1.8"/><circle cx="134" cy="7" r="1.8"/><path d="M120 1.5l5.5 5.5-5.5 5.5-5.5-5.5z"/></svg>';
+const CAT_MARK = '<svg class="kmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M10 26h34c6 0 10-3 12-6v10c-4 3-8 4-12 4H40v6l8 10H18l8-10v-6H18c-4 0-8-3-8-8z"/><path d="M22 14l10-6 10 6" fill="none"/></svg>';
+function catFoot(n){ return '<footer class="kf"><span>Les peces del ferrer · Antoni Mas Castelltort</span><b>'+n+'</b></footer>'; }
+function catHead(r){ return '<header class="kh"><span>Les peces del ferrer</span><span>'+r+'</span></header>'; }
+function catRows(p){
+  const F = [['any','Any'],['tecnica','Materials i tècnica'],['dim','Dimensions'],['ubic','Ubicació'],['lloc','Lloc'],['serie','Sèrie'],['tipus','Tipus'],['autor','Autor/a']];
+  return F.map(f=>{ const v = String(p[f[0]]||'').trim(); return v ? '<div><dt>'+f[1]+'</dt><dd>'+esc(v)+'</dd></div>' : ''; }).join('');
 }
-function printCatalog(){
+function catPage(p, pg){
+  const src = photo(p), t = (p.titol||'').trim(), d = String(p.desc||'').trim();
+  const h = d.length > 1400 ? 96 : d.length > 900 ? 118 : d.length > 450 ? 140 : 162;   // la foto cedeix lloc a textos llargs
+  return '<section class="kp kpiece">'+catHead('Catàleg d\'obra')+
+    '<div class="kph" style="height:'+h+'mm">'+(src?'<img src="'+src+'" alt="">':'<span class="knone">Sense fotografia</span>')+'</div>'+
+    '<div class="kpt"><span class="knum">Nº '+p.n+'</span><h2>'+(t?esc(t):'Sense títol')+'</h2>'+(isFeat(p)?'<span class="kfeat">Obra destacada</span>':'')+'</div>'+
+    CAT_ORN+'<dl class="kdl">'+catRows(p)+'</dl>'+
+    (d?'<p class="kdesc'+(d.length>900?' sm':'')+'">'+esc(d)+'</p>':'')+catFoot(pg)+'</section>';
+}
+function catBio(){
+  const ps = Array.prototype.slice.call(document.querySelectorAll('#author .au-body > p')).filter(x=>!/au-(eyebrow|hint)/.test(x.className)).slice(0,3);
+  return ps.map(x=>'<p>'+esc(x.textContent.trim())+'</p>').join('');
+}
+function catPhotoOf(list){
+  const f = list.find(p=>isFeat(p) && photo(p)) || list.find(p=>photo(p));
+  return f ? photo(f) : null;
+}
+function waitImages(root, ms){
+  const imgs = Array.prototype.slice.call(root.querySelectorAll('img'));
+  return Promise.race([
+    Promise.all(imgs.map(i=>i.complete ? 0 : new Promise(r=>{ i.onload = i.onerror = r; }))),
+    new Promise(r=>setTimeout(r, ms))
+  ]);
+}
+let catBusy = false;
+async function printCatalog(){
+  if(catBusy) return;
   const list = visibleList.length ? visibleList : listAll();
   if(!list.length){ toast('No hi ha peces per al catàleg'); return; }
+  catBusy = true; toast('Preparant el catàleg…');
+  const feat = list.filter(isFeat), cover = catPhotoOf(list);
+  const yrs = list.map(yearOf).filter(Boolean), y0 = yrs.length ? Math.min.apply(null, yrs) : null, y1 = yrs.length ? Math.max.apply(null, yrs) : null;
+  const IDX = 26;                                           // obres per columna a l'índex (2 columnes per pàgina)
+  const idxPages = Math.ceil(list.length / (IDX*2));
+  const FEAT = 4, featPages = Math.ceil(feat.length / FEAT);
+  const first = 3 + idxPages + featPages;                   // primera pàgina de les fitxes
+  const pageOf = {}; list.forEach((p,i)=>{ pageOf[p.n] = first + i; });
+  const dt = new Date().toLocaleDateString('ca',{day:'numeric',month:'long',year:'numeric'});
+  let pg = 1, h = '';
+  // 1. portada
+  h += '<section class="kp kdark kcover">'+(cover?'<div class="kcph"><img src="'+cover+'" alt=""></div>':'')+
+    '<div class="kct"><p class="kever">Antoni Mas Castelltort</p><h1>Les peces<br>del ferrer</h1>'+CAT_ORN+
+    '<p class="ksub">Catàleg d\'obra escultòrica en ferro i acer</p><p class="kmeta">Vila-seca'+(y0?' · '+(y0===y1?y0:y0+'–'+y1):'')+' · '+list.length+(list.length===1?' obra':' obres')+'</p></div></section>';
+  pg++;
+  // 2. introducció
+  h += '<section class="kp kintro">'+catHead('Introducció')+'<p class="kever cu">L\'autor</p><h2 class="kht">Antoni Mas Castelltort</h2>'+CAT_ORN+
+    '<div class="kbio">'+catBio()+'</div>'+
+    '<div class="kabout"><p class="kever cu">Aquest catàleg</p><p>Recull '+list.length+(list.length===1?' obra':' obres')+' de l\'inventari de <i>Les peces del ferrer</i>'+(y0?', datades entre '+(y0===y1?y0:y0+' i '+y1):'')+
+    (feat.length?', '+feat.length+(feat.length===1?' de les quals destacada':' de les quals destacades'):'')+'. Les obres segueixen la numeració de l\'inventari. Les dades i fotografies provenen de les fitxes del catàleg en línia; els camps sense informació s\'ometen.</p><p class="kdate">Edició del '+dt+'</p></div>'+catFoot(pg)+'</section>';
+  pg++;
+  // 3. índex
+  for(let k=0;k<idxPages;k++){
+    const part = list.slice(k*IDX*2, (k+1)*IDX*2);
+    const col = c=>'<ol class="kix">'+c.map(p=>'<li><b>'+p.n+'</b><span>'+esc((p.titol||'').trim()||'Sense títol')+(isFeat(p)?' <i>★</i>':'')+'</span><em>'+pageOf[p.n]+'</em></li>').join('')+'</ol>';
+    h += '<section class="kp kindex">'+catHead('Índex d\'obres')+(k===0?'<h2 class="kht">Índex d\'obres</h2>'+CAT_ORN:'')+
+      '<div class="kixc">'+col(part.slice(0,IDX))+col(part.slice(IDX))+'</div>'+catFoot(pg)+'</section>';
+    pg++;
+  }
+  // 4. obres destacades
+  for(let k=0;k<featPages;k++){
+    const part = feat.slice(k*FEAT, (k+1)*FEAT);
+    h += '<section class="kp kfeatp">'+catHead('Obres destacades')+(k===0?'<h2 class="kht">Obres destacades</h2>'+CAT_ORN:'')+
+      '<div class="kfg n'+part.length+'">'+part.map(p=>'<figure>'+(photo(p)?'<div class="kfi"><img src="'+photo(p)+'" alt=""></div>':'<div class="kfi"><span class="knone">Sense fotografia</span></div>')+
+      '<figcaption><b>Nº '+p.n+'</b>'+esc((p.titol||'').trim()||'Sense títol')+(p.any?'<span>'+esc(p.any)+'</span>':'')+'<em>pàg. '+pageOf[p.n]+'</em></figcaption></figure>').join('')+'</div>'+catFoot(pg)+'</section>';
+    pg++;
+  }
+  // 5. catàleg complet
+  list.forEach(p=>{ h += catPage(p, pg); pg++; });
+  // 6. contraportada
+  h += '<section class="kp kdark kback"><div>'+CAT_MARK+'<h2>Les peces del ferrer</h2>'+CAT_ORN+'<p>Antoni Mas Castelltort<br>Ferrer i escultor · Vila-seca</p><small>Catàleg d\'obra · '+dt+'</small></div></section>';
   const area = $('printArea');
-  area.innerHTML = '<section class="catcover"><div><p>Catàleg d\'obra</p><h1>Antoni Mas Castelltort</h1><span>Ferrer i escultor · Vila-seca</span><small>'+list.length+(list.length===1?' peça':' peces')+'</small></div></section>'+list.map(catPage).join('');
-  document.body.classList.add('printing-cat');
-  window.addEventListener('afterprint', ()=>{ document.body.classList.remove('printing-cat'); area.innerHTML = ''; }, {once:true});
-  setTimeout(()=>window.print(), 80);
+  area.innerHTML = h;
+  document.body.classList.add('printing-cat','printing-art');
+  window.addEventListener('afterprint', ()=>{ document.body.classList.remove('printing-cat','printing-art'); area.innerHTML = ''; catBusy = false; }, {once:true});
+  await waitImages(area, 12000);
+  setTimeout(()=>{ window.print(); setTimeout(()=>{ catBusy = false; }, 1500); }, 120);
 }
 
 /* ---------- historial ---------- */
