@@ -90,7 +90,8 @@ var D = {
 "Doble clic o pessic per ampliar":"Doble clic o pellizco para ampliar","Fotografia":"Fotografía",
 "Apunta la càmera a l'etiqueta QR de la peça":"Apunta la cámara a la etiqueta QR de la pieza","Obrint la càmera…":"Abriendo la cámara…","Escàner de codis QR":"Escáner de códigos QR",
 "Aquest codi QR no és d'una peça del catàleg":"Este código QR no es de una pieza del catálogo","Instal·la l'app":"Instala la app","Preparant la còpia…":"Preparando la copia…",
-"Omple almenys un camp.":"Rellena al menos un campo.","Etiqueta QR desmarcada":"Etiqueta QR desmarcada"
+"Omple almenys un camp.":"Rellena al menos un campo.","Imprimir catàleg":"Imprimir catálogo","Preparant el PDF…":"Preparando el PDF…",
+"Compartir o desar…":"Compartir o guardar…","Descarregar el PDF":"Descargar el PDF","Catàleg descarregat":"Catálogo descargado","Catàleg llest":"Catálogo listo","Catàleg en PDF ":"Catálogo en PDF ","Etiqueta QR desmarcada":"Etiqueta QR desmarcada"
 };
 
 // Fragments de textos dinàmics (s'apliquen dins del text, de més llarg a més curt)
@@ -106,6 +107,8 @@ var R = [
   [/sense localitzar/g,'sin localizar'],[/ de (\d+) peces amb aquesta dada/g,' de $1 piezas con este dato'],[/amb aquesta dada/g,'con este dato'],
   [/Es mostren les peces que tenen omplert el camp «Lloc per veure-la»\. Mapa © col·laboradors d'OpenStreetMap\./g,'Se muestran las piezas que tienen rellenado el campo «Lugar para verla». Mapa © colaboradores de OpenStreetMap.'],
   [/Avís:/g,'Aviso:'],[/préstecs? vençuts?/g,'préstamos vencidos'],[/a retornar aviat/g,'a devolver pronto'],[/revisions? de conservació endarrerides?/g,'revisiones de conservación atrasadas'],
+  [/Preparant el PDF… fotos/g,'Preparando el PDF… fotos'],[/El catàleg està llest:/g,'El catálogo está listo:'],[/(\d+) pàgines/g,'$1 páginas'],[/ amb (\d+) obres? /g,' con $1 obras '],
+  [/No inclou la ubicació ni la propietat de les /g,'No incluye la ubicación ni la propiedad de las '],
   [/Important…/g,'Importando…'],[/Importació acabada/g,'Importación terminada'],[/Restaurant /g,'Restaurando '],[/Còpia completa:/g,'Copia completa:'],
   [/fotos de detall\b/g,'fotos de detalle'],[/registres/g,'registros'],[/No s'ha trobat la peça/g,'No se ha encontrado la pieza'],
   [/Canvis aplicats a/g,'Cambios aplicados a'],[/Toca un altre cop/g,'Toca otra vez'],[/Peça eliminada \(recuperable des de l'historial\)/g,'Pieza eliminada (recuperable desde el historial)'],

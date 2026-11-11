@@ -1143,6 +1143,7 @@ header.scrolled .progress i{display:none}
       <summary>Documentació i exportació</summary>
       <div class="fbtns">
         <button id="catBtn">Catàleg en PDF</button>
+        <button id="catPrintBtn">Imprimir catàleg</button>
         <button id="qrAllBtn">Etiquetes QR</button>
         <button id="backupBtn">Còpia de seguretat</button>
       </div>
@@ -2139,7 +2140,7 @@ const CAT_MARK = '<svg class="kmark" viewBox="0 0 64 64" aria-hidden="true"><pat
 function catFoot(n){ return '<footer class="kf"><span>Les peces del ferrer · Antoni Mas Castelltort</span><b>'+n+'</b></footer>'; }
 function catHead(r){ return '<header class="kh"><span>Les peces del ferrer</span><span>'+r+'</span></header>'; }
 function catRows(p){
-  const F = [['any','Any'],['tecnica','Materials i tècnica'],['dim','Dimensions'],['ubic','Ubicació'],['lloc','Lloc'],['serie','Sèrie'],['tipus','Tipus'],['autor','Autor/a']];
+  const F = [['any','Any'],['tecnica','Materials i tècnica'],['dim','Dimensions'],['lloc','Lloc'],['serie','Sèrie'],['tipus','Tipus'],['autor','Autor/a']];
   return F.map(f=>{ const v = String(p[f[0]]||'').trim(); return v ? '<div><dt>'+f[1]+'</dt><dd>'+esc(v)+'</dd></div>' : ''; }).join('');
 }
 function catPage(p, pg){
@@ -2218,6 +2219,288 @@ async function printCatalog(){
   window.addEventListener('afterprint', ()=>{ document.body.classList.remove('printing-cat','printing-art'); area.innerHTML = ''; catBusy = false; }, {once:true});
   await waitImages(area, 12000);
   setTimeout(()=>{ window.print(); setTimeout(()=>{ catBusy = false; }, 1500); }, 120);
+}
+
+/* ---------- catàleg en PDF: fitxer descarregable (funciona també al mòbil) ----------
+   Imprimir des del navegador no funciona a molts mòbils (i menys amb l'app instal·lada). Aquí es genera
+   un PDF de veritat amb jsPDF, que es carrega només quan cal. Al mòbil es pot compartir o desar a Fitxers.
+   Com que és per ensenyar-lo, no inclou la ubicació ni la propietat de les peces. */
+const JSPDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+const JSPDF_SRI = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==';
+let jspdfP = null;
+function loadJsPDF(){
+  if(window.jspdf) return Promise.resolve();
+  if(jspdfP) return jspdfP;
+  jspdfP = new Promise((res, rej)=>{
+    const s = document.createElement('script'); s.src = JSPDF_URL; s.integrity = JSPDF_SRI; s.crossOrigin = 'anonymous';
+    s.onload = res; s.onerror = ()=>{ jspdfP = null; rej(new Error('jspdf')); };
+    document.head.appendChild(s);
+  });
+  return jspdfP;
+}
+// Les fonts bàsiques dels PDF només tenen lletres llatines: la resta es substitueix o es treu.
+function pdfTxt(s){
+  return String(s==null?'':s).replace(/[‘’‚′]/g,"'").replace(/[“”„]/g,'"')
+    .replace(/[–—−]/g,'-').replace(/…/g,'...').replace(/•/g,'·').replace(/€/g,'EUR')
+    .replace(/\r/g,'').replace(/[^\n\x20-\x7E -ÿ]/g,'');
+}
+// Prepara una foto: JPEG, mida limitada i, si es demana una proporció, retallada per omplir-la.
+function pdfImg(src, maxPx, ratio){
+  return new Promise(res=>{
+    if(!src) return res(null);
+    const img = new Image();
+    if(!/^data:/.test(src)) img.crossOrigin = 'anonymous';
+    img.onload = ()=>{
+      try{
+        let sw = img.naturalWidth, sh = img.naturalHeight, sx = 0, sy = 0;
+        if(!sw || !sh) return res(null);
+        if(ratio){ if(sw/sh > ratio){ const w = sh*ratio; sx = (sw-w)/2; sw = w; } else { const h = sw/ratio; sy = (sh-h)*0.35; sh = h; } }
+        const k = Math.min(1, maxPx/Math.max(sw, sh));
+        if(!ratio && k === 1 && /^data:image\/jpe?g/i.test(src)) return res({data:src, w:sw, h:sh});   // ja és JPEG: sense tornar-la a comprimir
+        const cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(sw*k)); cv.height = Math.max(1, Math.round(sh*k));
+        const g = cv.getContext('2d'); g.fillStyle = '#1b1815'; g.fillRect(0, 0, cv.width, cv.height);
+        g.drawImage(img, sx, sy, sw, sh, 0, 0, cv.width, cv.height);
+        res({data:cv.toDataURL('image/jpeg', 0.9), w:cv.width, h:cv.height});
+      }catch(e){ res(null); }   // foto d'un altre lloc que no deixa copiar-la (CORS)
+    };
+    img.onerror = ()=>res(null);
+    img.src = src;
+  });
+}
+const PDF_ROWS = [['any','Any'],['tecnica','Materials i tècnica'],['dim','Dimensions'],['serie','Sèrie'],['tipus','Tipus'],['autor','Autor/a'],['lloc','Lloc per veure-la']];
+function bioParas(){
+  return Array.prototype.slice.call(document.querySelectorAll('#author .au-body > p')).filter(x=>!/au-(eyebrow|hint)/.test(x.className)).slice(0,3).map(x=>x.textContent.trim());
+}
+let pdfBusy = false;
+async function downloadCatalog(btn){
+  if(pdfBusy) return;
+  const list = visibleList.length ? visibleList : listAll();
+  if(!list.length){ toast('No hi ha peces per al catàleg'); return; }
+  pdfBusy = true;
+  const t0 = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Preparant el PDF…'; }
+  try{
+    await loadJsPDF();
+    const r = await buildCatalogPdf(list);
+    pdfReady(r.blob, r.pages, list.length);
+  }catch(err){
+    alert('No s\'ha pogut generar el PDF ('+((err && err.message) || 'error')+'). La primera vegada cal connexió a internet.');
+  }
+  if(btn){ btn.disabled = false; btn.textContent = t0; }
+  pdfBusy = false;
+}
+async function buildCatalogPdf(list){
+  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4', compress:true});
+  const W = 210, H = 297, M = 18, CW = W - 2*M;
+  const C = {paper:[243,238,229], ink:[36,32,28], ink2:[58,51,44], muted:[141,132,120], clay:[165,88,42], ember:[199,123,59],
+    dark:[22,19,15], photo:[27,24,21], line:[212,199,179], light:[242,231,214], cream:[224,210,189], gold:[138,106,72]};
+  const fill = c=>doc.setFillColor(c[0],c[1],c[2]), color = c=>doc.setTextColor(c[0],c[1],c[2]), stroke = c=>doc.setDrawColor(c[0],c[1],c[2]);
+  let CS = 0;   // espai entre lletres actual (jsPDF no el té en compte en alinear a la dreta o al centre)
+  const tw = s=>doc.getTextWidth(s) + CS*Math.max(0, s.length-1);
+  const T = (s, x, y, o)=>{
+    s = pdfTxt(s);
+    if(o && o.align && o.align !== 'left'){ x = o.align === 'right' ? x - tw(s) : x - tw(s)/2; o = Object.assign({}, o); delete o.align; }
+    return doc.text(s, x, y, o);
+  };
+  const caps = (size, c, cs)=>{ doc.setFont('helvetica','bold'); doc.setFontSize(size); color(c); CS = cs||0; doc.setCharSpace(CS); };
+  const font = (f, st, size, c)=>{ doc.setFont(f, st); doc.setFontSize(size); color(c); CS = 0; doc.setCharSpace(0); };
+  const wrap = (s, w)=>doc.splitTextToSize(pdfTxt(s), w);
+  const fit1 = (s, w)=>{ const l = wrap(s, w); return l.length > 1 ? wrap(l[0], w - 4)[0].replace(/\s+$/,'') + '...' : (l[0] || ''); };
+  let pages = 0;
+  function page(dark){
+    if(pages) doc.addPage();
+    pages++;
+    fill(dark ? C.dark : C.paper); doc.rect(0, 0, W, H, 'F');
+    frame(dark);
+  }
+  function frame(dark){ stroke(dark ? [110,82,56] : [205,182,150]); doc.setLineWidth(0.2); doc.rect(8, 8, W-16, H-16); }
+  function head(r){ caps(6.5, C.gold, 1.2); T('LES PECES DEL FERRER', M, 15.5); T(r.toUpperCase(), W-M, 15.5, {align:'right'}); }
+  function foot(){ caps(6, C.muted, 0.8); T('LES PECES DEL FERRER · ANTONI MAS CASTELLTORT', M, H-11.5); caps(9, C.clay, 0.5); T(String(pages), W-M, H-11.5, {align:'right'}); }
+  function orn(x, y, w){
+    const c = x + w/2; stroke(C.ember); doc.setLineWidth(0.3);
+    doc.line(x, y, c-6, y); doc.line(c+6, y, x+w, y);
+    fill(C.ember); doc.circle(c-4, y, 0.55, 'F'); doc.circle(c+4, y, 0.55, 'F');
+    doc.lines([[1.7,1.7],[-1.7,1.7],[-1.7,-1.7]], c, y-1.7, [1,1], 'F', true);
+  }
+  function imgFit(im, x, y, w, h){ const k = Math.min(w/im.w, h/im.h), iw = im.w*k, ih = im.h*k; doc.addImage(im.data, 'JPEG', x+(w-iw)/2, y+(h-ih)/2, iw, ih, undefined, 'FAST'); }
+  function photoBox(im, x, y, w, h){
+    fill(C.photo); doc.rect(x, y, w, h, 'F');
+    if(im) imgFit(im, x+1, y+1, w-2, h-2);
+    else { caps(7, C.muted, 1.5); T('SENSE FOTOGRAFIA', x+w/2, y+h/2, {align:'center'}); }
+    stroke(C.ember); doc.setLineWidth(0.25); doc.rect(x, y, w, h);
+  }
+  // ---- fotos (una per una, amb avís de progrés) ----
+  const ims = {};
+  for(let i=0;i<list.length;i++){
+    if(i % 6 === 0) toast('Preparant el PDF… fotos '+(i+1)+' de '+list.length);
+    ims[list[i].n] = await pdfImg(photo(list[i]), 1400);
+  }
+  const coverPiece = list.find(p=>isFeat(p) && photo(p)) || list.find(p=>photo(p));
+  const coverIm = coverPiece ? await pdfImg(photo(coverPiece), 1600, W/186) : null;
+  // ---- mesura de cada fitxa (per saber a quina pàgina comença) ----
+  const LH = 5.1, TOP2 = 30, BOT = H - 21;
+  function measure(p){
+    const d = String(p.desc||'').trim(), ph = d.length > 1400 ? 96 : d.length > 900 ? 118 : d.length > 450 ? 140 : 162;
+    const feat = isFeat(p);
+    font('times','normal',20,C.ink);
+    const title = wrap((p.titol||'').trim() || 'Sense títol', CW - 24 - (feat ? 32 : 0));
+    font('helvetica','normal',9.5,C.ink);
+    const rows = PDF_ROWS.map(f=>[f[1], String(p[f[0]]||'').trim()]).filter(r=>r[1]).map(r=>[r[0], wrap(r[1], CW - 44)]);
+    const yTitle = 24 + ph + 10, yOrn = yTitle + (title.length-1)*7.5 + 5;
+    let y = yOrn + 6;
+    rows.forEach(r=>{ y += r[1].length*4.3 + 2.6; });
+    font('times','normal',10.5,C.ink2);
+    const desc = d ? wrap(d, CW) : [];
+    const yDesc = y + 6, first = Math.max(0, Math.floor((BOT - yDesc)/LH));
+    const per = Math.floor((BOT - TOP2)/LH), rest = Math.max(0, desc.length - first);
+    return {ph:ph, feat:feat, title:title, rows:rows, yTitle:yTitle, yOrn:yOrn, desc:desc, yDesc:yDesc, first:first, per:per, pages:1 + Math.ceil(rest/per)};
+  }
+  const lay = {}; list.forEach(p=>{ lay[p.n] = measure(p); });
+  const feat = list.filter(isFeat), IDX = 36, idxPages = Math.ceil(list.length/(IDX*2)), FEAT = 4, featPages = Math.ceil(feat.length/FEAT);
+  const pageOf = {}; let next = 3 + idxPages + featPages;
+  list.forEach(p=>{ pageOf[p.n] = next; next += lay[p.n].pages; });
+  const yrs = list.map(yearOf).filter(Boolean), y0 = yrs.length ? Math.min.apply(null, yrs) : null, y1 = yrs.length ? Math.max.apply(null, yrs) : null;
+  const yrTxt = y0 ? (y0 === y1 ? String(y0) : y0+'-'+y1) : '';
+  const nObres = list.length + (list.length === 1 ? ' obra' : ' obres');
+  const dt = new Date().toLocaleDateString('ca', {day:'numeric', month:'long', year:'numeric'});
+
+  // ---- 1. portada ----
+  page(true);
+  if(coverIm){
+    doc.addImage(coverIm.data, 'JPEG', 0, 0, W, 186, undefined, 'FAST');
+    if(doc.GState){   // fosa cap al negre a la part de baix de la foto
+      for(let i=0;i<14;i++){ doc.setGState(new doc.GState({opacity:(i+1)/14})); fill(C.dark); doc.rect(0, 120 + i*4.8, W, 4.9, 'F'); }
+      doc.setGState(new doc.GState({opacity:1}));
+    }
+    fill(C.dark); doc.rect(0, 186, W, H-186, 'F');
+    frame(true);
+  }
+  caps(9, C.ember, 2.4); T('ANTONI MAS CASTELLTORT', M+2, 203);
+  caps(46, C.light, 0.3); T('LES PECES', M+1, 222); T('DEL FERRER', M+1, 239);
+  orn(M+2, 248, 80);
+  font('times','italic',13,C.cream); T('Catàleg d\'obra escultòrica en ferro i acer', M+2, 258);
+  caps(7.5, [169,154,133], 1.6); T(('Vila-seca'+(yrTxt ? ' · '+yrTxt : '')+' · '+nObres).toUpperCase(), M+2, 266);
+
+  // ---- 2. introducció ----
+  page(false); head('Introducció');
+  caps(9, C.clay, 2.4); T('L\'AUTOR', M, 32);
+  caps(24, C.ink, 0.2); T('ANTONI MAS CASTELLTORT', M, 43);
+  orn(M, 49, 62);
+  font('times','normal',10.5,C.ink2);
+  let y = 60;
+  bioParas().forEach(t=>{ const l = wrap(t, CW); doc.text(l, M, y, {lineHeightFactor:1.45}); y += l.length*LH + 3.5; });
+  const about = 'Recull '+nObres+' de l\'inventari de Les peces del ferrer'+(y0 ? ', datades '+(y0 === y1 ? 'el '+y0 : 'entre '+y0+' i '+y1) : '')+
+    (feat.length ? ', '+feat.length+(feat.length === 1 ? ' de les quals destacada' : ' de les quals destacades') : '')+
+    '. Les obres segueixen la numeració de l\'inventari. Les dades i fotografies provenen de les fitxes del catàleg; els camps sense informació s\'ometen.';
+  font('helvetica','normal',9.5,C.ink2);
+  const al = wrap(about, CW - 16), bh = 20 + al.length*4.6;
+  y += 4;
+  fill([236,226,212]); doc.rect(M, y, CW, bh, 'F'); fill(C.clay); doc.rect(M, y, 1.4, bh, 'F');
+  caps(7.5, C.clay, 2); T('AQUEST CATÀLEG', M+8, y+8);
+  font('helvetica','normal',9.5,C.ink2); doc.text(al, M+8, y+14, {lineHeightFactor:1.4});
+  caps(7, C.muted, 1.2); T(('Edició del '+dt).toUpperCase(), M+8, y+bh-5);
+  foot();
+
+  // ---- 3. índex ----
+  for(let k=0;k<idxPages;k++){
+    page(false); head('Índex d\'obres');
+    caps(24, C.ink, 0.2); T('ÍNDEX D\'OBRES', M, 34); orn(M, 40, 62);
+    const part = list.slice(k*IDX*2, (k+1)*IDX*2), colW = (CW - 9)/2;
+    [part.slice(0, IDX), part.slice(IDX)].forEach((col, ci)=>{
+      const x = M + ci*(colW + 9);
+      col.forEach((p, i)=>{
+        const yy = 52 + i*6.15;
+        caps(8.5, C.clay, 0.2); T(String(p.n), x, yy);
+        font('helvetica','normal',8.5,C.ink); T(fit1(((p.titol||'').trim() || 'Sense títol') + (isFeat(p) ? ' *' : ''), colW - 22), x + 9, yy);
+        font('helvetica','normal',8,C.muted); T(String(pageOf[p.n]), x + colW, yy, {align:'right'});
+        stroke(C.line); doc.setLineWidth(0.2); doc.setLineDashPattern([0.4, 0.8], 0); doc.line(x, yy + 2, x + colW, yy + 2); doc.setLineDashPattern([], 0);
+      });
+    });
+    foot();
+  }
+
+  // ---- 4. obres destacades ----
+  for(let k=0;k<featPages;k++){
+    page(false); head('Obres destacades');
+    caps(24, C.ink, 0.2); T('OBRES DESTACADES', M, 34); orn(M, 40, 62);
+    const part = feat.slice(k*FEAT, (k+1)*FEAT), one = part.length <= 2;
+    part.forEach((p, i)=>{
+      const w = one ? CW : (CW - 7)/2, h = one ? (part.length === 1 ? 170 : 92) : 92;
+      const x = one ? M : M + (i % 2)*(w + 7), yy = one ? 50 + i*(h + 22) : 50 + Math.floor(i/2)*(h + 22);
+      photoBox(ims[p.n], x, yy, w, h);
+      caps(9, C.clay, 0.6); T('Nº '+p.n, x, yy + h + 7);
+      font('times','normal',11,C.ink); T(fit1((p.titol||'').trim() || 'Sense títol', w - 34), x + 13, yy + h + 7);
+      font('helvetica','normal',7.5,C.muted); T('pàg. '+pageOf[p.n], x + w, yy + h + 7, {align:'right'});
+      if(p.any){ T(pdfTxt(p.any), x + 13, yy + h + 12); }
+    });
+    foot();
+  }
+
+  // ---- 5. fitxa de cada obra ----
+  list.forEach(p=>{
+    const L = lay[p.n], t = (p.titol||'').trim() || 'Sense títol';
+    page(false); head('Catàleg d\'obra');
+    photoBox(ims[p.n], M, 24, CW, L.ph);
+    caps(13, C.clay, 0.8); T('Nº '+p.n, M, L.yTitle);
+    font('times','normal',20,C.ink); doc.text(L.title, M + 24, L.yTitle, {lineHeightFactor:1.05});
+    if(L.feat){
+      caps(6, C.clay, 1); const fw = tw('OBRA DESTACADA') + 6;
+      stroke(C.clay); doc.setLineWidth(0.25); doc.roundedRect(W - M - fw, L.yTitle - 4.2, fw, 5.6, 2.8, 2.8);
+      T('OBRA DESTACADA', W - M - fw/2, L.yTitle - 0.3, {align:'center'});
+    }
+    orn(M, L.yOrn, 62);
+    let yy = L.yOrn + 6;
+    L.rows.forEach(r=>{
+      stroke(C.line); doc.setLineWidth(0.2); doc.line(M, yy - 3.4, W - M, yy - 3.4);
+      caps(6.5, C.muted, 0.4); T(r[0].toUpperCase(), M, yy);
+      font('helvetica','normal',9.5,C.ink); doc.text(r[1], M + 44, yy, {lineHeightFactor:1.2});
+      yy += r[1].length*4.3 + 2.6;
+    });
+    font('times','normal',10.5,C.ink2);
+    if(L.desc.length && L.first) doc.text(L.desc.slice(0, L.first), M, L.yDesc, {lineHeightFactor:1.45});
+    foot();
+    let rest = L.desc.slice(L.first);
+    while(rest.length){   // les històries llargues continuen a la pàgina següent (no es tallen)
+      page(false); head('Catàleg d\'obra');
+      caps(8, C.clay, 0.8); T('Nº '+p.n, M, 24);
+      font('times','italic',10,C.muted); T(fit1(t, CW - 50)+'  (continuació)', M + 16, 24);
+      font('times','normal',10.5,C.ink2); doc.text(rest.slice(0, L.per), M, TOP2, {lineHeightFactor:1.45});
+      rest = rest.slice(L.per);
+      foot();
+    }
+  });
+
+  // ---- 6. contraportada ----
+  page(true);
+  const ax = W/2 - 23*0.42, ay = 112, s = 0.42;   // enclusa
+  fill(C.ember);
+  doc.lines([[34,0],[12,-6],[0,10],[-12,4],[-4,0],[0,6],[8,10],[-30,0],[8,-10],[0,-6],[-8,0],[-8,-8]].map(v=>[v[0]*s, v[1]*s]), ax, ay, [1,1], 'F', true);
+  caps(22, C.light, 1.2); T('LES PECES DEL FERRER', W/2, 140, {align:'center'});
+  orn(W/2 - 40, 147, 80);
+  font('times','normal',12,C.cream); T('Antoni Mas Castelltort', W/2, 158, {align:'center'}); T('Ferrer i escultor · Vila-seca', W/2, 164.5, {align:'center'});
+  caps(7, [143,130,111], 1.6); T(('Catàleg d\'obra · '+dt).toUpperCase(), W/2, 178, {align:'center'});
+
+  doc.setProperties({title:'Les peces del ferrer', subject:'Catàleg d\'obra d\'Antoni Mas Castelltort', author:'Antoni Mas Castelltort', creator:'Les peces del ferrer'});
+  return {blob:doc.output('blob'), pages:pages};
+}
+// Quan el PDF és llest, l'usuari tria què en fa (al mòbil, compartir o desar; a l'ordinador, descarregar).
+function pdfReady(blob, nPages, nObres){
+  const name = 'les-peces-del-ferrer_cataleg_'+today()+'.pdf';
+  let file = null; try{ file = new File([blob], name, {type:'application/pdf'}); }catch(e){}
+  const canShare = !!(file && navigator.canShare && navigator.share && navigator.canShare({files:[file]}));
+  current = null; mode = 'pdf'; setHead('Catàleg en PDF', false);
+  const mb = (blob.size/1048576).toFixed(1).replace('.', ',');
+  sbody.innerHTML = '<p class="bulknote">El catàleg està llest: <b>'+nPages+' pàgines</b> amb '+nObres+(nObres===1?' obra':' obres')+' ('+mb+' MB). '+
+    'No inclou la ubicació ni la propietat de les peces.</p>'+
+    (canShare ? '<button class="save" id="pdfShare">Compartir o desar…</button>' : '')+
+    '<button class="save'+(canShare ? ' ghost' : '')+'" id="pdfSave">Descarregar el PDF</button>';
+  if(canShare) $('pdfShare').addEventListener('click', ()=>{
+    navigator.share({files:[file], title:'Les peces del ferrer'}).catch(e=>{ if(!e || e.name !== 'AbortError') saveBlob(name, blob); });
+  });
+  $('pdfSave').addEventListener('click', ()=>{ saveBlob(name, blob); toast('Catàleg descarregat'); });
+  sbody.scrollTop = 0; stagger(null); show();
+  toast('Catàleg llest');
 }
 
 /* ---------- historial ---------- */
@@ -3336,7 +3619,8 @@ $('restoreInput').addEventListener('change', e=>{
 });
 $('histBtn').addEventListener('click', openHistory);
 $('tlBtn').addEventListener('click', openTimeline);
-$('catBtn').addEventListener('click', printCatalog);
+$('catBtn').addEventListener('click', e=>downloadCatalog(e.currentTarget));
+$('catPrintBtn').addEventListener('click', printCatalog);
 $('qrAllBtn').addEventListener('click', ()=>{
   const list = listAll();
   if(!list.length){ toast('No hi ha peces per imprimir'); return; }

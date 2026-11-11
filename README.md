@@ -14,7 +14,7 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 - **Sèries o col·leccions**, amb filtre i cerca.
 - **Codi QR per a cada peça**: qui l'escaneja veu només la fitxa d'aquella peça, sense contrasenya i sense poder modificar res. També es poden imprimir les etiquetes.
 - **Línia del temps** de les obres per any.
-- **Catàleg en PDF** de les peces que es veuen en pantalla.
+- **Catàleg en PDF** de les peces que es veuen en pantalla: es descarrega com a fitxer (al mòbil es pot compartir o desar a Fitxers) o s'imprimeix des de l'ordinador. No inclou la ubicació ni la propietat.
 - **Com arribar-hi** (enllaç a Google Maps) i enllaç a àudio o vídeo, per a les peces que en tinguin.
 - **Edició múltiple**: canviar un camp (autor, sèrie, ubicació…) de moltes peces alhora.
 - **Historial de canvis** amb possibilitat de desfer.
