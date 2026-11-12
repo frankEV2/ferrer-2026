@@ -961,6 +961,17 @@ header.scrolled .progress i{display:none}
   .card .fav:not(.on),.card button.qrb:not(.on){opacity:0;transition:opacity .2s,transform .2s var(--ease)}
   .card:hover .fav:not(.on),.card:hover button.qrb:not(.on),.card:focus-within .fav:not(.on),.card:focus-within button.qrb:not(.on){opacity:1}
 }
+/* ---- control de QR ---- */
+.qcrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
+.qcrow .qn{font-size:.72rem;color:var(--ink-2);min-width:40px}
+.qcrow .qt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}
+.qcst{display:inline-block;border:1px solid var(--rule);border-radius:99px;padding:5px 12px;font-size:.74rem;background:var(--card);color:var(--ink-2);font-family:inherit;cursor:pointer;white-space:nowrap}
+.qcst.on{background:var(--moss);color:var(--paper);border-color:var(--moss)}
+span.qcst{cursor:default}
+.qcbar{display:flex;gap:6px;margin:12px 0 4px;flex-wrap:wrap}
+.qcbar button{flex:1;padding:8px 6px;border:1px solid var(--rule);background:var(--card);border-radius:99px;font-size:.78rem;cursor:pointer;font-family:inherit;color:inherit}
+.qcbar button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.qcsearch{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--rule);border-radius:99px;background:var(--card);font-size:.9rem;font-family:inherit;color:inherit;margin-top:12px}
 /* ---- navegació vertical: principi / final ---- */
 .scrollnav{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(20px + env(safe-area-inset-bottom));z-index:25;display:flex;flex-direction:column;gap:6px;
   opacity:.55;transition:opacity .25s}
@@ -1137,6 +1148,7 @@ header.scrolled .progress i{display:none}
       <div class="fbtns">
         <button id="tlBtn">Cronologia</button>
         <button id="statsBtn">Estadístiques</button>
+        <button id="qrCtlBtn">Control de QR</button>
         <button id="mapAllBtn">Mapa de les obres</button>
         <button id="authorBtn2" data-author>Biografia de l'autor</button>
       </div>
@@ -2090,9 +2102,11 @@ function openQR(n){
     '<h3 class="dtitle'+((p.titol||'').trim()?'':' untitled')+'">'+(esc((p.titol||'').trim())||'Sense títol')+'</h3>'+
     '<p class="qrurl">'+esc(url)+'</p></div>'+
     '<div class="navrow"><button id="qrPrint">Imprimir etiqueta</button><button id="qrPng">Descarregar PNG</button></div>'+
-    '<div class="navrow"><label style="display:flex;align-items:center;gap:10px;width:100%;justify-content:center;font-weight:600;color:'+(hasQR(p)?'var(--moss)':'var(--ink-2)')+'"><input type="checkbox" id="qrMark"'+(hasQR(p)?' checked':'')+(role==='editor'?'':' disabled')+' style="width:20px;height:20px;accent-color:var(--moss)">QR generat <span>'+(hasQR(p)?'✓ Generat':'Pendent')+'</span></label></div>'+
+    '<div class="navrow">'+(role==='editor'
+      ? '<button type="button" id="qrMark" class="qcst'+(hasQR(p)?' on':'')+'" role="switch" aria-checked="'+hasQR(p)+'" style="padding:12px">'+(hasQR(p)?'☑ QR generat':'☐ QR pendent')+' · toca per canviar</button>'
+      : '<span class="qcst'+(hasQR(p)?' on':'')+'" style="flex:1;text-align:center;padding:12px">'+(hasQR(p)?'✓ QR generat':'QR pendent')+'</span>')+'</div>'+
     '<div class="navrow"><button id="qrBack">Tornar a la fitxa</button></div>';
-  $('qrMark').addEventListener('change', ()=>{ toggleQR(n); openQR(n); });
+  if($('qrMark')) $('qrMark').addEventListener('click', ()=>{ toggleQR(n); openQR(n); });
   $('qrPrint').addEventListener('click', ()=>printLabels([p], true));
   $('qrPng').addEventListener('click', ()=>qrPng(url, blob=>saveBlob('qr-escultura-'+n+'.png', blob)));
   $('qrBack').addEventListener('click', ()=>open(n,'view'));
@@ -4128,6 +4142,45 @@ function openStats(){
     barsHtml('Per situació', countBy(list, p=>String(p.situacio||'').trim()), tot);
   sbody.scrollTop = 0; stagger(null); show();
 }
+
+/* ---- control de QR: llistat de gestió (mateix camp p.qr que la fitxa) ---- */
+let qcFilter = 'all', qcText = '';
+function qcList(){
+  const t = qcText.trim().toLowerCase();
+  return listAll().slice().sort((a,b)=>a.n-b.n).filter(p=>{
+    if(qcFilter === 'ok' && !hasQR(p)) return false;
+    if(qcFilter === 'pend' && hasQR(p)) return false;
+    return !t || String(p.n).indexOf(t) >= 0 || String(p.titol||'').toLowerCase().indexOf(t) >= 0;
+  });
+}
+function qcDraw(){
+  const all = listAll(), ok = all.filter(hasQR).length, ed = role === 'editor';
+  $('qcCount').innerHTML = '<div><b>'+all.length+'</b>Total</div><div><b>'+ok+'</b>Generats</div><div><b>'+(all.length-ok)+'</b>Pendents</div>';
+  Array.prototype.forEach.call(document.querySelectorAll('#qcBar button'), b=>b.setAttribute('aria-pressed', String(b.dataset.f === qcFilter)));
+  const l = qcList();
+  $('qcRows').innerHTML = l.length ? l.map(p=>{
+    const on = hasQR(p), tx = on ? '✓ Generat' : 'Pendent';
+    return '<div class="qcrow" data-n="'+p.n+'"><span class="qn">Núm. '+p.n+'</span><span class="qt">'+(esc((p.titol||'').trim())||'Sense títol')+'</span>'+
+      (ed ? '<button type="button" class="qcst'+(on?' on':'')+'" data-tg="'+p.n+'" role="switch" aria-checked="'+on+'">'+tx+'</button>'
+          : '<span class="qcst'+(on?' on':'')+'">'+tx+'</span>')+'</div>';
+  }).join('') : '<p class="fnote">Cap peça coincideix.</p>';
+}
+function openQrCtl(){
+  current = null; mode = 'qrctl'; setHead('Control de QR', false);
+  sbody.innerHTML = '<div class="rvstats" id="qcCount" style="grid-template-columns:repeat(3,1fr)"></div>'+
+    '<input type="search" id="qcSearch" class="qcsearch" placeholder="Cerca per nom o número" aria-label="Cerca per nom o número" value="'+esc(qcText)+'">'+
+    '<div class="qcbar" id="qcBar"><button type="button" data-f="all">Totes</button><button type="button" data-f="ok">Generats</button><button type="button" data-f="pend">Pendents</button></div>'+
+    '<div id="qcRows"></div>';
+  $('qcSearch').addEventListener('input', e=>{ qcText = e.target.value; qcDraw(); });
+  $('qcBar').addEventListener('click', e=>{ const b = e.target.closest('button'); if(b){ qcFilter = b.dataset.f; qcDraw(); } });
+  $('qcRows').addEventListener('click', e=>{
+    const tg = e.target.closest('[data-tg]');
+    if(tg){ e.stopPropagation(); toggleQR(parseInt(tg.dataset.tg,10)); qcDraw(); return; }
+    const r = e.target.closest('.qcrow'); if(r) open(parseInt(r.dataset.n,10),'view');
+  });
+  qcDraw(); sbody.scrollTop = 0; stagger(null); show();
+}
+$('qrCtlBtn').addEventListener('click', openQrCtl);
 
 /* ---- mapa (Leaflet + OpenStreetMap, es carrega només quan s'obre) ---- */
 const LEAF = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';
