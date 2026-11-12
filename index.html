@@ -1149,6 +1149,7 @@ span.qcst{cursor:default}
         <button id="tlBtn">Cronologia</button>
         <button id="statsBtn">Estadístiques</button>
         <button id="qrCtlBtn">Control de QR</button>
+        <button id="tutBtn">Tutorials</button>
         <button id="mapAllBtn">Mapa de les obres</button>
         <button id="authorBtn2" data-author>Biografia de l'autor</button>
       </div>
@@ -1308,6 +1309,8 @@ span.qcst{cursor:default}
 <div id="printArea" aria-hidden="true"></div>
 
 <script src="i18n.js"></script>
+<script src="tutorials-data.js"></script>
+<script src="tutorials.js"></script>
 <script src="firebase-bundle.js"></script>
 <script>(function(){
 "use strict";
@@ -4181,6 +4184,12 @@ function openQrCtl(){
   qcDraw(); sbody.scrollTop = 0; stagger(null); show();
 }
 $('qrCtlBtn').addEventListener('click', openQrCtl);
+/* tutorials: el contingut i el PDF són a tutorials-data.js i tutorials.js */
+$('tutBtn').addEventListener('click', ()=>{
+  if(!window.Tutorials || !window.TUTORIALS){ toast('Tutorials no disponibles'); return; }
+  window.Tutorials.open({sbody:sbody, setHead:setHead, show:show, stagger:stagger, saveBlob:saveBlob, toast:toast, loadJsPDF:loadJsPDF,
+    role:()=>role, lang:()=>(window.Prefs && window.Prefs.get().lang) || 'ca', enter:()=>{ current = null; mode = 'tut'; }});
+});
 
 /* ---- mapa (Leaflet + OpenStreetMap, es carrega només quan s'obre) ---- */
 const LEAF = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/';

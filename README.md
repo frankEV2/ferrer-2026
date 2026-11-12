@@ -30,6 +30,7 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 - **Històries** de cada peça (des de l'accés de lectura se'n poden proposar; l'editor les aprova) i **documents privats** (certificats, factures, taxacions).
 - **Estadístiques** per sèrie, dècada, estat, tècnica i situació, i **mapa** de les obres (Leaflet + OpenStreetMap).
 - **Preferències**: català o castellà, aparença clara/fosca, mida de la lletra, efectes i so d'enclusa opcional.
+- **Tutorials** (català i castellà) per a l'editor i per a la família, amb índex i descàrrega en PDF.
 - Ambient de **forja**: espurnes, resplendor, targetes amb relleu 3D, visor de fotos amb zoom (en mòbils els efectes es redueixen).
 
 ## Com es fa servir
@@ -60,6 +61,8 @@ Catàleg i inventari de l'obra escultòrica d'**Antoni Mas Castelltort**, ferrer
 | `robots.txt` | Demana als cercadors que no la indexin |
 | `forja.js` | Preferències i efectes visuals |
 | `i18n.js` | Traducció de la interfície al castellà |
+| `tutorials-data.js` | Textos dels tutorials (català i castellà): és el fitxer que s'edita per actualitzar-los |
+| `tutorials.js` | Pantalla dels tutorials i generació del seu PDF |
 | `firestore.rules` | Regles de seguretat de Firestore (s'han de publicar a la consola de Firebase) |
 
 ## Actualitzar la web

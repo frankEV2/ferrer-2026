@@ -93,7 +93,10 @@ var D = {
 "Apunta la càmera a l'etiqueta QR de la peça":"Apunta la cámara a la etiqueta QR de la pieza","Obrint la càmera…":"Abriendo la cámara…","Escàner de codis QR":"Escáner de códigos QR",
 "Aquest codi QR no és d'una peça del catàleg":"Este código QR no es de una pieza del catálogo","Instal·la l'app":"Instala la app","Preparant la còpia…":"Preparando la copia…",
 "Omple almenys un camp.":"Rellena al menos un campo.","Imprimir catàleg":"Imprimir catálogo","Preparant el PDF…":"Preparando el PDF…",
-"Compartir o desar…":"Compartir o guardar…","Descarregar el PDF":"Descargar el PDF","Catàleg descarregat":"Catálogo descargado","Catàleg llest":"Catálogo listo","Catàleg en PDF ":"Catálogo en PDF ","Etiqueta QR desmarcada":"Etiqueta QR desmarcada"
+"Compartir o desar…":"Compartir o guardar…","Descarregar el PDF":"Descargar el PDF","Catàleg descarregat":"Catálogo descargado","Catàleg llest":"Catálogo listo","Catàleg en PDF ":"Catálogo en PDF ","Etiqueta QR desmarcada":"Etiqueta QR desmarcada",
+// tutorials, control de QR i etiquetes que faltaven
+"Tutorials":"Tutoriales","Filtres":"Filtros","Administració":"Administración","Escultures":"Esculturas","Ceptres":"Cetros","Figures festives":"Figuras festivas","Suggeriments":"Sugerencias","Suggeriments rebuts":"Sugerencias recibidas","Enviar suggeriment":"Enviar sugerencia",
+"Control de QR":"Control de QR","Generats":"Generados","Pendent":"Pendiente","✓ Generat":"✓ Generado","✓ QR generat":"✓ QR generado","QR pendent":"QR pendiente","☑ QR generat · toca per canviar":"☑ QR generado · toca para cambiar","☐ QR pendent · toca per canviar":"☐ QR pendiente · toca para cambiar","Cerca per nom o número":"Busca por nombre o número","Cap peça coincideix.":"Ninguna pieza coincide.","Mostra el codi QR":"Muestra el código QR",
 };
 
 // Fragments de textos dinàmics (s'apliquen dins del text, de més llarg a més curt)
@@ -132,7 +135,7 @@ function applyR(s){
 }
 window.tr = tr;
 // Contingut de l'usuari: no es tradueix mai
-var SKIP = '.ctitle,.dtitle,.xtext,.dnotes,.frow .v,.tltx b,.tltx i,.hchg,.hpiece,.xitem>b,.stk,.cmeta,.cdet,.au-body,.qrurl,.leaflet-container,textarea,script,style,[contenteditable],.lmark';
+var SKIP = '.tutwrap,.ctitle,.dtitle,.xtext,.dnotes,.frow .v,.tltx b,.tltx i,.hchg,.hpiece,.xitem>b,.stk,.cmeta,.cdet,.au-body,.qrurl,.leaflet-container,textarea,script,style,[contenteditable],.lmark';
 function skip(el){ return !el || (el.closest && el.closest(SKIP)); }
 function doNode(n){
   if(n.nodeType === 3){
