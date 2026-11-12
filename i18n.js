@@ -97,6 +97,25 @@ var D = {
 // tutorials, control de QR i etiquetes que faltaven
 "Tutorials":"Tutoriales","Filtres":"Filtros","Administració":"Administración","Escultures":"Esculturas","Ceptres":"Cetros","Figures festives":"Figuras festivas","Suggeriments":"Sugerencias","Suggeriments rebuts":"Sugerencias recibidas","Enviar suggeriment":"Enviar sugerencia",
 "Control de QR":"Control de QR","Generats":"Generados","Pendent":"Pendiente","✓ Generat":"✓ Generado","✓ QR generat":"✓ QR generado","QR pendent":"QR pendiente","☑ QR generat · toca per canviar":"☑ QR generado · toca para cambiar","☐ QR pendent · toca per canviar":"☐ QR pendiente · toca para cambiar","Cerca per nom o número":"Busca por nombre o número","Cap peça coincideix.":"Ninguna pieza coincide.","Mostra el codi QR":"Muestra el código QR",
+// indicador i selector de sessió
+"Editor · Accés complet":"Editor · Acceso completo","Família · Accés limitat":"Familia · Acceso limitado","Catàleg · Només lectura":"Catálogo · Solo lectura","Sessió no identificada":"Sesión no identificada",
+"Editor":"Editor","Família":"Familia","Catàleg":"Catálogo","Accés complet":"Acceso completo","Accés limitat":"Acceso limitado","Només lectura":"Solo lectura","Sessió activa":"Sesión activa","Què pot fer":"Qué puede hacer",
+"Crear i editar peces, fotografies i fotos de detall.":"Crear y editar piezas, fotografías y fotos de detalle.",
+"Gestionar l'inventari: ubicació, propietat, revisió, préstecs i restauracions.":"Gestionar el inventario: ubicación, propiedad, revisión, préstamos y restauraciones.",
+"Marcar l'estat dels codis QR i imprimir etiquetes.":"Marcar el estado de los códigos QR e imprimir etiquetas.",
+"Fer còpies de seguretat i importar o exportar Excel.":"Hacer copias de seguridad e importar o exportar Excel.",
+"Administració: històries pendents, suggeriments, dades internes i registre de canvis.":"Administración: historias pendientes, sugerencias, datos internos y registro de cambios.",
+"Consultar peces i fotografies, també la ubicació i la propietat.":"Consultar piezas y fotografías, también la ubicación y la propiedad.",
+"Cercar, filtrar i marcar preferides.":"Buscar, filtrar y marcar favoritas.",
+"Llegir històries i proposar-ne de noves (les aprova l'editor).":"Leer historias y proponer nuevas (las aprueba el editor).",
+"Enviar suggeriments.":"Enviar sugerencias.",
+"No pot crear, editar ni eliminar peces, ni accedir a l'administració.":"No puede crear, editar ni eliminar piezas, ni acceder a la administración.",
+"Consultar el catàleg públic: fotos, títols, dates, tècnica i història.":"Consultar el catálogo público: fotos, títulos, fechas, técnica e historia.",
+"Cercar, filtrar i veure fitxes i codis QR.":"Buscar, filtrar y ver fichas y códigos QR.",
+"Sense ubicació, propietat ni observacions.":"Sin ubicación, propiedad ni observaciones.",
+"Sense permís per modificar res ni proposar històries.":"Sin permiso para modificar nada ni proponer historias.",
+"Hi ha canvis sense desar. Si canvies de sessió es perdran. Vols continuar?":"Hay cambios sin guardar. Si cambias de sesión se perderán. ¿Quieres continuar?",
+"No s'ha pogut tancar la sessió":"No se ha podido cerrar la sesión",
 };
 
 // Fragments de textos dinàmics (s'apliquen dins del text, de més llarg a més curt)

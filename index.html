@@ -961,6 +961,29 @@ header.scrolled .progress i{display:none}
   .card .fav:not(.on),.card button.qrb:not(.on){opacity:0;transition:opacity .2s,transform .2s var(--ease)}
   .card:hover .fav:not(.on),.card:hover button.qrb:not(.on),.card:focus-within .fav:not(.on),.card:focus-within button.qrb:not(.on){opacity:1}
 }
+/* ---- indicador i selector de sessió ---- */
+.sess{display:inline-flex;align-items:center;gap:6px;margin-top:5px;max-width:100%;padding:3px 9px 3px 7px;border:1px solid var(--rule);border-radius:99px;background:var(--card);color:var(--ink-2);font:inherit;font-size:.66rem;letter-spacing:.02em;cursor:pointer;white-space:nowrap}
+.sess svg{width:13px;height:13px;flex:none}
+.sess span{overflow:hidden;text-overflow:ellipsis}
+.sess.editor{color:var(--clay);border-color:color-mix(in srgb,var(--clay) 45%,var(--rule))}
+.sess.none{color:var(--alert)}
+header.scrolled .sess{margin-top:3px}
+.sessmenu{position:fixed;z-index:45;background:var(--card);border:1px solid var(--rule);border-radius:16px;box-shadow:0 18px 40px -12px rgba(0,0,0,.4);padding:6px;max-height:calc(100vh - 90px);overflow-y:auto;animation:rise .25s var(--ease) both}
+.sessmenu[hidden]{display:none}
+.sessopt+.sessopt{border-top:1px solid var(--rule)}
+.sessgo{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px;border:none;background:none;border-radius:12px;font:inherit;color:inherit;cursor:pointer}
+.sessgo:active,.sessgo:hover{background:var(--paper-2)}
+.sessgo .sico{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--paper-2);color:var(--moss)}
+.sessgo .sico svg{width:17px;height:17px}
+.sessgo .sbox{flex:1;min-width:0;display:flex;flex-direction:column}
+.sessgo .sbox b{font-size:.92rem}
+.sessgo .sbox i{font-style:normal;font-size:.74rem;color:var(--ink-2)}
+.sessgo em{font-style:normal;font-size:.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--paper);background:var(--moss);border-radius:99px;padding:2px 8px}
+.sessgo.on .sico{background:var(--moss);color:var(--paper)}
+.sessinfo{margin:0 10px 8px 50px;font-size:.78rem;color:var(--ink-2)}
+.sessinfo summary{cursor:pointer;color:var(--clay);font-size:.74rem}
+.sessinfo ul{margin:6px 0 0;padding-left:1.1em;line-height:1.45}
+.sessinfo li{margin:0 0 2px}
 /* ---- control de QR ---- */
 .qcrow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--rule);cursor:pointer}
 .qcrow .qn{font-size:.72rem;color:var(--ink-2);min-width:40px}
@@ -1071,6 +1094,7 @@ span.qcst{cursor:default}
       <div class="btxt">
         <p class="beyebrow">Antoni Mas Castelltort · Catàleg</p>
         <h1>Les peces del ferrer<span class="dot" id="dot" role="img" aria-label="Estat de sincronització"></span></h1>
+        <button type="button" class="sess none" id="sessBtn" aria-haspopup="menu" aria-expanded="false"></button>
       </div>
     </div>
     <div class="progress" id="prog"></div>
@@ -1368,6 +1392,7 @@ let internOk = false;       // el servidor deixa llegir «intern» (regles noves
 let pubFresh = false;       // l'últim llistat ve del servidor i no hi ha canvis pendents
 let loadErr = false;
 let role = null;            // 'editor' | 'viewer' | null
+let sessMenu = null, pendingSwitch = null;   // selector de sessió (vegeu «indicador i selector de sessió»)
 let userName = '';
 let loaded = false;
 let unsubPieces = null, unsubHist = null, unsubIntern = null;
@@ -2716,6 +2741,7 @@ async function tryLogin(pw){
 }
 function updateSession(){
   sessionNote.textContent = role ? (role==='editor' ? who() + ' · Editor' : guest ? 'Visitant · Només consulta' : (userName ? userName + ' · ' : '') + 'Només lectura') : '';
+  renderSess();
 }
 if(!FB){
   loginEl.classList.remove('loading');
@@ -2775,6 +2801,7 @@ if(!FB){
       loginEl.classList.remove('loading');
       showChoice();
       render(); updateSession();
+      applyPending();   // si venim d'un canvi de perfil, obre l'accés que s'ha triat
       return;
     }
     setPwVisible(false);
@@ -2803,6 +2830,73 @@ $('logoutBtn').addEventListener('click', ()=>{
   }
   FB.signOut(FB.auth);
 });
+/* ---------- indicador i selector de sessió ----------
+   El perfil surt del compte amb què s'ha autenticat (onAuthStateChanged) i de res més: editor = compte d'editor,
+   família = compte de lectura, catàleg = visitant sense compte. Canviar de perfil tanca la sessió actual de debò
+   (es buiden les dades privades i els estats d'edició) i obre l'accés triat, que torna a demanar la contrasenya.
+   Els permisos reals els continuen aplicant les regles de Firestore, no aquest menú. */
+const SESS_IC = {
+  editor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  viewer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.2c2.6.2 4.5 2.4 4.5 5.3"/></svg>',
+  guest:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'
+};
+const SESS = {
+  editor:{n:'Editor', d:'Accés complet', perms:['Crear i editar peces, fotografies i fotos de detall.','Gestionar l\'inventari: ubicació, propietat, revisió, préstecs i restauracions.','Marcar l\'estat dels codis QR i imprimir etiquetes.','Fer còpies de seguretat i importar o exportar Excel.','Administració: històries pendents, suggeriments, dades internes i registre de canvis.']},
+  viewer:{n:'Família', d:'Accés limitat', perms:['Consultar peces i fotografies, també la ubicació i la propietat.','Cercar, filtrar i marcar preferides.','Llegir històries i proposar-ne de noves (les aprova l\'editor).','Enviar suggeriments.','No pot crear, editar ni eliminar peces, ni accedir a l\'administració.']},
+  guest:{n:'Catàleg', d:'Només lectura', perms:['Consultar el catàleg públic: fotos, títols, dates, tècnica i història.','Cercar, filtrar i veure fitxes i codis QR.','Sense ubicació, propietat ni observacions.','Sense permís per modificar res ni proposar històries.']}
+};
+function curProfile(){ return role === 'editor' ? 'editor' : role === 'viewer' ? 'viewer' : role === 'guest' ? 'guest' : null; }
+function renderSess(){
+  const b = $('sessBtn'), p = curProfile();
+  b.className = 'sess ' + (p || 'none');
+  const lab = p ? SESS[p].n + ' · ' + SESS[p].d : 'Sessió no identificada';
+  b.innerHTML = (p ? SESS_IC[p] : '') + '<span>' + esc(lab) + '</span>';
+  b.title = lab;
+  if(sessMenu && !sessMenu.hidden) buildSessMenu();
+}
+function buildSessMenu(){
+  const cur = curProfile();
+  sessMenu.innerHTML = ['editor','viewer','guest'].map(k=>'<div class="sessopt"><button type="button" role="menuitemradio" aria-checked="'+(k===cur)+'" class="sessgo'+(k===cur?' on':'')+'" data-p="'+k+'">'+
+    '<span class="sico">'+SESS_IC[k]+'</span><span class="sbox"><b>'+SESS[k].n+'</b><i>'+SESS[k].d+'</i></span>'+(k===cur?'<em>Sessió activa</em>':'')+'</button>'+
+    '<details class="sessinfo"><summary>Què pot fer</summary><ul>'+SESS[k].perms.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></details></div>').join('');
+}
+function closeSessMenu(){ if(sessMenu) sessMenu.hidden = true; $('sessBtn').setAttribute('aria-expanded','false'); }
+function openSessMenu(){
+  if(!sessMenu){
+    sessMenu = document.createElement('div'); sessMenu.className = 'sessmenu'; sessMenu.hidden = true; sessMenu.setAttribute('role','menu');
+    document.body.appendChild(sessMenu);
+    sessMenu.addEventListener('click', e=>{ const g = e.target.closest('.sessgo'); if(g){ closeSessMenu(); switchProfile(g.dataset.p); } });
+  }
+  buildSessMenu();
+  const r = $('sessBtn').getBoundingClientRect(), w = Math.min(360, window.innerWidth - 16);
+  sessMenu.style.width = w + 'px'; sessMenu.style.top = (r.bottom + 6) + 'px';
+  sessMenu.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+  sessMenu.hidden = false; $('sessBtn').setAttribute('aria-expanded','true');
+}
+$('sessBtn').addEventListener('click', e=>{ e.stopPropagation(); (sessMenu && !sessMenu.hidden) ? closeSessMenu() : openSessMenu(); });
+document.addEventListener('click', e=>{ if(sessMenu && !sessMenu.hidden && !sessMenu.contains(e.target)) closeSessMenu(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeSessMenu(); });
+window.addEventListener('resize', closeSessMenu);
+function applyPending(){
+  const k = pendingSwitch; pendingSwitch = null;
+  if(k === 'editor') $('editorBtn').click(); else if(k === 'viewer') $('readerBtn').click(); else if(k === 'guest') $('guestBtn').click();
+}
+function switchProfile(kind){
+  if(!FB || kind === curProfile()) return;
+  if(sheet.classList.contains('on') && (mode === 'edit' || mode === 'new' || mode === 'bulk') &&
+     !confirm('Hi ha canvis sense desar. Si canvies de sessió es perdran. Vols continuar?')) return;
+  if(location.hash){ try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }
+  pendingSwitch = kind;
+  if(guest){   // el visitant no té compte: només cal netejar l'estat local
+    guest = false; role = null; userName = ''; stopData(); close();
+    selMode = false; selected.clear(); document.body.classList.remove('sel');
+    document.body.classList.add('noauth'); document.body.classList.remove('ro','guest');
+    render(); updateSession(); applyPending();
+    return;
+  }
+  // amb compte: es tanca la sessió de Firebase; onAuthStateChanged buida les dades i obre l'accés triat
+  Promise.resolve(FB.signOut(FB.auth)).catch(()=>{ pendingSwitch = null; toast('No s\'ha pogut tancar la sessió'); });
+}
 window.addEventListener('hashchange', handleHash);
 window.addEventListener('online', ()=>{ if(role) setSync('wait','Reconnectant…'); });
 window.addEventListener('offline', ()=>{ if(role) setSync('off','Sense connexió: els canvis es sincronitzaran més tard.'); });
