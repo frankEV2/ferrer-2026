@@ -1596,7 +1596,7 @@ function toggleFav(n){
 }
 function bindCards(root){
   Array.prototype.forEach.call(root.querySelectorAll('button.qrb'), h=>{
-    h.addEventListener('click', e=>{ e.stopPropagation(); toggleQR(parseInt(h.dataset.n,10)); });
+    h.addEventListener('click', e=>{ e.stopPropagation(); const n = parseInt(h.dataset.n,10); if(h.dataset.open) openQR(n); else toggleQR(n); });
   });
   Array.prototype.forEach.call(root.querySelectorAll('.fav'), h=>{
     h.addEventListener('click', e=>{ e.stopPropagation(); toggleFav(parseInt(h.dataset.n,10)); });
@@ -1615,7 +1615,7 @@ const QRICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" wi
 function qrBtn(p){
   const on = hasQR(p);
   if(role === 'editor') return '<button type="button" class="qrb'+(on?' on':'')+'" data-n="'+p.n+'" aria-pressed="'+on+'" aria-label="'+(on?'Desmarca l\'etiqueta QR':'Marca l\'etiqueta QR com a assignada')+'" title="'+(on?'Etiqueta QR assignada':'Sense etiqueta QR')+'">'+QRICON+'</button>';
-  return on ? '<span class="qrb on" title="Etiqueta QR assignada">'+QRICON+'</span>' : '';
+  return '<button type="button" class="qrb'+(on?' on':'')+'" data-n="'+p.n+'" data-open="1" aria-label="Mostra el codi QR" title="Codi QR">'+QRICON+'</button>';
 }
 function toggleQR(n){
   const p = find(n);
