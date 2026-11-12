@@ -2090,9 +2090,9 @@ function openQR(n){
     '<h3 class="dtitle'+((p.titol||'').trim()?'':' untitled')+'">'+(esc((p.titol||'').trim())||'Sense títol')+'</h3>'+
     '<p class="qrurl">'+esc(url)+'</p></div>'+
     '<div class="navrow"><button id="qrPrint">Imprimir etiqueta</button><button id="qrPng">Descarregar PNG</button></div>'+
-    (role==='editor'?'<div class="navrow"><button id="qrMark">'+(hasQR(p)?'✓ Etiqueta QR assignada (desmarca)':'Marca l\'etiqueta QR com a assignada')+'</button></div>':'')+
+    '<div class="navrow"><label style="display:flex;align-items:center;gap:10px;width:100%;justify-content:center;font-weight:600;color:'+(hasQR(p)?'var(--moss)':'var(--ink-2)')+'"><input type="checkbox" id="qrMark"'+(hasQR(p)?' checked':'')+(role==='editor'?'':' disabled')+' style="width:20px;height:20px;accent-color:var(--moss)">QR generat <span>'+(hasQR(p)?'✓ Generat':'Pendent')+'</span></label></div>'+
     '<div class="navrow"><button id="qrBack">Tornar a la fitxa</button></div>';
-  if($('qrMark')) $('qrMark').addEventListener('click', ()=>{ toggleQR(n); openQR(n); });
+  $('qrMark').addEventListener('change', ()=>{ toggleQR(n); openQR(n); });
   $('qrPrint').addEventListener('click', ()=>printLabels([p], true));
   $('qrPng').addEventListener('click', ()=>qrPng(url, blob=>saveBlob('qr-escultura-'+n+'.png', blob)));
   $('qrBack').addEventListener('click', ()=>open(n,'view'));
