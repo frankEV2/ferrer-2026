@@ -6,41 +6,56 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Fitxa d'escultura</title>
 <link rel="icon" type="image/png" href="icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Schibsted+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#F1ECE3;--card:#FBF8F3;--ink:#1D1A17;--ink-2:#6B6359;--rule:#D9D0C0;--iron:#2A2825;--ember:#C4571B;--shadow:0 6px 18px -8px rgba(35,32,25,.25)}
-@media(prefers-color-scheme:dark){:root{--paper:#141210;--card:#1E1B18;--ink:#F1EBE0;--ink-2:#A39A8B;--rule:#38332C;--iron:#E39A55;--ember:#F0A35C}}
+/* Redisseny «Sala del taller»: mateixa estètica que el catàleg */
+:root{--paper:#F2EFEA;--paper-2:#E8E3DB;--card:#FBFAF7;--ink:#1A1815;--ink-2:#6A635A;--rule:#DED7CC;--iron:#1F1D1A;--ember:#B04E1C;
+ --serif:'Fraunces',Georgia,serif;--sans:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--ease:cubic-bezier(.23,1,.32,1)}
+@media(prefers-color-scheme:dark){:root{--paper:#121110;--paper-2:#0C0B0A;--card:#1A1917;--ink:#EDE7DC;--ink-2:#A39B8E;--rule:#2D2A26;--iron:#E3884A;--ember:#E8935A}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif;-webkit-font-smoothing:antialiased;
- padding:calc(16px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom))}
-main{max-width:520px;margin:0 auto;animation:in .5s ease both}
-@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.hero{border-radius:18px;overflow:hidden;background:var(--card);border:1px solid var(--rule);box-shadow:var(--shadow);min-height:120px;display:flex;align-items:center;justify-content:center}
-.hero img{width:100%;display:block}
-.none{color:var(--ink-2);font-size:.9rem;padding:40px 0}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+ padding:calc(20px + env(safe-area-inset-top)) 20px calc(32px + env(safe-area-inset-bottom))}
+main{max-width:1120px;margin:0 auto;animation:in .4s var(--ease) both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{border-radius:4px;overflow:hidden;background:var(--paper-2);min-height:120px;display:flex;align-items:center;justify-content:center}
+.hero img{width:100%;display:block;max-height:78vh;object-fit:contain}
+.none{color:var(--ink-2);font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;padding:60px 0}
 .strip{display:flex;gap:8px;overflow-x:auto;margin:10px 0 0;padding:2px 1px;scrollbar-width:none}
 .strip::-webkit-scrollbar{display:none}
-.strip button{flex:0 0 auto;width:64px;height:64px;border-radius:12px;overflow:hidden;border:2px solid transparent;padding:0;background:var(--card);opacity:.7;cursor:pointer}
-.strip button.on{border-color:var(--ember);opacity:1}
+.strip button{flex:0 0 auto;width:60px;height:60px;border-radius:4px;overflow:hidden;border:1.5px solid transparent;padding:0;background:var(--paper-2);opacity:.7;cursor:pointer;transition:opacity .2s,border-color .2s}
+.strip button.on{border-color:var(--ink);opacity:1}
 .strip img{width:100%;height:100%;object-fit:cover;display:block}
-.num{margin:18px 2px 2px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
-h1{font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:2.4rem;line-height:1;margin:0 2px 14px}
-.row{display:flex;justify-content:space-between;gap:16px;padding:11px 2px;border-top:1px solid var(--rule);font-size:.93rem}
-.k{color:var(--ink-2);flex:0 0 42%}.v{text-align:right;flex:1}.v.e{color:var(--ink-2)}
-.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.acts a,.acts button{flex:1 1 auto;text-align:center;text-decoration:none;padding:11px 16px;border-radius:99px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:.85rem;cursor:pointer;font-family:inherit}
+.num{margin:26px 0 8px;font-family:var(--mono);font-weight:500;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ember)}
+h1{font-family:var(--serif);font-weight:400;letter-spacing:-.025em;font-size:clamp(2.2rem,7vw,3.2rem);line-height:1.02;margin:0 0 22px}
+h1::first-letter{text-transform:uppercase}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:12px 0;border-top:1px solid var(--rule);font-size:.92rem}
+.k{color:var(--ink-2);font-size:.82rem;flex:0 0 42%}.v{text-align:right;flex:1}.v.e{color:var(--ink-2)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;border-top:1px solid var(--rule);padding-top:18px}
+.acts a,.acts button{flex:1 1 auto;text-align:center;text-decoration:none;padding:12px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:.88rem;font-weight:500;cursor:pointer;font-family:inherit;transition:transform .16s var(--ease)}
+.acts a:active,.acts button:active{transform:scale(.97)}
 .acts .main{background:var(--iron);color:var(--paper);border-color:var(--iron)}
 .media{margin-top:16px}
 .media audio{width:100%}
-.media .vid{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
+.media .vid{position:relative;aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:#000}
 .media iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-.desc{margin:24px 2px 0;font-size:1rem;line-height:1.65;white-space:pre-wrap}
-.desc h2{font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif;text-transform:uppercase;letter-spacing:.03em;font-weight:700;font-size:1.5rem;margin:0 0 8px;color:var(--ember)}
-.notes{margin-top:14px;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 14px;font-size:.92rem;line-height:1.5;white-space:pre-wrap}
-.notes span{display:block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
-.msg{text-align:center;color:var(--ink-2);padding:60px 10px}
-.back{display:inline-block;margin:0 0 12px;padding:8px 16px;border-radius:99px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-size:.82rem;cursor:pointer}
-.foot{text-align:center;color:var(--ink-2);font-size:.72rem;margin-top:26px}
+.desc{margin:34px 0 0;font-family:var(--serif);font-size:1.08rem;line-height:1.7;white-space:pre-wrap}
+.desc h2{font-family:var(--mono);font-weight:500;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;margin:0 0 10px;color:var(--ink)}
+.notes{margin-top:16px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:12px 14px;font-size:.92rem;line-height:1.5;white-space:pre-wrap}
+.notes span{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:4px}
+.msg{text-align:center;color:var(--ink-2);font-family:var(--serif);font-size:1.2rem;padding:80px 10px}
+.back{display:inline-block;margin:0 0 14px;padding:9px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font-family:inherit;font-size:.84rem;font-weight:500;cursor:pointer}
+.foot{text-align:center;color:var(--ink-2);font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;margin-top:40px}
+@media(min-width:900px){
+ main{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,1fr);column-gap:56px;align-items:start}
+ main>*{grid-column:2;min-width:0}
+ main>.back{grid-column:1/-1;justify-self:start}
+ main>.hero{grid-column:1;grid-row:1/span 40;position:sticky;top:24px;min-height:70vh}
+ main:has(>.back)>.hero{grid-row:2/span 40}
+ main>.strip{margin:0 0 10px}
+ main>.num{margin-top:0}
+ main>.foot,main>.msg{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){main{animation:none}}
 </style></head><body>
 <main id="m"><p class="msg">Carregant…</p></main>
 <script>
