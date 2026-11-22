@@ -560,3 +560,80 @@ main{padding-top:40px}
 .lmark svg{fill:var(--ink)}
 .lbox h1{font-weight:300;font-size:2.8rem}
 .au-body h2{font-size:clamp(2.8rem,8vw,4.6rem)}
+
+/* =====================================================================
+   FASE 3: portada amb accessos, icona, carrusel amb fletxes i «Totes les obres»
+   ===================================================================== */
+/* icona */
+.bmark{padding:0;overflow:hidden;border:none}
+.bmark img,.lmark img{width:100%;height:100%;display:block}
+.lmark{width:76px;height:76px;border-radius:18px;overflow:hidden;border:none;box-shadow:0 20px 40px -20px rgba(0,0,0,.8)}
+.cv-mark{width:56px;height:56px;border-radius:14px;margin-bottom:18px;box-shadow:0 16px 30px -14px rgba(0,0,0,.8);animation:rise .9s var(--ease) both}
+
+/* portada: tres accessos */
+.cv-access{display:grid;grid-template-columns:1fr;gap:8px;width:100%;max-width:340px;margin:4px 0 0;animation:rise .9s var(--ease) .5s both}
+.cv-acc{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:15px 18px;border-radius:6px;border:1px solid rgba(239,232,220,.28);
+  background:rgba(13,12,10,.42);color:#EFE8DC;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;text-align:left;
+  transition:transform .16s var(--ease),background-color .25s,border-color .25s}
+.cv-acc b{font-weight:600;font-size:.98rem}
+.cv-acc span{font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.cv-acc.main{background:#EFE8DC;color:#0D0C0A;border-color:#EFE8DC}
+.cv-acc:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){.cv-acc:not(.main):hover{background:rgba(13,12,10,.7);border-color:rgba(239,232,220,.6)}.cv-acc.main:hover{background:#fff}}
+.cv-author{margin-top:18px;display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;border:none;background:none;padding:6px 0;text-align:left;
+  -webkit-backdrop-filter:none;backdrop-filter:none;font-size:.82rem;opacity:.85}
+.cv-world{font-family:var(--serif);font-weight:300;font-size:1.35rem;letter-spacing:-.02em;color:#E8C2A8}
+@media (hover:hover) and (pointer:fine){.cv-author:hover{opacity:1}.cv-author:hover .cv-world{text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px}}
+@media (min-width:700px){.cv-access{grid-template-columns:repeat(3,1fr);max-width:640px}.cv-acc{flex-direction:column;gap:4px;align-items:flex-start}}
+@media (max-width:899px){.cv-inner{align-items:stretch;text-align:left}.cv-mark{align-self:flex-start}.cv-sub{max-width:none}}
+
+/* accés: fotografia de fons, cinematogràfic */
+.login{background:#0D0C0A url("portada.jpg") 62% 30%/cover no-repeat}
+.login::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,12,10,.55),rgba(13,12,10,.92) 70%)}
+.lbox{position:relative;color:#EFE8DC}
+.lsub,.lnote{color:rgba(239,232,220,.7)}
+.lchoice .save{background:#EFE8DC;color:#0D0C0A}
+.lchoice .save.ghost{background:rgba(13,12,10,.4);color:#EFE8DC;border-color:rgba(239,232,220,.3)}
+.lbox input{background:rgba(13,12,10,.6);color:#EFE8DC;border-color:rgba(239,232,220,.3)}
+.authorlink,.lback{color:#EFE8DC;border-color:rgba(239,232,220,.3)}
+:root[data-theme="light"] .lbox h1{color:#EFE8DC}
+
+/* obres destacades: fletxes */
+.featwrap{position:relative}
+.fnav{position:absolute;top:50%;z-index:3;width:52px;height:52px;margin-top:-26px;border-radius:50%;border:1px solid rgba(239,232,220,.35);
+  background:rgba(13,12,10,.5);color:#EFE8DC;display:grid;place-items:center;cursor:pointer;padding:0;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:opacity .25s var(--ease),transform .16s var(--ease),background-color .2s}
+.fnav svg{width:22px;height:22px}
+.fprev{left:max(calc(var(--gutter) - 26px),8px)}.fnext{right:max(calc(var(--gutter) - 26px),8px)}
+.fnav:active{transform:scale(.94)}
+.fnav:disabled{opacity:0;pointer-events:none}
+.featwrap.single .fnav{display:none}
+@media (hover:hover) and (pointer:fine){.fnav:hover{background:rgba(13,12,10,.8)}}
+.featrow{scroll-behavior:smooth}
+.featrow:focus-visible{outline:2px solid var(--clay);outline-offset:4px}
+@media (max-width:600px){.fnav{width:42px;height:42px;margin-top:-21px}}
+
+/* «Totes les obres» */
+.allsec{margin:20px 0 34px}
+.allhead{display:flex;align-items:baseline;gap:16px;margin:0 0 22px}
+.allhead h2{font-family:var(--serif);font-weight:300;letter-spacing:-.03em;font-size:clamp(2.2rem,6vw,4.6rem);line-height:.95}
+.allcount{font-family:var(--mono);font-size:.72rem;color:var(--clay)}
+.mfilters{display:grid;gap:14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:4px 0 14px}
+.mf-row .navrow2,.mf-row .cats{margin:0}
+.mf-row .cats{border:none}
+.mf-sel{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.mf>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.mf{position:relative;display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.mf[hidden]{display:none}
+.mf select{appearance:none;-webkit-appearance:none;font-family:var(--sans);font-size:.86rem;letter-spacing:0;text-transform:none;color:var(--ink);
+  background:transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239A9184' stroke-width='2.4' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+  border:1px solid var(--rule);border-radius:6px;padding:8px 30px 8px 12px;max-width:220px;cursor:pointer;transition:border-color .2s}
+.mf select option{background:var(--card);color:var(--ink)}
+@media (hover:hover) and (pointer:fine){.mf select:hover{border-color:var(--ink-2)}}
+.mf-2 select{opacity:.85}
+.mfilters .fsum{margin:0}
+@media (max-width:600px){.mf{flex:1 1 calc(50% - 8px)}.mf select{flex:1;max-width:none}.mf>span{display:none}.mf select{min-width:0;width:100%}}
+/* càrrega progressiva: el navegador no pinta les targetes fora de pantalla */
+.grid .card{content-visibility:auto;contain-intrinsic-size:auto 520px}
+.grid.v-list .card,.grid.v-det .card{contain-intrinsic-size:auto 80px}
+.grid.v-s .card{contain-intrinsic-size:auto 120px}

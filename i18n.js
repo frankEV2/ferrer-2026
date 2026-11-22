@@ -8,6 +8,7 @@ if(!window.Prefs || window.Prefs.get().lang !== 'es') return;
 
 var D = {
 // portada i accés
+"El món del ferrer":"El mundo del herrero","Totes les obres":"Todas las obras","Dècada":"Década","Família":"Familia","Catàleg":"Catálogo","Editor":"Editor","Obra anterior":"Obra anterior","Obra següent":"Obra siguiente","Conservació":"Conservación","Ubicació":"Ubicación","Sèrie":"Serie","Dècada: totes":"Década: todas","Sèrie: totes":"Serie: todas","Ubicació: totes":"Ubicación: todas","Conservació: totes":"Conservación: todas",
 "Accedir al catàleg":"Acceder al catálogo","Biografia de l'autor":"Biografía del autor","Accés privat":"Acceso privado",
 "Catàleg de l'obra escultòrica en ferro i acer. Vila-seca, 1949.":"Catálogo de la obra escultórica en hierro y acero. Vila-seca, 1949.",
 "Les peces":"Las piezas","del ferrer":"del herrero","Les peces del ferrer":"Las piezas del herrero",

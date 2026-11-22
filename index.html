@@ -15,6 +15,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Escultures">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
 
 <script src="forja.js"></script>
@@ -1060,11 +1061,17 @@ span.qcst{cursor:default}
   <div class="cv-video" id="cvVideo" aria-hidden="true"></div>
   <div class="cv-shade"></div>
   <div class="cv-inner">
+    <img class="cv-mark" src="icons/icon.svg" alt="" width="56" height="56">
     <p class="cv-eyebrow">Antoni Mas Castelltort</p>
     <h1 class="cv-title">Les peces<br>del ferrer</h1>
     <p class="cv-sub">Catàleg de l'obra escultòrica en ferro i acer. Vila-seca, 1949.</p>
-    <button class="cv-btn" id="coverBtn">Accedir al catàleg</button>
-    <button type="button" class="cv-author" data-author>Biografia de l'autor</button>
+    <button class="cv-btn" id="coverBtn" hidden>Accedir al catàleg</button>
+    <div class="cv-access" role="group" aria-label="Tipus d'accés">
+      <button type="button" class="cv-acc main" data-acc="guestBtn"><b>Catàleg</b><span>Veure el catàleg</span></button>
+      <button type="button" class="cv-acc" data-acc="readerBtn"><b>Accés de lectura</b><span>Família</span></button>
+      <button type="button" class="cv-acc" data-acc="editorBtn"><b>Editor</b><span>Accés d'editor</span></button>
+    </div>
+    <button type="button" class="cv-author" data-author><span class="cv-world">El món del ferrer</span> Biografia de l'autor</button>
   </div>
 </div>
 
@@ -1072,7 +1079,7 @@ span.qcst{cursor:default}
 
 <div class="login loading" id="login">
   <div class="lbox">
-    <div class="lmark"><svg viewBox="0 0 24 24" fill="#EFEBE1"><circle cx="12" cy="6.2" r="3.3"/><path d="M7.4 11.4h9.2l2.1 8.4H5.3z"/><rect x="4.4" y="20.2" width="15.2" height="1.6" rx=".4"/></svg></div>
+    <div class="lmark"><img src="icons/icon.svg" alt="" width="64" height="64"></div>
     <h1>Les peces del ferrer</h1>
     <p class="lsub">Seleccioneu el tipus d'accés</p>
     <div class="lchoice" id="lchoice">
@@ -1102,7 +1109,7 @@ span.qcst{cursor:default}
 <header>
   <div class="hrow">
     <div class="brand">
-      <span class="bmark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 21h20l-2.4 3.2H8.4z" fill="currentColor" opacity=".9"/><path d="M4 17.5c0-1 .8-1.8 1.8-1.8h17.6c2.7 0 4.6 1 4.6 1v1.6s-1.9 1.2-4.6 1.2H11.5L9.6 21H6.4z" fill="currentColor"/><rect x="13" y="24" width="6" height="3" rx=".6" fill="currentColor" opacity=".75"/><g class="bm-h"><rect x="16.6" y="3.2" width="2.2" height="10" rx="1.1" transform="rotate(32 17.7 8.2)" fill="currentColor" opacity=".55"/><rect x="18.4" y="1.6" width="7.4" height="3.8" rx="1" transform="rotate(32 22.1 3.5)" fill="currentColor"/></g><circle class="bm-s" cx="15.2" cy="13.6" r=".9"/><circle class="bm-s" cx="12.6" cy="12.4" r=".6"/></svg></span>
+      <span class="bmark"><img src="icons/icon.svg" alt="" width="40" height="40"></span>
       <div class="btxt">
         <p class="beyebrow">Antoni Mas Castelltort · Catàleg</p>
         <h1>Les peces del ferrer<span class="dot" id="dot" role="img" aria-label="Estat de sincronització"></span></h1>
@@ -1165,6 +1172,10 @@ span.qcst{cursor:default}
 <main>
   <section class="feat" id="featSec" hidden aria-labelledby="featH"><div class="feathead"><h2 id="featH">Obres destacades</h2><span class="featn" id="featCount"></span></div><div class="featrow" id="featRow"></div></section>
   <section class="favsec" id="favSec" hidden><h2>❤️ Preferides <i id="favCount"></i></h2><div class="favrow" id="favRow"></div></section>
+  <section class="allsec" id="allSec" aria-labelledby="allH">
+    <div class="allhead"><h2 id="allH">Totes les obres</h2><span class="allcount" id="allCount"></span></div>
+    <div class="mfilters" id="mFilters"></div>
+  </section>
   <p class="rescount" id="resCount" aria-live="polite" hidden></p>
   <div class="grid" id="grid"></div>
   <div class="footer">
@@ -1537,6 +1548,7 @@ function pieceUrl(n){ return location.origin + location.pathname.replace(/index\
 function who(){ return userName || (role==='editor' ? 'Editor' : 'Lectura'); }
 
 const grid = $('grid'), prog = $('prog'), q = $('q'), filt = $('filt');
+window.FerrerUI = {all: ()=>listAll().map(p=>({n:p.n, any:p.any, tipus:p.tipus, serie:p.serie, estat:p.estat, ubic:p.ubic}))};   // només lectura, per a museu.js
 const scrim = $('scrim'), sheet = $('sheet'), sbody = $('sbody');
 const sheetTitle = $('sheetTitle'), editBtn = $('editBtn');
 const dot = $('dot'), syncNote = $('syncNote'), sessionNote = $('sessionNote');
@@ -1746,7 +1758,7 @@ function renderFeat(list, filtering){
 }
 function cardHtml(p,i){
     const src = photo(p), t = (p.titol||'').trim(), fv = favs.has(p.n);
-    const meta = [p.serie, p.any].filter(Boolean).join(' · ');
+    const meta = [p.any, p.tipus, guest ? '' : p.ubic].filter(Boolean).join(' · ');
     return '<div class="card'+(selected.has(p.n)?' picked':'')+'" role="button" tabindex="0" style="--i:'+Math.min(i,14)+'" data-n="'+p.n+'">'+
       '<div class="thumb'+(qrBtn(p)?' hq':'')+'">'+(src?'<img loading="lazy" src="'+esc(src)+'" alt="">':'<span class="none">Sense foto</span>')+
       '<span class="num">'+p.n+'</span><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7"/></svg></span>'+
@@ -4586,4 +4598,5 @@ render();
   box.addEventListener('click', e=>{ const b = e.target.closest('button[data-i]'); if(b && window.Forja) window.Forja.viewer(list[+b.dataset.i], list); });
   sec.hidden = false;
 })();
-</script></body></html>
+</script>
+<script src="museu.js"></script></body></html>
