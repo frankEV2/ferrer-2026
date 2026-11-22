@@ -9,40 +9,35 @@
    als accents.
    ===================================================================== */
 
-/* ---------- 1. Tokens ---------- */
-:root{
-  --paper:#F2EFEA; --paper-2:#E8E3DB; --card:#FBFAF7;
-  --ink:#1A1815; --ink-2:#6A635A; --rule:#DED7CC;
-  --moss:#1F1D1A; --moss-2:#47423C;          /* ferro: botons principals */
-  --clay:#B04E1C;                            /* brasa: accent */
-  --alert:#A3361C;
-  --mat:#EEECE8;                             /* paspartú de les fotos (clar també en fosc) */
-  --mat-ink:#5E584F;
+/* ---------- 1. Tokens: museu fosc (SCULTURA) ---------- */
+:root,:root:not([data-theme="light"]),:root[data-theme="dark"]{
+  --paper:#0D0C0A; --paper-2:#070706; --card:#151311;
+  --ink:#EFE8DC; --ink-2:#9A9184; --rule:rgba(239,232,220,.12);
+  --moss:#EFE8DC; --moss-2:#CFC6B8;          /* botons principals: marfil sobre negre */
+  --clay:#C9693F;                            /* terracota */
+  --alert:#E2795E;
+  --mat:#121110; --mat-ink:#8E867A;
   --serif:'Fraunces',Georgia,'Times New Roman',serif;
   --sans:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
   --display:var(--serif);
-  --r:10px; --r-sm:8px; --r-img:4px;
-  --ease:cubic-bezier(.23,1,.32,1);          /* ease-out fort */
+  --r:6px; --r-sm:6px; --r-img:2px;
+  --ease:cubic-bezier(.23,1,.32,1);
   --ease-io:cubic-bezier(.77,0,.175,1);
-  --spring:cubic-bezier(.32,.72,0,1);        /* calaix */
-  --shadow:0 1px 2px rgba(26,24,21,.05),0 8px 24px -12px rgba(26,24,21,.22);
-  --gutter:clamp(16px,4vw,48px);
-  --maxw:1320px;
+  --spring:cubic-bezier(.32,.72,0,1);
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 20px 50px -24px rgba(0,0,0,.9);
+  --gutter:clamp(18px,5vw,72px);
+  --maxw:1480px;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#121110; --paper-2:#0C0B0A; --card:#1A1917;
-  --ink:#EDE7DC; --ink-2:#A39B8E; --rule:#2D2A26;
-  --moss:#E3884A; --moss-2:#C9723A; --clay:#E8935A; --alert:#E5846A;
-  --mat:#DAD7D1; --mat-ink:#57514A;
-  --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 28px -12px rgba(0,0,0,.7);
-}}
-:root[data-theme="dark"]{
-  --paper:#121110; --paper-2:#0C0B0A; --card:#1A1917;
-  --ink:#EDE7DC; --ink-2:#A39B8E; --rule:#2D2A26;
-  --moss:#E3884A; --moss-2:#C9723A; --clay:#E8935A; --alert:#E5846A;
-  --mat:#DAD7D1; --mat-ink:#57514A;
-  --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 28px -12px rgba(0,0,0,.7);
+/* tema clar només si es tria expressament a Preferències: marfil i gres */
+:root[data-theme="light"]{
+  --paper:#EEE8DD; --paper-2:#E3DBCD; --card:#F7F3EC;
+  --ink:#1B1814; --ink-2:#6E655A; --rule:rgba(27,24,20,.14);
+  --moss:#1B1814; --moss-2:#3E3832; --clay:#A9532E; --alert:#A3361C;
+  --mat:#E3DBCD; --mat-ink:#6E655A;
+  --shadow:0 1px 2px rgba(27,24,20,.06),0 18px 40px -24px rgba(27,24,20,.35);
+  color-scheme:light;
 }
 
 /* ---------- 2. Base ---------- */
@@ -450,3 +445,118 @@ main{max-width:var(--maxw);padding:28px max(calc(env(safe-area-inset-right) + 16
 @media (prefers-reduced-motion:reduce){
   .card:hover .thumb img,.fcard:hover img{transform:none}
 }
+
+/* =====================================================================
+   CAPA «MUSEU IMMERSIU» (referència: SCULTURA – The Museum of Eternity)
+   Fons foscos, fotografies grans, tipografia monumental i revelacions
+   en desplaçar-se, només amb CSS (animation-timeline). Sense dependències.
+   ===================================================================== */
+body{background:var(--paper)}
+:root:not([data-theme="light"]) body{background:radial-gradient(120% 70% at 50% -10%,#1B1815 0%,var(--paper) 55%) fixed}
+
+/* capçalera: vidre fosc, línia mínima */
+header{background:color-mix(in srgb,var(--paper) 72%,transparent);border-bottom-color:var(--rule)}
+.bmark{background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:50%}
+.tools input,.viewbtn{background-color:color-mix(in srgb,var(--card) 70%,transparent);border-color:var(--rule);color:var(--ink)}
+.chip,.ftag{background:transparent;border-color:var(--rule)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.adv,.viewmenu,.sessmenu{background:var(--card)}
+.advgrid select,.advgrid input{background:var(--paper);color:var(--ink);border-color:var(--rule)}
+
+/* títols de secció monumentals */
+.feathead{align-items:baseline;margin:8px 0 26px}
+.feathead h2{font-family:var(--serif);font-weight:300;text-transform:none;letter-spacing:-.03em;font-size:clamp(2.2rem,6vw,4.6rem);line-height:.95;color:var(--ink)}
+.featn{font-family:var(--mono);color:var(--clay)}
+
+/* obres destacades: galeria horitzontal a pantalla completa */
+.feat{margin:0 calc(-1 * max(var(--gutter),16px)) 80px;padding:0}
+.feathead{padding:0 max(var(--gutter),16px)}
+.featrow{grid-auto-columns:min(86vw,1100px);gap:clamp(12px,2vw,28px);padding:0 max(var(--gutter),16px) 6px;scroll-padding:0 max(var(--gutter),16px);scroll-snap-type:x mandatory}
+.fcard{aspect-ratio:auto;height:min(78vh,760px);border-radius:var(--r-img);background:#000}
+.fcard img{filter:brightness(.82) contrast(1.06);transition:transform 1.2s var(--ease),filter .6s var(--ease)}
+.fshade{background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 50%,rgba(0,0,0,.8) 100%)}
+.ftxt{left:clamp(20px,4vw,56px);right:clamp(20px,4vw,56px);bottom:clamp(56px,8vh,90px)}
+.ftxt b{font-weight:300;font-size:clamp(2.4rem,6.4vw,5.6rem);line-height:.92;letter-spacing:-.035em}
+.ftxt i{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#E8C2A8;opacity:1}
+.fgo{left:clamp(20px,4vw,56px);bottom:clamp(22px,4vh,40px);color:#EFE8DC}
+@media (hover:hover) and (pointer:fine){.fcard:hover{transform:none}.fcard:hover img{transform:scale(1.025);filter:brightness(.95) contrast(1.04)}}
+@media (max-width:600px){.featrow{grid-auto-columns:86vw}.fcard{height:68vh}}
+
+/* galeria: obres grans, il·luminades com en una sala fosca */
+main{padding-top:40px}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:44px 14px}
+@media (min-width:700px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:72px clamp(18px,2.4vw,40px)}}
+@media (min-width:1240px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.card .thumb{aspect-ratio:4/5;background:var(--mat);border-radius:var(--r-img)}
+.thumb img{filter:brightness(.8) contrast(1.08) saturate(.92);transition:transform 1s var(--ease),filter .5s var(--ease)}
+.card .cbody{padding:18px 0 0}
+.card .ctitle,.grid .card:nth-child(6n+1) .ctitle{font-weight:300;font-size:clamp(1.15rem,1.9vw,1.7rem);letter-spacing:-.025em;line-height:1.08}
+.card .cmeta{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;margin-top:8px}
+.num{color:rgba(239,232,220,.85);font-size:.64rem;letter-spacing:.14em;top:14px;left:14px;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.fav,.qrb{background:rgba(13,12,10,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:none}
+.fav svg,.qrb svg{stroke:#EFE8DC}
+.qrb.on{background:#EFE8DC}.qrb.on svg{stroke:#0D0C0A}
+@media (hover:hover) and (pointer:fine){
+  .card:hover .thumb{box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
+  .card:hover .thumb img{transform:scale(1.035);filter:brightness(1) contrast(1.04) saturate(1)}
+  .card:hover .ctitle{color:var(--ink)}
+  .card:hover .cmeta{color:var(--clay)}
+}
+.grid.v-xl{grid-template-columns:1fr}
+.grid.v-xl .card .thumb{aspect-ratio:16/10}
+.grid.v-xl .card .ctitle{font-size:clamp(2rem,5vw,3.6rem)}
+.grid.v-m .card .ctitle,.grid.v-m .card:nth-child(6n+1) .ctitle{font-size:.95rem}
+.grid.v-list .card .ctitle,.grid.v-det .card .ctitle,.grid.v-list .card:nth-child(6n+1) .ctitle{font-size:1.15rem}
+.grid.v-list .card .cmeta,.grid.v-det .card .cmeta{letter-spacing:.08em}
+
+/* revelació cinematogràfica en desplaçar-se (CSS natiu; sense suport = estàtic) */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .grid .card,.grid.animate .card{animation:reveal linear both;animation-timeline:view();animation-range:entry 0% entry 55%;animation-delay:0s}
+    .grid .card .thumb img,.grid.animate .thumb img{animation:drift linear both;animation-timeline:view();animation-range:cover;animation-delay:0s;scale:1.12}
+    .grid.v-list .card,.grid.v-det .card,.grid.v-s .card,.grid.v-list .thumb img,.grid.v-det .thumb img,.grid.v-s .thumb img{animation:none;scale:1}
+    .feat,.favsec,.footer{animation:fadeup linear both;animation-timeline:view();animation-range:entry 0% entry 40%}
+  }
+}
+@keyframes reveal{from{opacity:0;clip-path:inset(14% 0 0 0);transform:translateY(40px)}to{opacity:1;clip-path:inset(0);transform:none}}
+@keyframes drift{from{translate:0 -5%}to{translate:0 5%}}
+@keyframes fadeup{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+
+/* fitxa: sala a pantalla completa */
+.sheet{background:var(--paper)}
+@media (min-width:900px){
+  .sheet{left:0;right:0;top:0;bottom:0;max-width:none;border-radius:0;transform:translateY(100%)}
+  .sheet.on{transform:none}
+  .shead{padding:16px var(--gutter);background:var(--paper)}
+  .sbody{padding:0 var(--gutter) 60px 0}
+  .sbody:has(> .hero){grid-template-columns:minmax(0,1.5fr) minmax(340px,1fr);column-gap:clamp(40px,5vw,90px)}
+  .sbody:has(> .hero) > .hero{height:calc(100vh - 66px);border-radius:0;background:#000}
+  .sbody:has(> .hero) > .dnum{margin-top:clamp(40px,8vh,90px)}
+  .sbody:has(> .photozone),.sbody:has(> .bulknote){padding:30px var(--gutter) 60px}
+  .sbody:not(:has(> .hero)):not(:has(> .photozone)):not(:has(> .bulknote)){padding:30px var(--gutter) 60px;max-width:1100px;margin:0 auto;width:100%}
+}
+.hero{background:#000}
+.hero img{filter:contrast(1.04)}
+@media (max-width:899px){
+  .sbody > .hero{margin:-20px -20px 18px;width:calc(100% + 40px);max-height:none;aspect-ratio:4/5;border-radius:0}
+}
+.dtitle,.dtitle.untitled{font-weight:300;font-size:clamp(2.6rem,6vw,5rem);line-height:.95;letter-spacing:-.04em}
+.dnum{letter-spacing:.2em}
+.frow{border-bottom-color:var(--rule)}
+.frow:first-of-type{border-top-color:var(--rule)}
+.fullbtn{background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important}
+.navrow button{background:transparent}
+.gth{background:#000}
+
+/* portada: monumental */
+.cv-title{font-weight:300;font-size:clamp(3.4rem,15vw,5.2rem);letter-spacing:-.045em}
+.cv-eyebrow{color:#E8C2A8;opacity:1}
+@media (min-width:900px){.cv-title{font-size:clamp(5rem,10vw,10rem)}}
+
+/* zona d'eines i accés */
+.footer{background:transparent;border-color:var(--rule)}
+.footer button{background:transparent;border-color:var(--rule)}
+.lmark{background:transparent;border:1px solid var(--rule)}
+.lmark svg{fill:var(--ink)}
+.lbox h1{font-weight:300;font-size:2.8rem}
+.au-body h2{font-size:clamp(2.8rem,8vw,4.6rem)}
